@@ -66,6 +66,16 @@ abstract final class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       textTheme: text,
+      // Set explicitly, not left to the default. MaterialApp localizes both
+      // text themes, and CoverTheme animates from that localized theme to a
+      // fresh one: if this were left to the default, its styles would differ
+      // in `inherit` and the animation would throw on its first frame.
+      primaryTextTheme: buildTextTheme(
+        ColorScheme.fromSeed(
+          seedColor: scheme.primary,
+          brightness: ThemeData.estimateBrightnessForColor(scheme.primary),
+        ),
+      ),
       scaffoldBackgroundColor: scheme.surface,
       splashFactory: InkSparkle.splashFactory,
       appBarTheme: AppBarTheme(

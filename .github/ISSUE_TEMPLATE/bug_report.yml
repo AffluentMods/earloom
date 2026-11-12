@@ -1,0 +1,39 @@
+name: Bug report
+description: Something does not work the way it should
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Please do not paste tokens, passwords or your server address.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: app
+    attributes:
+      label: Earloom version
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and OS version
+      placeholder: Pixel 8, Android 15
+    validations:
+      required: true
+  - type: input
+    id: server
+    attributes:
+      label: Audiobookshelf server version
+      description: Shown in the app under You, About.
+  - type: textarea
+    id: details
+    attributes:
+      label: Error details
+      description: If the app showed an error with a copy button, paste the details here.
+      render: text

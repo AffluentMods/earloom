@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2026 Affluent Labs LLC
+#
+# Stops secrets from being committed. Enabled by tool/bootstrap.sh.
+set -euo pipefail
+
+# Files that must never be committed, whatever they contain.
+blocked=$(git diff --cached --name-only --diff-filter=AM \
+  | grep -E '(^|/)(\.env[^/]*|key\.properties|START-HERE\.md|HANDOFF\.md)$|\.(jks|keystore|p8|p12|mobileprovision)$|(^|/)(google-services\.json|GoogleService-Info\.plist)$' || true)
+if [[ -n "$blocked" ]]; then
+  echo "Refusing to commit secret or local-only files:"
+  echo "$blocked"
+  exit 1
+fi
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact --no-banner
+else
+  # gitleaks is not installed: fall back to the patterns that matter most
+  # here. CI runs the full gitleaks scan either way.
+  if git diff --cached -U0 | grep -E '^\+' | grep -nE 'eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,}'; then
+    echo "That looks like a token or a private key. Remove it before committing."
+    echo "(Install gitleaks for a full scan: https://github.com/gitleaks/gitleaks)"
+    exit 1
+  fi
+fi

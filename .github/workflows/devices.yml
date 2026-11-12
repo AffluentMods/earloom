@@ -41,6 +41,19 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
+      - name: Keep Gradle from holding memory the emulator needs
+        # The project lets Gradle take up to 8 GB of heap and 4 GB of
+        # metaspace, and its daemons stay alive after the build. Next to the
+        # emulator on a 16 GB runner that ran out of memory and the emulator
+        # was killed mid-test. These user-level settings win over the
+        # project's, and only apply to this job.
+        run: |
+          mkdir -p ~/.gradle
+          {
+            echo 'org.gradle.daemon=false'
+            echo 'org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g'
+            echo 'kotlin.compiler.execution.strategy=in-process'
+          } >> ~/.gradle/gradle.properties
       - run: tool/bootstrap.sh
       - uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -51,6 +64,11 @@ jobs:
           ram-size: 4096M
           disable-animations: true
           script: tool/ci/device_check_android.sh
+      - name: Memory report (on failure)
+        if: failure()
+        run: |
+          free -m
+          sudo dmesg | grep -iE 'out of memory|killed process|oom' | tail -20 || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:

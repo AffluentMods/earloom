@@ -1,0 +1,18 @@
+# Local Audiobookshelf server for development and integration tests.
+# Start:  docker compose up -d
+# Set up: dart run tool/abs-dev/setup.dart   (from the repo root)
+# Web UI: http://localhost:13378
+services:
+  abs:
+    # Pinned on purpose. Must stay at or above 2.36.0 (see docs/abs-api.md).
+    # Bump it together with the "Verified against" header in docs/abs-api.md.
+    image: ghcr.io/advplyr/audiobookshelf:2.37.2
+    container_name: abs-dev
+    ports:
+      - "13378:80"
+    volumes:
+      - ./data/config:/config
+      - ./data/metadata:/metadata
+      - ./seed/audiobooks:/audiobooks
+      - ./seed/podcasts:/podcasts
+    restart: unless-stopped

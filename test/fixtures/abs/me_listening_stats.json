@@ -1,0 +1,212 @@
+{
+  "totalTime": 847,
+  "items": {
+    "d558336e-07c1-4b2a-b011-0d23be820be7": {
+      "id": "d558336e-07c1-4b2a-b011-0d23be820be7",
+      "timeListening": 45,
+      "mediaMetadata": {
+        "title": "Kindling Sky",
+        "subtitle": null,
+        "authors": [
+          {
+            "id": "e271d8df-7aa6-43d5-8e62-5b661bf2aafa",
+            "name": "Theo Vance"
+          }
+        ],
+        "narrators": [
+          "Jonah Pryce"
+        ],
+        "series": [
+          {
+            "id": "d22d1a16-8a7a-4fef-b740-7d3e5b98f093",
+            "name": "The Example Saga",
+            "sequence": "10"
+          }
+        ],
+        "genres": [
+          "Science Fiction"
+        ],
+        "publishedYear": "2024",
+        "publishedDate": null,
+        "publisher": "Affluent Demo Press",
+        "description": "<p>Book ten. It exists to prove that 10 sorts after 2.5.</p>",
+        "isbn": null,
+        "asin": null,
+        "language": "English",
+        "explicit": false,
+        "abridged": false
+      }
+    },
+    "ceefc37b-cda1-4a26-b975-6aee7e3f9482": {
+      "id": "ceefc37b-cda1-4a26-b975-6aee7e3f9482",
+      "timeListening": 85,
+      "mediaMetadata": {
+        "title": "The Long Way to Morning",
+        "subtitle": null,
+        "authors": [
+          {
+            "id": "c4eae851-0411-4f2d-aae3-1c39b37baecd",
+            "name": "Rafael Dorn"
+          }
+        ],
+        "narrators": [
+          "Jonah Pryce"
+        ],
+        "series": [],
+        "genres": [
+          "Fiction"
+        ],
+        "publishedYear": "2021",
+        "publishedDate": null,
+        "publisher": "Affluent Demo Press",
+        "description": "<p>Over five hours in one file: for sleep timers, long seeks and soak tests.</p>",
+        "isbn": null,
+        "asin": null,
+        "language": "English",
+        "explicit": false,
+        "abridged": false
+      }
+    }
+  },
+  "days": {
+    "2026-11-12": 247,
+    "2026-11-11": 600
+  },
+  "dayOfWeek": {
+    "Thursday": 247,
+    "Wednesday": 600
+  },
+  "today": 247,
+  "recentSessions": [
+    {
+      "id": "11111111-2222-4333-8444-555555555511",
+      "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "libraryItemId": "d558336e-07c1-4b2a-b011-0d23be820be7",
+      "bookId": "4c72dad9-c8c5-45d1-8dac-c13c4c353e53",
+      "episodeId": null,
+      "mediaType": "book",
+      "mediaMetadata": {
+        "title": "Kindling Sky",
+        "subtitle": null,
+        "authors": [
+          {
+            "id": "e271d8df-7aa6-43d5-8e62-5b661bf2aafa",
+            "name": "Theo Vance"
+          }
+        ],
+        "narrators": [
+          "Jonah Pryce"
+        ],
+        "series": [
+          {
+            "id": "d22d1a16-8a7a-4fef-b740-7d3e5b98f093",
+            "name": "The Example Saga",
+            "sequence": "10"
+          }
+        ],
+        "genres": [
+          "Science Fiction"
+        ],
+        "publishedYear": "2024",
+        "publishedDate": null,
+        "publisher": "Affluent Demo Press",
+        "description": "<p>Book ten. It exists to prove that 10 sorts after 2.5.</p>",
+        "isbn": null,
+        "asin": null,
+        "language": "English",
+        "explicit": false,
+        "abridged": false
+      },
+      "chapters": [],
+      "displayTitle": "Kindling Sky",
+      "displayAuthor": "Theo Vance",
+      "coverPath": null,
+      "duration": 360,
+      "playMethod": 3,
+      "mediaPlayer": "earloom",
+      "deviceInfo": {
+        "id": "0d409da3-1c13-4d87-92cf-3bcc21ed6d43",
+        "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+        "deviceId": "earloom-probe-device-0001",
+        "ipAddress": "<redacted>",
+        "clientVersion": "0.0.1",
+        "manufacturer": "Affluent Labs",
+        "model": "Probe",
+        "sdkVersion": "",
+        "clientName": "Earloom",
+        "deviceName": "Affluent Labs Probe"
+      },
+      "serverVersion": "2.37.2",
+      "date": "2026-11-12",
+      "dayOfWeek": "Thursday",
+      "timeListening": 45,
+      "startTime": 0,
+      "currentTime": 45,
+      "startedAt": 1794434400000,
+      "updatedAt": 1794492571680
+    },
+    {
+      "id": "11111111-2222-4333-8444-555555555501",
+      "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "libraryItemId": "ceefc37b-cda1-4a26-b975-6aee7e3f9482",
+      "bookId": "32fbe441-d29b-4a06-b384-15fd2ccfc52f",
+      "episodeId": null,
+      "mediaType": "book",
+      "mediaMetadata": {
+        "title": "The Long Way to Morning",
+        "subtitle": null,
+        "authors": [
+          {
+            "id": "c4eae851-0411-4f2d-aae3-1c39b37baecd",
+            "name": "Rafael Dorn"
+          }
+        ],
+        "narrators": [
+          "Jonah Pryce"
+        ],
+        "series": [],
+        "genres": [
+          "Fiction"
+        ],
+        "publishedYear": "2021",
+        "publishedDate": null,
+        "publisher": "Affluent Demo Press",
+        "description": "<p>Over five hours in one file: for sleep timers, long seeks and soak tests.</p>",
+        "isbn": null,
+        "asin": null,
+        "language": "English",
+        "explicit": false,
+        "abridged": false
+      },
+      "chapters": [],
+      "displayTitle": "The Long Way to Morning",
+      "displayAuthor": "Rafael Dorn",
+      "coverPath": null,
+      "duration": 18600,
+      "playMethod": null,
+      "mediaPlayer": null,
+      "deviceInfo": {
+        "id": "e4abff74-ab2d-4854-974a-19a918c045a5",
+        "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+        "deviceId": "e4abff74-ab2d-4854-974a-19a918c045a5",
+        "ipAddress": "<redacted>",
+        "clientVersion": "2.37.2",
+        "manufacturer": "",
+        "model": "",
+        "sdkVersion": "",
+        "clientName": "Unknown",
+        "deviceName": ""
+      },
+      "serverVersion": "2.37.2",
+      "date": "2026-11-12",
+      "dayOfWeek": "Thursday",
+      "timeListening": 70,
+      "startTime": 0,
+      "currentTime": 130,
+      "startedAt": 1794491419059,
+      "updatedAt": 1794491460059
+    }
+  ]
+}

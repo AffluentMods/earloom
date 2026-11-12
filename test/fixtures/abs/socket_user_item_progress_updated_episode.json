@@ -1,0 +1,23 @@
+{
+  "id": "77d115b0-ee35-4561-a287-fa8c1c0094f9",
+  "sessionId": "11111111-2222-4333-8444-555555555502",
+  "deviceDescription": "Probe / v0.0.1",
+  "data": {
+    "id": "77d115b0-ee35-4561-a287-fa8c1c0094f9",
+    "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+    "libraryItemId": "b3300253-3357-47bf-a078-334445ec4e79",
+    "episodeId": "91ea913f-c028-45bc-ab73-0f27e4b8ab6d",
+    "mediaItemId": "91ea913f-c028-45bc-ab73-0f27e4b8ab6d",
+    "mediaItemType": "podcastEpisode",
+    "duration": 300,
+    "progress": 0.16666666666666666,
+    "currentTime": 50,
+    "isFinished": false,
+    "hideFromContinueListening": false,
+    "ebookLocation": null,
+    "ebookProgress": 0,
+    "lastUpdate": 1794491459333,
+    "startedAt": 1794491459333,
+    "finishedAt": null
+  }
+}

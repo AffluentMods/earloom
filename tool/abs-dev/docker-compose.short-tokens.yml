@@ -1,0 +1,8 @@
+# Override that forces fast token expiry so the refresh paths get exercised
+# constantly. Values are seconds.
+# Start: docker compose -f docker-compose.yml -f docker-compose.short-tokens.yml up -d
+services:
+  abs:
+    environment:
+      ACCESS_TOKEN_EXPIRY: "60"
+      REFRESH_TOKEN_EXPIRY: "600"

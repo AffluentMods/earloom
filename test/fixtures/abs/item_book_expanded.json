@@ -1,0 +1,359 @@
+{
+  "id": "695b9eb3-1a88-4320-b033-95089797f205",
+  "ino": "950724",
+  "oldLibraryItemId": null,
+  "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+  "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+  "path": "/audiobooks/Mara Ellison/The Clockmaker's Tide",
+  "relPath": "Mara Ellison/The Clockmaker's Tide",
+  "isFile": false,
+  "mtimeMs": 1794490668341,
+  "ctimeMs": 1794490668341,
+  "birthtimeMs": 1794490659297,
+  "addedAt": 1794490835778,
+  "updatedAt": 1794490835778,
+  "isMissing": false,
+  "isInvalid": false,
+  "mediaType": "book",
+  "media": {
+    "id": "92a61808-6046-4a57-b578-06354c7b1067",
+    "metadata": {
+      "title": "The Clockmaker's Tide",
+      "subtitle": null,
+      "authors": [
+        {
+          "id": "d549684d-0013-4cc6-b8fa-8833bbbc7ea7",
+          "name": "Mara Ellison"
+        }
+      ],
+      "narrators": [
+        "Jonah Pryce"
+      ],
+      "series": [],
+      "genres": [
+        "Fiction",
+        "Fantasy"
+      ],
+      "publishedYear": "2024",
+      "publishedDate": null,
+      "publisher": "Affluent Demo Press",
+      "description": "<p>A harbor town where every clock runs a little differently.</p>",
+      "isbn": null,
+      "asin": null,
+      "language": "English",
+      "explicit": false,
+      "abridged": false,
+      "titleIgnorePrefix": "Clockmaker's Tide, The",
+      "authorName": "Mara Ellison",
+      "authorNameLF": "Ellison, Mara",
+      "narratorName": "Jonah Pryce",
+      "seriesName": "",
+      "descriptionPlain": "A harbor town where every clock runs a little differently."
+    },
+    "coverPath": "/audiobooks/Mara Ellison/The Clockmaker's Tide/cover.jpg",
+    "tags": [
+      "multi-file"
+    ],
+    "numTracks": 8,
+    "numAudioFiles": 8,
+    "numChapters": 8,
+    "duration": 1920,
+    "size": 7684680,
+    "libraryItemId": "695b9eb3-1a88-4320-b033-95089797f205",
+    "audioFiles": [
+      {
+        "index": 1,
+        "ino": "950727",
+        "metadata": {
+          "filename": "The Clockmaker's Tide - 01.mp3",
+          "ext": ".mp3",
+          "path": "/audiobooks/Mara Ellison/The Clockmaker's Tide/The Clockmaker's Tide - 01.mp3",
+          "relPath": "The Clockmaker's Tide - 01.mp3",
+          "size": 960585,
+          "mtimeMs": 1794490660517,
+          "ctimeMs": 1794490660517,
+          "birthtimeMs": 1794490659597
+        },
+        "addedAt": 1794490835746,
+        "updatedAt": 1794490835746,
+        "trackNumFromMeta": 1,
+        "discNumFromMeta": null,
+        "trackNumFromFilename": 1,
+        "discNumFromFilename": null,
+        "manuallyVerified": false,
+        "exclude": false,
+        "error": null,
+        "format": "MP2/3 (MPEG audio layer 2/3)",
+        "duration": 240,
+        "bitRate": 32000,
+        "language": null,
+        "codec": "mp3",
+        "timeBase": "1/14112000",
+        "channels": 1,
+        "channelLayout": "mono",
+        "chapters": [],
+        "embeddedCoverArt": null,
+        "metaTags": {
+          "tagAlbum": "The Clockmaker's Tide",
+          "tagArtist": "Mara Ellison",
+          "tagTitle": "Chapter 1",
+          "tagTrack": "1/8",
+          "tagAlbumArtist": "Mara Ellison",
+          "tagDate": "2024",
+          "tagComposer": "Jonah Pryce",
+          "tagEncoder": "Lavf62.12.102"
+        },
+        "mimeType": "audio/mpeg"
+      },
+      {
+        "index": 2,
+        "ino": "950741",
+        "metadata": {
+          "filename": "The Clockmaker's Tide - 02.mp3",
+          "ext": ".mp3",
+          "path": "/audiobooks/Mara Ellison/The Clockmaker's Tide/The Clockmaker's Tide - 02.mp3",
+          "relPath": "The Clockmaker's Tide - 02.mp3",
+          "size": 960585,
+          "mtimeMs": 1794490661633,
+          "ctimeMs": 1794490661633,
+          "birthtimeMs": 1794490660649
+        },
+        "addedAt": 1794490835749,
+        "updatedAt": 1794490835749,
+        "trackNumFromMeta": 2,
+        "discNumFromMeta": null,
+        "trackNumFromFilename": 2,
+        "discNumFromFilename": null,
+        "manuallyVerified": false,
+        "exclude": false,
+        "error": null,
+        "format": "MP2/3 (MPEG audio layer 2/3)",
+        "duration": 240,
+        "bitRate": 32000,
+        "language": null,
+        "codec": "mp3",
+        "timeBase": "1/14112000",
+        "channels": 1,
+        "channelLayout": "mono",
+        "chapters": [],
+        "embeddedCoverArt": null,
+        "metaTags": {
+          "tagAlbum": "The Clockmaker's Tide",
+          "tagArtist": "Mara Ellison",
+          "tagTitle": "Chapter 2",
+          "tagTrack": "2/8",
+          "tagAlbumArtist": "Mara Ellison",
+          "tagDate": "2024",
+          "tagComposer": "Jonah Pryce",
+          "tagEncoder": "Lavf62.12.102"
+        },
+        "mimeType": "audio/mpeg"
+      }
+    ],
+    "chapters": [
+      {
+        "id": 0,
+        "start": 0,
+        "end": 240,
+        "title": "Chapter 1"
+      },
+      {
+        "id": 1,
+        "start": 240,
+        "end": 480,
+        "title": "Chapter 2"
+      },
+      {
+        "id": 2,
+        "start": 480,
+        "end": 720,
+        "title": "Chapter 3"
+      },
+      {
+        "id": 3,
+        "start": 720,
+        "end": 960,
+        "title": "Chapter 4"
+      },
+      {
+        "id": 4,
+        "start": 960,
+        "end": 1200,
+        "title": "Chapter 5"
+      },
+      {
+        "id": 5,
+        "start": 1200,
+        "end": 1440,
+        "title": "Chapter 6"
+      },
+      {
+        "id": 6,
+        "start": 1440,
+        "end": 1680,
+        "title": "Chapter 7"
+      },
+      {
+        "id": 7,
+        "start": 1680,
+        "end": 1920,
+        "title": "Chapter 8"
+      }
+    ],
+    "ebookFile": null,
+    "tracks": [
+      {
+        "index": 1,
+        "ino": "950727",
+        "metadata": {
+          "filename": "The Clockmaker's Tide - 01.mp3",
+          "ext": ".mp3",
+          "path": "/audiobooks/Mara Ellison/The Clockmaker's Tide/The Clockmaker's Tide - 01.mp3",
+          "relPath": "The Clockmaker's Tide - 01.mp3",
+          "size": 960585,
+          "mtimeMs": 1794490660517,
+          "ctimeMs": 1794490660517,
+          "birthtimeMs": 1794490659597
+        },
+        "addedAt": 1794490835746,
+        "updatedAt": 1794490835746,
+        "trackNumFromMeta": 1,
+        "discNumFromMeta": null,
+        "trackNumFromFilename": 1,
+        "discNumFromFilename": null,
+        "manuallyVerified": false,
+        "exclude": false,
+        "error": null,
+        "format": "MP2/3 (MPEG audio layer 2/3)",
+        "duration": 240,
+        "bitRate": 32000,
+        "language": null,
+        "codec": "mp3",
+        "timeBase": "1/14112000",
+        "channels": 1,
+        "channelLayout": "mono",
+        "chapters": [],
+        "embeddedCoverArt": null,
+        "metaTags": {
+          "tagAlbum": "The Clockmaker's Tide",
+          "tagArtist": "Mara Ellison",
+          "tagTitle": "Chapter 1",
+          "tagTrack": "1/8",
+          "tagAlbumArtist": "Mara Ellison",
+          "tagDate": "2024",
+          "tagComposer": "Jonah Pryce",
+          "tagEncoder": "Lavf62.12.102"
+        },
+        "mimeType": "audio/mpeg",
+        "title": "The Clockmaker's Tide - 01.mp3",
+        "startOffset": 0,
+        "contentUrl": "/api/items/695b9eb3-1a88-4320-b033-95089797f205/file/950727"
+      },
+      {
+        "index": 2,
+        "ino": "950741",
+        "metadata": {
+          "filename": "The Clockmaker's Tide - 02.mp3",
+          "ext": ".mp3",
+          "path": "/audiobooks/Mara Ellison/The Clockmaker's Tide/The Clockmaker's Tide - 02.mp3",
+          "relPath": "The Clockmaker's Tide - 02.mp3",
+          "size": 960585,
+          "mtimeMs": 1794490661633,
+          "ctimeMs": 1794490661633,
+          "birthtimeMs": 1794490660649
+        },
+        "addedAt": 1794490835749,
+        "updatedAt": 1794490835749,
+        "trackNumFromMeta": 2,
+        "discNumFromMeta": null,
+        "trackNumFromFilename": 2,
+        "discNumFromFilename": null,
+        "manuallyVerified": false,
+        "exclude": false,
+        "error": null,
+        "format": "MP2/3 (MPEG audio layer 2/3)",
+        "duration": 240,
+        "bitRate": 32000,
+        "language": null,
+        "codec": "mp3",
+        "timeBase": "1/14112000",
+        "channels": 1,
+        "channelLayout": "mono",
+        "chapters": [],
+        "embeddedCoverArt": null,
+        "metaTags": {
+          "tagAlbum": "The Clockmaker's Tide",
+          "tagArtist": "Mara Ellison",
+          "tagTitle": "Chapter 2",
+          "tagTrack": "2/8",
+          "tagAlbumArtist": "Mara Ellison",
+          "tagDate": "2024",
+          "tagComposer": "Jonah Pryce",
+          "tagEncoder": "Lavf62.12.102"
+        },
+        "mimeType": "audio/mpeg",
+        "title": "The Clockmaker's Tide - 02.mp3",
+        "startOffset": 240,
+        "contentUrl": "/api/items/695b9eb3-1a88-4320-b033-95089797f205/file/950741"
+      }
+    ]
+  },
+  "numFiles": 10,
+  "size": 7694442,
+  "lastScan": 1794490835777,
+  "scanVersion": "2.37.2",
+  "libraryFiles": [
+    {
+      "ino": "950727",
+      "metadata": {
+        "filename": "The Clockmaker's Tide - 01.mp3",
+        "ext": ".mp3",
+        "path": "/audiobooks/Mara Ellison/The Clockmaker's Tide/The Clockmaker's Tide - 01.mp3",
+        "relPath": "The Clockmaker's Tide - 01.mp3",
+        "size": 960585,
+        "mtimeMs": 1794490660517,
+        "ctimeMs": 1794490660517,
+        "birthtimeMs": 1794490659597
+      },
+      "isSupplementary": null,
+      "addedAt": 1794490835443,
+      "updatedAt": 1794490835443,
+      "fileType": "audio"
+    },
+    {
+      "ino": "950725",
+      "metadata": {
+        "filename": "cover.jpg",
+        "ext": ".jpg",
+        "path": "/audiobooks/Mara Ellison/The Clockmaker's Tide/cover.jpg",
+        "relPath": "cover.jpg",
+        "size": 9329,
+        "mtimeMs": 1794490659464,
+        "ctimeMs": 1794490659464,
+        "birthtimeMs": 1794490659457
+      },
+      "isSupplementary": null,
+      "addedAt": 1794490835443,
+      "updatedAt": 1794490835443,
+      "fileType": "image"
+    }
+  ],
+  "userMediaProgress": {
+    "id": "301493af-0124-47cc-8a79-0e2701605bbe",
+    "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+    "libraryItemId": "695b9eb3-1a88-4320-b033-95089797f205",
+    "episodeId": null,
+    "mediaItemId": "92a61808-6046-4a57-b578-06354c7b1067",
+    "mediaItemType": "book",
+    "duration": 1920,
+    "progress": 0.075,
+    "currentTime": 144,
+    "isFinished": false,
+    "hideFromContinueListening": false,
+    "ebookLocation": null,
+    "ebookProgress": 0,
+    "lastUpdate": 1794492343270,
+    "startedAt": 1794491213113,
+    "finishedAt": null
+  }
+}

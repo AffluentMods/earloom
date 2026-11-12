@@ -1,0 +1,55 @@
+{
+  "totalListeningSessions": 9,
+  "totalListeningTime": 850,
+  "totalBookListeningTime": 805,
+  "totalPodcastListeningTime": 45,
+  "topAuthors": [
+    {
+      "name": "Ines Okafor",
+      "time": 600
+    },
+    {
+      "name": "Rafael Dorn",
+      "time": 97
+    },
+    {
+      "name": "Mara Ellison",
+      "time": 63
+    }
+  ],
+  "topGenres": [
+    {
+      "genre": "Nonfiction",
+      "time": 600
+    },
+    {
+      "genre": "Nature",
+      "time": 600
+    },
+    {
+      "genre": "Fiction",
+      "time": 148
+    }
+  ],
+  "mostListenedNarrator": {
+    "time": 600,
+    "name": "Ines Okafor"
+  },
+  "mostListenedMonth": {
+    "month": 10,
+    "time": 850
+  },
+  "numBooksFinished": 1,
+  "numBooksListened": 5,
+  "longestAudiobookFinished": null,
+  "booksWithCovers": [
+    "d39c36ae-228b-49fd-8e34-481f4f8daf68",
+    "d558336e-07c1-4b2a-b011-0d23be820be7",
+    "ceefc37b-cda1-4a26-b975-6aee7e3f9482",
+    "695b9eb3-1a88-4320-b033-95089797f205",
+    "7c1bec65-2448-4d37-bf1c-98889dc29197"
+  ],
+  "finishedBooksWithCovers": [
+    "7d0e9978-10ea-4527-93d9-8773da9aa05b"
+  ]
+}

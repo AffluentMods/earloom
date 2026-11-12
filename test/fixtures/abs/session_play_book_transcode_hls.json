@@ -1,0 +1,392 @@
+{
+  "id": "d25867c7-fc09-4cbd-a0c8-89fc746ff84c",
+  "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+  "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+  "libraryItemId": "d39c36ae-228b-49fd-8e34-481f4f8daf68",
+  "bookId": "06e6b5fd-0586-409b-94f1-77ceea04f5f6",
+  "episodeId": null,
+  "mediaType": "book",
+  "mediaMetadata": {
+    "title": "Lanterns Under the Ice",
+    "subtitle": null,
+    "authors": [
+      {
+        "id": "c4eae851-0411-4f2d-aae3-1c39b37baecd",
+        "name": "Rafael Dorn"
+      }
+    ],
+    "narrators": [
+      "Priya Castellan"
+    ],
+    "series": [],
+    "genres": [
+      "Mystery"
+    ],
+    "publishedYear": "2024",
+    "publishedDate": null,
+    "publisher": "Affluent Demo Press",
+    "description": "<p>Opus audio in an Ogg container, for the transcode path. The cover is not square.</p>",
+    "isbn": null,
+    "asin": null,
+    "language": "English",
+    "explicit": false,
+    "abridged": false
+  },
+  "chapters": [
+    {
+      "id": 0,
+      "start": 0,
+      "end": 300.0065,
+      "title": "Chapter 1"
+    },
+    {
+      "id": 1,
+      "start": 300.0065,
+      "end": 600.013,
+      "title": "Chapter 2"
+    }
+  ],
+  "displayTitle": "Lanterns Under the Ice",
+  "displayAuthor": "Rafael Dorn",
+  "coverPath": "/audiobooks/Rafael Dorn/Lanterns Under the Ice/cover.jpg",
+  "duration": 600.013,
+  "playMethod": 2,
+  "mediaPlayer": "earloom",
+  "deviceInfo": {
+    "id": "0d409da3-1c13-4d87-92cf-3bcc21ed6d43",
+    "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+    "deviceId": "earloom-probe-device-0001",
+    "ipAddress": "<redacted>",
+    "clientVersion": "0.0.1",
+    "manufacturer": "Affluent Labs",
+    "model": "Probe",
+    "sdkVersion": "34",
+    "clientName": "Earloom",
+    "deviceName": "Affluent Labs Probe"
+  },
+  "serverVersion": "2.37.2",
+  "date": "2026-11-12",
+  "dayOfWeek": "Thursday",
+  "timeListening": 0,
+  "startTime": 0,
+  "currentTime": 0,
+  "startedAt": 1794491236464,
+  "updatedAt": 1794491236464,
+  "audioTracks": [
+    {
+      "index": 1,
+      "startOffset": 0,
+      "duration": 600.013,
+      "title": "Lanterns Under the Ice",
+      "contentUrl": "/hls/d25867c7-fc09-4cbd-a0c8-89fc746ff84c/output.m3u8",
+      "mimeType": "application/vnd.apple.mpegurl",
+      "codec": null,
+      "metadata": null
+    }
+  ],
+  "libraryItem": {
+    "id": "d39c36ae-228b-49fd-8e34-481f4f8daf68",
+    "ino": "958473",
+    "oldLibraryItemId": null,
+    "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+    "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+    "path": "/audiobooks/Rafael Dorn/Lanterns Under the Ice",
+    "relPath": "Rafael Dorn/Lanterns Under the Ice",
+    "isFile": false,
+    "mtimeMs": 1794490711137,
+    "ctimeMs": 1794490711137,
+    "birthtimeMs": 1794490705917,
+    "addedAt": 1794490835653,
+    "updatedAt": 1794490835653,
+    "isMissing": false,
+    "isInvalid": false,
+    "mediaType": "book",
+    "media": {
+      "id": "06e6b5fd-0586-409b-94f1-77ceea04f5f6",
+      "metadata": {
+        "title": "Lanterns Under the Ice",
+        "subtitle": null,
+        "authors": [
+          {
+            "id": "c4eae851-0411-4f2d-aae3-1c39b37baecd",
+            "name": "Rafael Dorn"
+          }
+        ],
+        "narrators": [
+          "Priya Castellan"
+        ],
+        "series": [],
+        "genres": [
+          "Mystery"
+        ],
+        "publishedYear": "2024",
+        "publishedDate": null,
+        "publisher": "Affluent Demo Press",
+        "description": "<p>Opus audio in an Ogg container, for the transcode path. The cover is not square.</p>",
+        "isbn": null,
+        "asin": null,
+        "language": "English",
+        "explicit": false,
+        "abridged": false,
+        "titleIgnorePrefix": "Lanterns Under the Ice",
+        "authorName": "Rafael Dorn",
+        "authorNameLF": "Dorn, Rafael",
+        "narratorName": "Priya Castellan",
+        "seriesName": "",
+        "descriptionPlain": "Opus audio in an Ogg container, for the transcode path. The cover is not square."
+      },
+      "coverPath": "/audiobooks/Rafael Dorn/Lanterns Under the Ice/cover.jpg",
+      "tags": [
+        "opus",
+        "tall-cover"
+      ],
+      "numTracks": 2,
+      "numAudioFiles": 2,
+      "numChapters": 2,
+      "duration": 600.013,
+      "size": 2682719,
+      "libraryItemId": "d39c36ae-228b-49fd-8e34-481f4f8daf68",
+      "audioFiles": [
+        {
+          "index": 1,
+          "ino": "958475",
+          "metadata": {
+            "filename": "Lanterns Under the Ice - 01.opus",
+            "ext": ".opus",
+            "path": "/audiobooks/Rafael Dorn/Lanterns Under the Ice/Lanterns Under the Ice - 01.opus",
+            "relPath": "Lanterns Under the Ice - 01.opus",
+            "size": 1139229,
+            "mtimeMs": 1794490708669,
+            "ctimeMs": 1794490708669,
+            "birthtimeMs": 1794490706221
+          },
+          "addedAt": 1794490835649,
+          "updatedAt": 1794490835649,
+          "trackNumFromMeta": 1,
+          "discNumFromMeta": null,
+          "trackNumFromFilename": 1,
+          "discNumFromFilename": null,
+          "manuallyVerified": false,
+          "exclude": false,
+          "error": null,
+          "format": "Ogg",
+          "duration": 300.0065,
+          "bitRate": 112000,
+          "language": null,
+          "codec": "opus",
+          "timeBase": "1/48000",
+          "channels": 1,
+          "channelLayout": "mono",
+          "chapters": [],
+          "embeddedCoverArt": null,
+          "metaTags": {
+            "tagAlbum": "Lanterns Under the Ice",
+            "tagArtist": "Rafael Dorn",
+            "tagTitle": "Chapter 1",
+            "tagTrack": "1/2",
+            "tagAlbumArtist": "Rafael Dorn",
+            "tagDate": "2024",
+            "tagComposer": "Priya Castellan",
+            "tagEncoder": "Lavc62.28.102 libopus"
+          },
+          "mimeType": "audio/ogg"
+        },
+        {
+          "index": 2,
+          "ino": "958476",
+          "metadata": {
+            "filename": "Lanterns Under the Ice - 02.opus",
+            "ext": ".opus",
+            "path": "/audiobooks/Rafael Dorn/Lanterns Under the Ice/Lanterns Under the Ice - 02.opus",
+            "relPath": "Lanterns Under the Ice - 02.opus",
+            "size": 1543490,
+            "mtimeMs": 1794490711049,
+            "ctimeMs": 1794490711049,
+            "birthtimeMs": 1794490708801
+          },
+          "addedAt": 1794490835641,
+          "updatedAt": 1794490835641,
+          "trackNumFromMeta": 2,
+          "discNumFromMeta": null,
+          "trackNumFromFilename": 2,
+          "discNumFromFilename": null,
+          "manuallyVerified": false,
+          "exclude": false,
+          "error": null,
+          "format": "Ogg",
+          "duration": 300.0065,
+          "bitRate": 112000,
+          "language": null,
+          "codec": "opus",
+          "timeBase": "1/48000",
+          "channels": 1,
+          "channelLayout": "mono",
+          "chapters": [],
+          "embeddedCoverArt": null,
+          "metaTags": {
+            "tagAlbum": "Lanterns Under the Ice",
+            "tagArtist": "Rafael Dorn",
+            "tagTitle": "Chapter 2",
+            "tagTrack": "2/2",
+            "tagAlbumArtist": "Rafael Dorn",
+            "tagDate": "2024",
+            "tagComposer": "Priya Castellan",
+            "tagEncoder": "Lavc62.28.102 libopus"
+          },
+          "mimeType": "audio/ogg"
+        }
+      ],
+      "chapters": [
+        {
+          "id": 0,
+          "start": 0,
+          "end": 300.0065,
+          "title": "Chapter 1"
+        },
+        {
+          "id": 1,
+          "start": 300.0065,
+          "end": 600.013,
+          "title": "Chapter 2"
+        }
+      ],
+      "ebookFile": null,
+      "tracks": [
+        {
+          "index": 1,
+          "ino": "958475",
+          "metadata": {
+            "filename": "Lanterns Under the Ice - 01.opus",
+            "ext": ".opus",
+            "path": "/audiobooks/Rafael Dorn/Lanterns Under the Ice/Lanterns Under the Ice - 01.opus",
+            "relPath": "Lanterns Under the Ice - 01.opus",
+            "size": 1139229,
+            "mtimeMs": 1794490708669,
+            "ctimeMs": 1794490708669,
+            "birthtimeMs": 1794490706221
+          },
+          "addedAt": 1794490835649,
+          "updatedAt": 1794490835649,
+          "trackNumFromMeta": 1,
+          "discNumFromMeta": null,
+          "trackNumFromFilename": 1,
+          "discNumFromFilename": null,
+          "manuallyVerified": false,
+          "exclude": false,
+          "error": null,
+          "format": "Ogg",
+          "duration": 300.0065,
+          "bitRate": 112000,
+          "language": null,
+          "codec": "opus",
+          "timeBase": "1/48000",
+          "channels": 1,
+          "channelLayout": "mono",
+          "chapters": [],
+          "embeddedCoverArt": null,
+          "metaTags": {
+            "tagAlbum": "Lanterns Under the Ice",
+            "tagArtist": "Rafael Dorn",
+            "tagTitle": "Chapter 1",
+            "tagTrack": "1/2",
+            "tagAlbumArtist": "Rafael Dorn",
+            "tagDate": "2024",
+            "tagComposer": "Priya Castellan",
+            "tagEncoder": "Lavc62.28.102 libopus"
+          },
+          "mimeType": "audio/ogg",
+          "title": "Lanterns Under the Ice - 01.opus",
+          "startOffset": 0,
+          "contentUrl": "/api/items/d39c36ae-228b-49fd-8e34-481f4f8daf68/file/958475"
+        },
+        {
+          "index": 2,
+          "ino": "958476",
+          "metadata": {
+            "filename": "Lanterns Under the Ice - 02.opus",
+            "ext": ".opus",
+            "path": "/audiobooks/Rafael Dorn/Lanterns Under the Ice/Lanterns Under the Ice - 02.opus",
+            "relPath": "Lanterns Under the Ice - 02.opus",
+            "size": 1543490,
+            "mtimeMs": 1794490711049,
+            "ctimeMs": 1794490711049,
+            "birthtimeMs": 1794490708801
+          },
+          "addedAt": 1794490835641,
+          "updatedAt": 1794490835641,
+          "trackNumFromMeta": 2,
+          "discNumFromMeta": null,
+          "trackNumFromFilename": 2,
+          "discNumFromFilename": null,
+          "manuallyVerified": false,
+          "exclude": false,
+          "error": null,
+          "format": "Ogg",
+          "duration": 300.0065,
+          "bitRate": 112000,
+          "language": null,
+          "codec": "opus",
+          "timeBase": "1/48000",
+          "channels": 1,
+          "channelLayout": "mono",
+          "chapters": [],
+          "embeddedCoverArt": null,
+          "metaTags": {
+            "tagAlbum": "Lanterns Under the Ice",
+            "tagArtist": "Rafael Dorn",
+            "tagTitle": "Chapter 2",
+            "tagTrack": "2/2",
+            "tagAlbumArtist": "Rafael Dorn",
+            "tagDate": "2024",
+            "tagComposer": "Priya Castellan",
+            "tagEncoder": "Lavc62.28.102 libopus"
+          },
+          "mimeType": "audio/ogg",
+          "title": "Lanterns Under the Ice - 02.opus",
+          "startOffset": 300.0065,
+          "contentUrl": "/api/items/d39c36ae-228b-49fd-8e34-481f4f8daf68/file/958476"
+        }
+      ]
+    },
+    "numFiles": 4,
+    "size": 2690713,
+    "lastScan": 1794490835652,
+    "scanVersion": "2.37.2",
+    "libraryFiles": [
+      {
+        "ino": "958475",
+        "metadata": {
+          "filename": "Lanterns Under the Ice - 01.opus",
+          "ext": ".opus",
+          "path": "/audiobooks/Rafael Dorn/Lanterns Under the Ice/Lanterns Under the Ice - 01.opus",
+          "relPath": "Lanterns Under the Ice - 01.opus",
+          "size": 1139229,
+          "mtimeMs": 1794490708669,
+          "ctimeMs": 1794490708669,
+          "birthtimeMs": 1794490706221
+        },
+        "isSupplementary": null,
+        "addedAt": 1794490835442,
+        "updatedAt": 1794490835442,
+        "fileType": "audio"
+      },
+      {
+        "ino": "958474",
+        "metadata": {
+          "filename": "cover.jpg",
+          "ext": ".jpg",
+          "path": "/audiobooks/Rafael Dorn/Lanterns Under the Ice/cover.jpg",
+          "relPath": "cover.jpg",
+          "size": 7538,
+          "mtimeMs": 1794490706068,
+          "ctimeMs": 1794490706068,
+          "birthtimeMs": 1794490706061
+        },
+        "isSupplementary": null,
+        "addedAt": 1794490835443,
+        "updatedAt": 1794490835443,
+        "fileType": "image"
+      }
+    ]
+  }
+}

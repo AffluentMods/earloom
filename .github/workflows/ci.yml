@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # One Flutter release everywhere. Change it here and in CONTRIBUTING.md together.
+  FLUTTER_VERSION: 3.50.0
+
+jobs:
+  check:
+    name: Check (format, analyze, tests, rules)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: tool/check.sh
+
+  hygiene:
+    name: Sign-off and secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Every commit is signed off (DCO) and carries no tool attribution
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          # The PR's own last commit. HEAD here is the temporary merge commit
+          # GitHub creates for the test run, which is not part of the PR.
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          fail=0
+          # Merge commits are skipped: they only join history someone already signed off.
+          for sha in $(git rev-list --no-merges "origin/$BASE_REF..$HEAD_SHA"); do
+            body=$(git log -1 --format=%B "$sha")
+            if ! grep -q '^Signed-off-by: ' <<<"$body"; then
+              echo "Missing Signed-off-by: $(git log -1 --format='%h %s' "$sha")"; fail=1
+            fi
+            if grep -qiE 'co-authored-by:|generated with' <<<"$body"; then
+              echo "Tool attribution line: $(git log -1 --format='%h %s' "$sha")"; fail=1
+            fi
+          done
+          exit $fail
+      - name: Secret scan (gitleaks)
+        run: docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1 git --redact --no-banner /repo
+
+  android:
+    name: Android build
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: tool/bootstrap.sh
+      - run: flutter build apk --debug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: earloom-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
+
+  ios:
+    name: iOS build (no signing)
+    runs-on: macos-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: tool/bootstrap.sh
+      - run: flutter build ios --debug --no-codesign

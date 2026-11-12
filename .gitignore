@@ -60,3 +60,8 @@ ios/Runner/GeneratedPluginRegistrant.*
 # OS
 .DS_Store
 Thumbs.db
+
+# Generated code (run tool/bootstrap.sh)
+lib/l10n/gen/
+*.g.dart
+*.freezed.dart

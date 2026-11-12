@@ -1,0 +1,32 @@
+{
+  "@@locale": "en",
+  "appName": "Earloom",
+  "tabHome": "Home",
+  "tabLibrary": "Library",
+  "tabSearch": "Search",
+  "tabYou": "You",
+  "durationHours": "{hours, plural, =1{1 hr} other{{hours} hrs}}",
+  "@durationHours": {
+    "description": "A whole number of hours, short form.",
+    "placeholders": { "hours": { "type": "int" } }
+  },
+  "durationMinutes": "{minutes, plural, =1{1 min} other{{minutes} min}}",
+  "@durationMinutes": {
+    "description": "A whole number of minutes, short form.",
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "durationHoursMinutes": "{hours} {minutes}",
+  "@durationHoursMinutes": {
+    "description": "Joins an already formatted hours part and minutes part, for example '1 hr 5 min'. Reorder or change the separator for your language.",
+    "placeholders": { "hours": { "type": "String" }, "minutes": { "type": "String" } }
+  },
+  "timeLeft": "{duration} left",
+  "@timeLeft": {
+    "description": "Time remaining in a book or chapter. The duration is already formatted, for example '3 hr 12 min'.",
+    "placeholders": { "duration": { "type": "String" } }
+  },
+  "genericRetry": "Try again",
+  "genericCancel": "Cancel",
+  "genericSave": "Save",
+  "offlineBanner": "Offline. Showing what is on this device."
+}

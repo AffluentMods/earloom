@@ -1,0 +1,139 @@
+{
+  "total": 9,
+  "numPages": 1,
+  "page": 0,
+  "itemsPerPage": 10,
+  "sessions": [
+    {
+      "id": "11111111-2222-4333-8444-555555555511",
+      "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "libraryItemId": "d558336e-07c1-4b2a-b011-0d23be820be7",
+      "bookId": "4c72dad9-c8c5-45d1-8dac-c13c4c353e53",
+      "episodeId": null,
+      "mediaType": "book",
+      "mediaMetadata": {
+        "title": "Kindling Sky",
+        "subtitle": null,
+        "authors": [
+          {
+            "id": "e271d8df-7aa6-43d5-8e62-5b661bf2aafa",
+            "name": "Theo Vance"
+          }
+        ],
+        "narrators": [
+          "Jonah Pryce"
+        ],
+        "series": [
+          {
+            "id": "d22d1a16-8a7a-4fef-b740-7d3e5b98f093",
+            "name": "The Example Saga",
+            "sequence": "10"
+          }
+        ],
+        "genres": [
+          "Science Fiction"
+        ],
+        "publishedYear": "2024",
+        "publishedDate": null,
+        "publisher": "Affluent Demo Press",
+        "description": "<p>Book ten. It exists to prove that 10 sorts after 2.5.</p>",
+        "isbn": null,
+        "asin": null,
+        "language": "English",
+        "explicit": false,
+        "abridged": false
+      },
+      "chapters": [],
+      "displayTitle": "Kindling Sky",
+      "displayAuthor": "Theo Vance",
+      "coverPath": null,
+      "duration": 360,
+      "playMethod": 3,
+      "mediaPlayer": "earloom",
+      "deviceInfo": {
+        "id": "0d409da3-1c13-4d87-92cf-3bcc21ed6d43",
+        "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+        "deviceId": "earloom-probe-device-0001",
+        "ipAddress": "<redacted>",
+        "clientVersion": "0.0.1",
+        "manufacturer": "Affluent Labs",
+        "model": "Probe",
+        "sdkVersion": "",
+        "clientName": "Earloom",
+        "deviceName": "Affluent Labs Probe"
+      },
+      "serverVersion": "2.37.2",
+      "date": "2026-11-12",
+      "dayOfWeek": "Thursday",
+      "timeListening": 45,
+      "startTime": 0,
+      "currentTime": 45,
+      "startedAt": 1794434400000,
+      "updatedAt": 1794492571680
+    },
+    {
+      "id": "9ccd85e9-018b-4d6b-bcf0-e72b4cf25647",
+      "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "libraryItemId": "695b9eb3-1a88-4320-b033-95089797f205",
+      "bookId": "92a61808-6046-4a57-b578-06354c7b1067",
+      "episodeId": null,
+      "mediaType": "book",
+      "mediaMetadata": {
+        "title": "The Clockmaker's Tide",
+        "subtitle": null,
+        "authors": [
+          {
+            "id": "d549684d-0013-4cc6-b8fa-8833bbbc7ea7",
+            "name": "Mara Ellison"
+          }
+        ],
+        "narrators": [
+          "Jonah Pryce"
+        ],
+        "series": [],
+        "genres": [
+          "Fiction",
+          "Fantasy"
+        ],
+        "publishedYear": "2024",
+        "publishedDate": null,
+        "publisher": "Affluent Demo Press",
+        "description": "<p>A harbor town where every clock runs a little differently.</p>",
+        "isbn": null,
+        "asin": null,
+        "language": "English",
+        "explicit": false,
+        "abridged": false
+      },
+      "chapters": [],
+      "displayTitle": "The Clockmaker's Tide",
+      "displayAuthor": "Mara Ellison",
+      "coverPath": "/audiobooks/Mara Ellison/The Clockmaker's Tide/cover.jpg",
+      "duration": 1920,
+      "playMethod": 0,
+      "mediaPlayer": "earloom",
+      "deviceInfo": {
+        "id": "0d409da3-1c13-4d87-92cf-3bcc21ed6d43",
+        "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+        "deviceId": "earloom-probe-device-0001",
+        "ipAddress": "<redacted>",
+        "clientVersion": "0.0.1",
+        "manufacturer": "Affluent Labs",
+        "model": "Probe",
+        "sdkVersion": "",
+        "clientName": "Earloom",
+        "deviceName": "Affluent Labs Probe"
+      },
+      "serverVersion": "2.37.2",
+      "date": "2026-11-12",
+      "dayOfWeek": "Thursday",
+      "timeListening": 3,
+      "startTime": 140,
+      "currentTime": 144,
+      "startedAt": 1794492272891,
+      "updatedAt": 1794492343265
+    }
+  ]
+}

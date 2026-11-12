@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem
+    url: https://github.com/AffluentMods/earloom/security/advisories/new
+    about: Report a vulnerability privately, not as a public issue.
+  - name: Problem with the Audiobookshelf server
+    url: https://github.com/advplyr/audiobookshelf/issues
+    about: Server bugs belong with the Audiobookshelf project.

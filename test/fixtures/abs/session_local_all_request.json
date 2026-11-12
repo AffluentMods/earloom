@@ -1,0 +1,49 @@
+{
+  "deviceInfo": {
+    "deviceId": "earloom-probe-device-0001",
+    "clientName": "Earloom",
+    "clientVersion": "0.0.1",
+    "manufacturer": "Affluent Labs",
+    "model": "Probe"
+  },
+  "sessions": [
+    {
+      "id": "11111111-2222-4333-8444-555555555510",
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "libraryItemId": "7c1bec65-2448-4d37-bf1c-98889dc29197",
+      "episodeId": null,
+      "mediaType": "book",
+      "displayTitle": "A Field Guide to Quiet Places",
+      "displayAuthor": "Ines Okafor",
+      "duration": 360,
+      "playMethod": 3,
+      "mediaPlayer": "earloom",
+      "date": "2026-11-11",
+      "dayOfWeek": "Wednesday",
+      "timeListening": 600,
+      "startTime": 0,
+      "currentTime": 200,
+      "startedAt": 1794434400000,
+      "updatedAt": 1794435000000
+    },
+    {
+      "id": "11111111-2222-4333-8444-555555555511",
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "libraryItemId": "d558336e-07c1-4b2a-b011-0d23be820be7",
+      "episodeId": null,
+      "mediaType": "book",
+      "displayTitle": "Kindling Sky",
+      "displayAuthor": "Theo Vance",
+      "duration": 360,
+      "playMethod": 3,
+      "mediaPlayer": "earloom",
+      "date": "2026-11-11",
+      "dayOfWeek": "Wednesday",
+      "timeListening": 30,
+      "startTime": 0,
+      "currentTime": 30,
+      "startedAt": 1794434400000,
+      "updatedAt": 1794435000000
+    }
+  ]
+}

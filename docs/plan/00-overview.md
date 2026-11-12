@@ -65,7 +65,7 @@ A polished, cover-art driven audiobook and podcast player for people who self-ho
 | Cover color | `ColorScheme.fromImageProvider` / `material_color_utilities` | Cached per item |
 | OIDC | `flutter_web_auth_2` + PKCE | Own redirect URI, never `audiobookshelf://oauth` |
 | Widgets | `home_widget` + native WidgetKit / Glance | |
-| Live Activities | `live_activities` or native ActivityKit | |
+| Live Activities | Native ActivityKit behind our own method channel | Not the `live_activities` package: it pulls Firebase Messaging and a Google push permission into the Android build (found in Phase 0). |
 | CarPlay | Native Swift scene + MethodChannel | See Phase 6 |
 | Fonts | Bundled assets, no runtime font fetching | Privacy |
 
@@ -161,6 +161,8 @@ docs/
 ```
 
 ## ABS API map (verify every row in Phase 0)
+
+> **Verified in Phase 0.** The table below is the plan's original guess. What the server really does is in [`docs/abs-api.md`](../abs-api.md), and every place the plan was wrong or incomplete is listed in its section 18, "Differences from the plan". Where the two disagree, `docs/abs-api.md` wins.
 
 Minimum supported server: **2.26.0** (new JWT auth). Show a non-blocking warning to admin users on servers below **2.36.0** (fixes CVE-2026-73085, refresh tokens accepted as access tokens; Phase 0 confirms the CVE id and the fixed version against the ABS release notes and corrects both here if they differ).
 

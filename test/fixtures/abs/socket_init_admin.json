@@ -1,0 +1,24 @@
+{
+  "userId": "3806662f-4909-4ccb-a76d-333ee31c0185",
+  "username": "root",
+  "usersOnline": [
+    {
+      "id": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+      "username": "affluent",
+      "type": "user",
+      "session": null,
+      "lastSeen": 1794492165618,
+      "createdAt": 1794490835357,
+      "connections": 1
+    },
+    {
+      "id": "3806662f-4909-4ccb-a76d-333ee31c0185",
+      "username": "root",
+      "type": "root",
+      "session": null,
+      "lastSeen": 1794492165638,
+      "createdAt": 1794490835183,
+      "connections": 1
+    }
+  ]
+}

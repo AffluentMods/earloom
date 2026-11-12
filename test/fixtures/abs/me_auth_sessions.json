@@ -1,0 +1,26 @@
+{
+  "total": 6,
+  "numPages": 1,
+  "page": 0,
+  "itemsPerPage": 10,
+  "sessions": [
+    {
+      "id": "83cbb4f3-8607-4117-b369-cfd579e02786",
+      "ipAddress": "<redacted>",
+      "userAgent": "curl/8.5.0",
+      "deviceInfo": null,
+      "createdAt": 1794493303901,
+      "updatedAt": 1794493304199,
+      "current": false
+    },
+    {
+      "id": "d2a693e7-4104-4536-bcdd-dbbac41eb287",
+      "ipAddress": "<redacted>",
+      "userAgent": "curl/8.5.0",
+      "deviceInfo": null,
+      "createdAt": 1794492823445,
+      "updatedAt": 1794492823445,
+      "current": false
+    }
+  ]
+}

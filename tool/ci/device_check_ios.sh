@@ -26,19 +26,48 @@ for runtime, items in devices.items():
 print(best[1])
 ')
 echo "Simulator: $udid"
-xcrun simctl boot "$udid" || true
-xcrun simctl bootstatus "$udid" -b
 
-flutter drive -d "$udid" --driver=test_driver/integration_test.dart --target=integration_test/app_launch_test.dart
+# Runs a command with a time limit (macOS has no timeout(1); perl does).
+# A hang then fails with a clear message instead of using up the whole job.
+limit() {
+  local seconds=$1
+  shift
+  perl -e 'alarm shift; exec @ARGV' "$seconds" "$@" || {
+    local code=$?
+    [[ $code -eq 142 ]] && echo "FAIL: timed out after ${seconds}s: $*"
+    return $code
+  }
+}
+
+# A simulator can come up half-started ("Waiting on System App", then a
+# failed boot status). Only trust it once it answers a command, and give it
+# one clean retry: shut down, erase, boot again.
+ready() {
+  limit 300 xcrun simctl bootstatus "$udid" -b >/dev/null \
+    && limit 60 xcrun simctl spawn "$udid" launchctl print system >/dev/null
+}
+boot() {
+  xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true
+  limit 120 xcrun simctl boot "$udid"
+}
+if ! { boot && ready; }; then
+  echo "Simulator did not come up cleanly. Erasing it and trying once more."
+  xcrun simctl shutdown "$udid" >/dev/null 2>&1 || true
+  limit 120 xcrun simctl erase "$udid"
+  boot && ready || { echo "FAIL: the simulator did not boot"; exit 1; }
+fi
+echo "Simulator ready"
+
+limit 1500 flutter drive -d "$udid" --driver=test_driver/integration_test.dart --target=integration_test/app_launch_test.dart
 
 echo "== Deep link through iOS"
-flutter build ios --simulator --debug
-xcrun simctl install "$udid" build/ios/iphonesimulator/Runner.app
+limit 900 flutter build ios --simulator --debug
+limit 120 xcrun simctl install "$udid" build/ios/iphonesimulator/Runner.app
 xcrun simctl terminate "$udid" com.affluentlabs.earloom || true
 # openurl fails when no installed app claims the scheme.
-xcrun simctl openurl "$udid" "earloom://item/test"
+limit 60 xcrun simctl openurl "$udid" "earloom://item/test"
 sleep 15
-xcrun simctl io "$udid" screenshot "$out/ios_08_os_deep_link_item.png"
+limit 60 xcrun simctl io "$udid" screenshot "$out/ios_08_os_deep_link_item.png"
 # Simulator apps are ordinary processes on the Mac, so look for it there.
 if pid=$(pgrep -f "/Runner.app/Runner"); then
   echo "App running after the deep link (pid $pid)"

@@ -65,7 +65,7 @@ class ProbeNotInitialized extends ProbeResult {}
 class ProbeTooOld extends ProbeResult { ProbeTooOld(this.version); final Version version; }
 
 const minServerVersion = Version(2, 26, 0);
-const securityAdvisoryBelow = Version(2, 36, 0); // CVE-2026-73085
+const securityAdvisoryBelow = Version(2, 37, 0); // CVE-2026-73085 and GHSA-m5hp-x2xc-7jqq, see docs/abs-api.md section 16
 
 class ServerProbe {
   Future<ProbeResult> probe(String input, {Map<String, String> headers = const {}}) async { /* ... */ }
@@ -75,7 +75,7 @@ class ServerProbe {
 Rules:
 - `http://` is allowed (homelab users) but shows an inline warning card. Do not block.
 - Servers below 2.26.0 are blocked with a clear message to update the server.
-- After login, if the user is admin or root and the server is below 2.36.0, show a dismissible security banner on the You tab linking to the ABS release notes.
+- After login, if the user is admin or root and the server is below 2.37.0, show a dismissible security banner on the You tab linking to the ABS release notes.
 
 ### Platform config
 - iOS `Info.plist`: `NSLocalNetworkUsageDescription` (l10n via `InfoPlist.strings`), `NSAppTransportSecurity` with `NSAllowsLocalNetworking` true and `NSAllowsArbitraryLoads` true. Keep an App Review note ready: "Users connect to their own self-hosted servers, often on LAN without TLS."

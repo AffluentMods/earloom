@@ -14,6 +14,11 @@ import 'design_widgets.dart';
 class DesignPlayerPreview extends StatelessWidget {
   const DesignPlayerPreview({super.key, required this.book});
 
+  /// Natural width of the transport controls row: three 48 point buttons
+  /// with their padding, two skip buttons and the 84 point play button come
+  /// to 308 (measured on a 320 point wide emulator), plus a little room.
+  static const _controlsWidth = 312.0;
+
   final DemoBook book;
 
   @override
@@ -114,31 +119,41 @@ class DesignPlayerPreview extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: Space.lg),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.skip_previous_rounded),
-                      iconSize: 36,
-                      tooltip: 'Previous chapter',
-                      onPressed: () {},
+                // On phones narrower than the controls need, the whole row
+                // scales down instead of overflowing.
+                LayoutBuilder(
+                  builder: (context, box) => FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: SizedBox(
+                      width: box.maxWidth < _controlsWidth ? _controlsWidth : box.maxWidth,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.skip_previous_rounded),
+                            iconSize: 36,
+                            tooltip: 'Previous chapter',
+                            onPressed: () {},
+                          ),
+                          const SkipButton(seconds: 15, forward: false),
+                          IconButton.filled(
+                            icon: const Icon(Icons.pause_rounded),
+                            iconSize: 44,
+                            tooltip: 'Pause',
+                            style: IconButton.styleFrom(minimumSize: const Size(84, 84)),
+                            onPressed: () {},
+                          ),
+                          const SkipButton(seconds: 30, forward: true),
+                          IconButton(
+                            icon: const Icon(Icons.skip_next_rounded),
+                            iconSize: 36,
+                            tooltip: 'Next chapter',
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
                     ),
-                    const SkipButton(seconds: 15, forward: false),
-                    IconButton.filled(
-                      icon: const Icon(Icons.pause_rounded),
-                      iconSize: 44,
-                      tooltip: 'Pause',
-                      style: IconButton.styleFrom(minimumSize: const Size(84, 84)),
-                      onPressed: () {},
-                    ),
-                    const SkipButton(seconds: 30, forward: true),
-                    IconButton(
-                      icon: const Icon(Icons.skip_next_rounded),
-                      iconSize: 36,
-                      tooltip: 'Next chapter',
-                      onPressed: () {},
-                    ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: Space.xl),
                 Row(

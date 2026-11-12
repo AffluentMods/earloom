@@ -164,7 +164,7 @@ docs/
 
 > **Verified in Phase 0.** The table below is the plan's original guess. What the server really does is in [`docs/abs-api.md`](../abs-api.md), and every place the plan was wrong or incomplete is listed in its section 18, "Differences from the plan". Where the two disagree, `docs/abs-api.md` wins.
 
-Minimum supported server: **2.26.0** (new JWT auth). Show a non-blocking warning to admin users on servers below **2.36.0** (fixes CVE-2026-73085, refresh tokens accepted as access tokens; Phase 0 confirms the CVE id and the fixed version against the ABS release notes and corrects both here if they differ).
+Minimum supported server: **2.26.0** (new JWT auth). Show a non-blocking warning to admin users on servers below **2.37.0**: 2.36.0 fixes CVE-2026-73085 (refresh tokens accepted as access tokens, GHSA-798w-wv6c-2c3h) and 2.37.0 completes the fix for a critical unauthenticated file read on the cover endpoint (GHSA-m5hp-x2xc-7jqq). Both confirmed in Phase 0, details in `docs/abs-api.md` section 16.
 
 | Area | Expected endpoint | Source to verify |
 |---|---|---|

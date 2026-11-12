@@ -1019,7 +1019,7 @@ The same advisories page lists a **Critical** one (CVSS 4.0 score 9.4) that the 
 - Release notes: 2.36.1 says "Cover endpoints only allow `webp`, `jpeg` and `png` as optional format param"; **2.37.0** says "Cover and author image cache endpoints require a valid id and positive width/height". The 2.37.2 source checks that the id is a UUID before touching the cache path.
 - Reading these together, the complete fix looks to be **2.37.0**. That is an inference from the release notes and source, not a statement in the advisory.
 
-This is a server-side hole (it does not involve the client), but it is more serious than the one the plan warns about. Suggested for the owner to decide: raise the admin warning threshold from 2.36.0 to 2.37.0.
+This is a server-side hole (it does not involve the client), but it is more serious than the one the plan warns about. The plan's admin warning threshold is raised from 2.36.0 to 2.37.0 to cover it.
 
 A related Moderate advisory, GHSA-mq55-hpc4-49gf ("Unbounded image resize parameters allow CPU and disk exhaustion via ffmpeg", 2026-08-11), is why cover `width` and `height` are clamped to 4096 in 2.37.2. Its fixed version was not looked up.
 
@@ -1141,7 +1141,7 @@ Where the plan docs guessed wrong or left something out. "Overview" is `00-overv
 ### Security
 
 41. **CVE-2026-73085 and the 2.36.0 fix are confirmed** (overview). Its advisory id is GHSA-798w-wv6c-2c3h.
-42. **A critical unauthenticated file-read advisory (GHSA-m5hp-x2xc-7jqq, no CVE) is missing from the plan**; the full fix appears to be 2.37.0. Owner decision: move `securityAdvisoryBelow` to 2.37.0.
+42. **A critical unauthenticated file-read advisory (GHSA-m5hp-x2xc-7jqq, no CVE) was missing from the plan**; the full fix appears to be 2.37.0. The plan now warns admins below 2.37.0 (overview and P1).
 
 ---
 

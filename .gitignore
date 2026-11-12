@@ -1,0 +1,62 @@
+# Local, never committed
+HANDOFF.md
+START-HERE.md
+.env*
+*.jks
+*.keystore
+key.properties
+*.p8
+*.p12
+*.mobileprovision
+**/google-services.json
+**/GoogleService-Info.plist
+
+# Dev ABS server data
+tool/abs-dev/data/
+tool/abs-dev/seed/audiobooks/
+tool/abs-dev/seed/podcasts/
+
+# Flutter and Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+*.iml
+.idea/
+.vscode/
+.metadata.bak
+doc/api/
+
+# Android
+android/.gradle/
+android/local.properties
+android/captures/
+android/app/debug/
+android/app/profile/
+android/app/release/
+**/android/**/gradle-wrapper.jar
+**/android/gradlew
+**/android/gradlew.bat
+**/android/**/GeneratedPluginRegistrant.java
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/App.framework
+ios/Runner/GeneratedPluginRegistrant.*
+**/ios/**/xcuserdata/
+**/ios/**/DerivedData/
+*.xcuserstate
+
+# OS
+.DS_Store
+Thumbs.db

@@ -41,8 +41,9 @@ grep -q "$pkg" <<<"$result" || { echo "FAIL: earloom://item/test did not open $p
 # Debug builds start slowly on an emulator: let the first frame land.
 sleep 20
 adb exec-out screencap -p >"$out/android_08_os_deep_link_item.png"
-adb shell dumpsys activity activities | grep -E "mResumedActivity|topResumedActivity" | head -2 | tee /dev/stderr \
-  | grep -q "$pkg" || { echo "FAIL: $pkg is not in front after the deep link"; exit 1; }
+front=$(adb shell dumpsys activity activities | grep -E "mResumedActivity|topResumedActivity" | head -2 || true)
+echo "$front"
+grep -q "$pkg" <<<"$front" || { echo "FAIL: $pkg is not in front after the deep link"; exit 1; }
 
 # A link outside the two the manifest declares must not reach the app.
 other=$(adb shell am start -W -a android.intent.action.VIEW -d "earloom://settings/delete-everything" 2>&1 || true)

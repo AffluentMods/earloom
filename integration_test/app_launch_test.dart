@@ -14,6 +14,7 @@
 import 'dart:io';
 
 import 'package:earloom/app/debug/debug_hub_screen.dart';
+import 'package:earloom/app/debug/demo_books.dart';
 import 'package:earloom/app/debug/design_item_preview.dart';
 import 'package:earloom/app/debug/design_player_preview.dart';
 import 'package:earloom/features/home/ui/home_screen.dart';
@@ -70,8 +71,7 @@ void main() {
     expect(find.byType(DebugHubScreen), findsOneWidget);
 
     Brightness brightness() => Theme.of(tester.element(find.byType(DebugHubScreen))).brightness;
-    await tester.tap(find.text('Dark'));
-    await settle(tester);
+    await setTheme(tester, 'Dark');
     expect(brightness(), Brightness.dark);
     await shot('02_debug_hub_dark');
 
@@ -86,22 +86,19 @@ void main() {
     await shot('04_player_dark');
     await back(tester);
 
-    await tester.tap(find.text('Light'));
-    await settle(tester);
+    await setTheme(tester, 'Light');
     expect(brightness(), Brightness.light);
     await openPreview(tester, item: true, book: 1);
     await shot('05_item_light');
     await back(tester);
 
-    await tester.tap(find.text('AMOLED'));
-    await settle(tester);
+    await setTheme(tester, 'AMOLED');
     await openPreview(tester, item: false, book: 6);
     await shot('06_player_amoled');
     await back(tester);
 
     // Leave the device on the system theme for the next run.
-    await tester.tap(find.text('System'));
-    await settle(tester);
+    await setTheme(tester, 'System');
 
     // Deep links, delivered the way the operating system hands them over.
     await openLink(tester, 'earloom://item/test');
@@ -124,11 +121,28 @@ Future<void> settle(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> openPreview(WidgetTester tester, {required bool item, required int book}) async {
-  final tooltip = item ? 'Item detail preview' : 'Now Playing preview';
-  final button = find.byTooltip(tooltip).at(book);
-  await tester.scrollUntilVisible(button, 200, scrollable: find.byType(Scrollable).first);
+/// Taps one of the theme buttons at the top of the developer screen,
+/// scrolling back up first: on a short screen, opening a preview further down
+/// the list leaves them out of view.
+Future<void> setTheme(WidgetTester tester, String label) async {
+  final button = find.text(label);
+  await tester.scrollUntilVisible(button, -200, scrollable: find.byType(Scrollable).first);
+  // "Visible" can still mean half under the app bar: bring it fully in.
+  await tester.ensureVisible(button);
+  await tester.pumpAndSettle();
   await tester.tap(button);
+  await settle(tester);
+}
+
+Future<void> openPreview(WidgetTester tester, {required bool item, required int book}) async {
+  // Rows further down are only built once scrolled to, so find the book by
+  // its title first, then the button in that row.
+  final row = find.widgetWithText(ListTile, demoBooks[book].title);
+  await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).first);
+  await tester.ensureVisible(row);
+  await tester.pumpAndSettle();
+  final tooltip = item ? 'Item detail preview' : 'Now Playing preview';
+  await tester.tap(find.descendant(of: row, matching: find.byTooltip(tooltip)));
   // The cover scheme comes from decoding the cover: give it real time.
   await Future<void>.delayed(const Duration(seconds: 2));
   await settle(tester);

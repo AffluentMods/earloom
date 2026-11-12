@@ -38,9 +38,15 @@ jobs:
           fetch-depth: 0
       - name: Every commit is signed off (DCO) and carries no tool attribution
         if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          # The PR's own last commit. HEAD here is the temporary merge commit
+          # GitHub creates for the test run, which is not part of the PR.
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           fail=0
-          for sha in $(git rev-list "origin/${{ github.base_ref }}..HEAD"); do
+          # Merge commits are skipped: they only join history someone already signed off.
+          for sha in $(git rev-list --no-merges "origin/$BASE_REF..$HEAD_SHA"); do
             body=$(git log -1 --format=%B "$sha")
             if ! grep -q '^Signed-off-by: ' <<<"$body"; then
               echo "Missing Signed-off-by: $(git log -1 --format='%h %s' "$sha")"; fail=1

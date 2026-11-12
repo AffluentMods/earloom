@@ -1,0 +1,5 @@
+# Server state and generated or downloaded audio never go in the repo.
+data/
+seed/audiobooks/
+seed/podcasts/
+.env.local

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2026 Affluent Labs LLC
+#
+# Runs on a booted Android emulator (CI) or a connected device:
+#   1. the device test (launch, tabs, theme, previews, in-app deep links)
+#   2. deep links through Android itself (am start), which the Flutter test
+#      cannot reach
+# Screenshots end up in build/device-screenshots/.
+set -euo pipefail
+cd "$(dirname "$0")/../.."
+out=build/device-screenshots
+mkdir -p "$out"
+pkg=com.affluentlabs.earloom
+
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_launch_test.dart
+
+echo "== Deep links through Android"
+flutter build apk --debug
+adb install -r build/app/outputs/flutter-apk/app-debug.apk
+adb shell am force-stop "$pkg"
+
+# A link the app owns must open the app.
+result=$(adb shell am start -W -a android.intent.action.VIEW -d "earloom://item/test" 2>&1)
+echo "$result"
+grep -q "$pkg" <<<"$result" || { echo "FAIL: earloom://item/test did not open $pkg"; exit 1; }
+# Debug builds start slowly on an emulator: let the first frame land.
+sleep 20
+adb exec-out screencap -p >"$out/android_08_os_deep_link_item.png"
+adb shell dumpsys activity activities | grep -E "mResumedActivity|topResumedActivity" | head -2 | tee /dev/stderr \
+  | grep -q "$pkg" || { echo "FAIL: $pkg is not in front after the deep link"; exit 1; }
+
+# A link outside the two the manifest declares must not reach the app.
+other=$(adb shell am start -W -a android.intent.action.VIEW -d "earloom://settings/delete-everything" 2>&1 || true)
+echo "$other"
+if grep -q "Activity: $pkg" <<<"$other"; then
+  echo "FAIL: an undeclared earloom:// link was routed to the app"; exit 1
+fi
+echo "OK: Android device checks passed"

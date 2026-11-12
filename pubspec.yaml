@@ -47,6 +47,10 @@ dev_dependencies:
   riverpod_generator: ^4.0.10
   freezed: ^4.0.3
   json_serializable: ^6.15.2
+  integration_test:
+    sdk: flutter
+  flutter_driver:
+    sdk: flutter
 
 flutter:
   uses-material-design: true

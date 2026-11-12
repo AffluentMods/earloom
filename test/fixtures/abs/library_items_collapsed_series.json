@@ -1,0 +1,132 @@
+{
+  "results": [
+    {
+      "id": "7d0e9978-10ea-4527-93d9-8773da9aa05b",
+      "ino": "950754",
+      "oldLibraryItemId": null,
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+      "path": "/audiobooks/Theo Vance/The Example Saga/Book 1 - Ember Road",
+      "relPath": "Theo Vance/The Example Saga/Book 1 - Ember Road",
+      "isFile": false,
+      "mtimeMs": 1794490692025,
+      "ctimeMs": 1794490692025,
+      "birthtimeMs": 1794490686781,
+      "addedAt": 1794490836404,
+      "updatedAt": 1794490836404,
+      "isMissing": false,
+      "isInvalid": false,
+      "mediaType": "book",
+      "media": {
+        "id": "25e9db9e-3bc9-4a17-8b06-f4e75ab8352f",
+        "metadata": {
+          "title": "Ember Road",
+          "titleIgnorePrefix": "Ember Road",
+          "subtitle": null,
+          "authorName": "Theo Vance",
+          "authorNameLF": "Vance, Theo",
+          "narratorName": "Jonah Pryce",
+          "seriesName": "The Example Saga #1",
+          "genres": [
+            "Science Fiction"
+          ],
+          "publishedYear": "2024",
+          "publishedDate": null,
+          "publisher": "Affluent Demo Press",
+          "description": "<p>Book one of The Example Saga.</p>",
+          "isbn": null,
+          "asin": null,
+          "language": "English",
+          "explicit": false,
+          "abridged": false
+        },
+        "coverPath": "/audiobooks/Theo Vance/The Example Saga/Book 1 - Ember Road/cover.jpg",
+        "tags": [],
+        "numTracks": 1,
+        "numAudioFiles": 1,
+        "numChapters": 4,
+        "duration": 720,
+        "size": 2959735
+      },
+      "numFiles": 3,
+      "size": 2968677,
+      "collapsedSeries": {
+        "id": "d22d1a16-8a7a-4fef-b740-7d3e5b98f093",
+        "name": "The Example Saga",
+        "nameIgnorePrefix": "Example Saga",
+        "sequence": "1",
+        "numBooks": 4,
+        "libraryItemIds": [
+          "7d0e9978-10ea-4527-93d9-8773da9aa05b",
+          "6957113a-8be3-4a90-88da-cf2e0e342ed9",
+          "8c792a73-bddf-4b85-9033-5141de71b2b9",
+          "d558336e-07c1-4b2a-b011-0d23be820be7"
+        ]
+      }
+    },
+    {
+      "id": "7c1bec65-2448-4d37-bf1c-98889dc29197",
+      "ino": "958466",
+      "oldLibraryItemId": null,
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+      "path": "/audiobooks/Ines Okafor/A Field Guide to Quiet Places",
+      "relPath": "Ines Okafor/A Field Guide to Quiet Places",
+      "isFile": false,
+      "mtimeMs": 1794490705725,
+      "ctimeMs": 1794490705725,
+      "birthtimeMs": 1794490703509,
+      "addedAt": 1794490836071,
+      "updatedAt": 1794490836071,
+      "isMissing": false,
+      "isInvalid": false,
+      "mediaType": "book",
+      "media": {
+        "id": "71b532b7-636a-446f-bbfd-0253beb1bf34",
+        "metadata": {
+          "title": "A Field Guide to Quiet Places",
+          "titleIgnorePrefix": "Field Guide to Quiet Places, A",
+          "subtitle": null,
+          "authorName": "Ines Okafor",
+          "authorNameLF": "Okafor, Ines",
+          "narratorName": "Ines Okafor",
+          "seriesName": "",
+          "genres": [
+            "Nonfiction",
+            "Nature"
+          ],
+          "publishedYear": "2019",
+          "publishedDate": null,
+          "publisher": "Affluent Demo Press",
+          "description": "<p>A slow, careful walk through <b>forty quiet places</b> and how to find your own. <i>Field notes</i>, maps and long silences.</p><p>Second paragraph with a <a href=\"https://example.com/quiet\">safe link</a>,<br />a line break, and things a client must never run or load:</p><a>a javascript link</a><p>styled paragraph</p><ul><li>First list item</li><li>Second list item</li></ul><p>Final paragraph, long enough to need the collapse control. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>",
+          "isbn": null,
+          "asin": null,
+          "language": "English",
+          "explicit": false,
+          "abridged": false
+        },
+        "coverPath": "/audiobooks/Ines Okafor/A Field Guide to Quiet Places/cover.jpg",
+        "tags": [
+          "html-description"
+        ],
+        "numTracks": 3,
+        "numAudioFiles": 3,
+        "numChapters": 3,
+        "duration": 360,
+        "size": 1441773
+      },
+      "numFiles": 5,
+      "size": 1451433
+    }
+  ],
+  "total": 6,
+  "limit": 20,
+  "page": 0,
+  "sortBy": "media.metadata.title",
+  "sortDesc": false,
+  "mediaType": "book",
+  "minified": true,
+  "collapseseries": true,
+  "include": "",
+  "offset": 0
+}

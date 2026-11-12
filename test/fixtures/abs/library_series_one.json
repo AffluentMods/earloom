@@ -1,0 +1,21 @@
+{
+  "id": "d22d1a16-8a7a-4fef-b740-7d3e5b98f093",
+  "name": "The Example Saga",
+  "nameIgnorePrefix": "Example Saga, The",
+  "description": null,
+  "addedAt": 1794490836158,
+  "updatedAt": 1794490836158,
+  "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+  "progress": {
+    "libraryItemIds": [
+      "7d0e9978-10ea-4527-93d9-8773da9aa05b",
+      "6957113a-8be3-4a90-88da-cf2e0e342ed9",
+      "8c792a73-bddf-4b85-9033-5141de71b2b9",
+      "d558336e-07c1-4b2a-b011-0d23be820be7"
+    ],
+    "libraryItemIdsFinished": [
+      "7d0e9978-10ea-4527-93d9-8773da9aa05b"
+    ],
+    "isFinished": false
+  }
+}

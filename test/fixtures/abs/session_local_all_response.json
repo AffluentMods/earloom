@@ -1,0 +1,19 @@
+{
+  "results": [
+    {
+      "id": "11111111-2222-4333-8444-555555555502",
+      "success": true,
+      "progressSynced": true
+    },
+    {
+      "id": "11111111-2222-4333-8444-555555555503",
+      "success": true,
+      "progressSynced": false
+    },
+    {
+      "id": "11111111-2222-4333-8444-555555555504",
+      "success": false,
+      "error": "Media item not found"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "authors": [
+    {
+      "id": "c4eae851-0411-4f2d-aae3-1c39b37baecd",
+      "asin": null,
+      "name": "Rafael Dorn",
+      "description": null,
+      "imagePath": null,
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "addedAt": 1794490835574,
+      "updatedAt": 1794490835574,
+      "numBooks": 2,
+      "lastFirst": "Dorn, Rafael"
+    },
+    {
+      "id": "d549684d-0013-4cc6-b8fa-8833bbbc7ea7",
+      "asin": null,
+      "name": "Mara Ellison",
+      "description": null,
+      "imagePath": null,
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "addedAt": 1794490835785,
+      "updatedAt": 1794490835785,
+      "numBooks": 2,
+      "lastFirst": "Ellison, Mara"
+    },
+    {
+      "id": "99b80653-b97d-4e90-8abe-469ba1312697",
+      "asin": null,
+      "name": "Ines Okafor",
+      "description": null,
+      "imagePath": null,
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "addedAt": 1794490836076,
+      "updatedAt": 1794490836076,
+      "numBooks": 1,
+      "lastFirst": "Okafor, Ines"
+    },
+    {
+      "id": "e271d8df-7aa6-43d5-8e62-5b661bf2aafa",
+      "asin": null,
+      "name": "Theo Vance",
+      "description": null,
+      "imagePath": null,
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "addedAt": 1794490836158,
+      "updatedAt": 1794490836158,
+      "numBooks": 4,
+      "lastFirst": "Vance, Theo"
+    }
+  ]
+}

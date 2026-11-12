@@ -1,0 +1,66 @@
+{
+  "authors": [
+    {
+      "id": "99b80653-b97d-4e90-8abe-469ba1312697",
+      "name": "Ines Okafor"
+    },
+    {
+      "id": "d549684d-0013-4cc6-b8fa-8833bbbc7ea7",
+      "name": "Mara Ellison"
+    },
+    {
+      "id": "c4eae851-0411-4f2d-aae3-1c39b37baecd",
+      "name": "Rafael Dorn"
+    },
+    {
+      "id": "e271d8df-7aa6-43d5-8e62-5b661bf2aafa",
+      "name": "Theo Vance"
+    }
+  ],
+  "genres": [
+    "Fantasy",
+    "Fiction",
+    "Mystery",
+    "Nature",
+    "Nonfiction",
+    "Romance",
+    "Science Fiction"
+  ],
+  "tags": [
+    "embedded-cover",
+    "html-description",
+    "long",
+    "multi-file",
+    "novella",
+    "opus",
+    "single-file",
+    "tall-cover"
+  ],
+  "series": [
+    {
+      "id": "d22d1a16-8a7a-4fef-b740-7d3e5b98f093",
+      "name": "The Example Saga"
+    }
+  ],
+  "narrators": [
+    "Ines Okafor",
+    "Jonah Pryce",
+    "Priya Castellan"
+  ],
+  "languages": [
+    "English"
+  ],
+  "publishers": [
+    "Affluent Demo Press"
+  ],
+  "publishedDecades": [
+    "2010",
+    "2020"
+  ],
+  "bookCount": 9,
+  "authorCount": 4,
+  "seriesCount": 1,
+  "podcastCount": 0,
+  "numIssues": 0,
+  "loadedAt": 1794492528447
+}

@@ -1,0 +1,508 @@
+[
+  {
+    "id": "continue-listening",
+    "label": "Continue Listening",
+    "labelStringKey": "LabelContinueListening",
+    "type": "book",
+    "entities": [
+      {
+        "id": "7c1bec65-2448-4d37-bf1c-98889dc29197",
+        "ino": "958466",
+        "oldLibraryItemId": null,
+        "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+        "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+        "path": "/audiobooks/Ines Okafor/A Field Guide to Quiet Places",
+        "relPath": "Ines Okafor/A Field Guide to Quiet Places",
+        "isFile": false,
+        "mtimeMs": 1794490705725,
+        "ctimeMs": 1794490705725,
+        "birthtimeMs": 1794490703509,
+        "addedAt": 1794490836071,
+        "updatedAt": 1794490836071,
+        "isMissing": false,
+        "isInvalid": false,
+        "mediaType": "book",
+        "media": {
+          "id": "71b532b7-636a-446f-bbfd-0253beb1bf34",
+          "metadata": {
+            "title": "A Field Guide to Quiet Places",
+            "titleIgnorePrefix": "Field Guide to Quiet Places, A",
+            "subtitle": null,
+            "authorName": "Ines Okafor",
+            "authorNameLF": "Okafor, Ines",
+            "narratorName": "Ines Okafor",
+            "seriesName": "",
+            "genres": [
+              "Nonfiction",
+              "Nature"
+            ],
+            "publishedYear": "2019",
+            "publishedDate": null,
+            "publisher": "Affluent Demo Press",
+            "description": "<p>A slow, careful walk through <b>forty quiet places</b> and how to find your own. <i>Field notes</i>, maps and long silences.</p><p>Second paragraph with a <a href=\"https://example.com/quiet\">safe link</a>,<br />a line break, and things a client must never run or load:</p><a>a javascript link</a><p>styled paragraph</p><ul><li>First list item</li><li>Second list item</li></ul><p>Final paragraph, long enough to need the collapse control. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>",
+            "isbn": null,
+            "asin": null,
+            "language": "English",
+            "explicit": false,
+            "abridged": false
+          },
+          "coverPath": "/audiobooks/Ines Okafor/A Field Guide to Quiet Places/cover.jpg",
+          "tags": [
+            "html-description"
+          ],
+          "numTracks": 3,
+          "numAudioFiles": 3,
+          "numChapters": 3,
+          "duration": 360,
+          "size": 1441773
+        },
+        "numFiles": 5,
+        "size": 1451433
+      },
+      {
+        "id": "695b9eb3-1a88-4320-b033-95089797f205",
+        "ino": "950724",
+        "oldLibraryItemId": null,
+        "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+        "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+        "path": "/audiobooks/Mara Ellison/The Clockmaker's Tide",
+        "relPath": "Mara Ellison/The Clockmaker's Tide",
+        "isFile": false,
+        "mtimeMs": 1794490668341,
+        "ctimeMs": 1794490668341,
+        "birthtimeMs": 1794490659297,
+        "addedAt": 1794490835778,
+        "updatedAt": 1794490835778,
+        "isMissing": false,
+        "isInvalid": false,
+        "mediaType": "book",
+        "media": {
+          "id": "92a61808-6046-4a57-b578-06354c7b1067",
+          "metadata": {
+            "title": "The Clockmaker's Tide",
+            "titleIgnorePrefix": "Clockmaker's Tide, The",
+            "subtitle": null,
+            "authorName": "Mara Ellison",
+            "authorNameLF": "Ellison, Mara",
+            "narratorName": "Jonah Pryce",
+            "seriesName": "",
+            "genres": [
+              "Fiction",
+              "Fantasy"
+            ],
+            "publishedYear": "2024",
+            "publishedDate": null,
+            "publisher": "Affluent Demo Press",
+            "description": "<p>A harbor town where every clock runs a little differently.</p>",
+            "isbn": null,
+            "asin": null,
+            "language": "English",
+            "explicit": false,
+            "abridged": false
+          },
+          "coverPath": "/audiobooks/Mara Ellison/The Clockmaker's Tide/cover.jpg",
+          "tags": [
+            "multi-file"
+          ],
+          "numTracks": 8,
+          "numAudioFiles": 8,
+          "numChapters": 8,
+          "duration": 1920,
+          "size": 7684680
+        },
+        "numFiles": 10,
+        "size": 7694442
+      }
+    ],
+    "total": 5
+  },
+  {
+    "id": "continue-series",
+    "label": "Continue Series",
+    "labelStringKey": "LabelContinueSeries",
+    "type": "book",
+    "entities": [
+      {
+        "id": "6957113a-8be3-4a90-88da-cf2e0e342ed9",
+        "ino": "950760",
+        "oldLibraryItemId": null,
+        "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+        "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+        "path": "/audiobooks/Theo Vance/The Example Saga/Book 2 - Ash Harbor",
+        "relPath": "Theo Vance/The Example Saga/Book 2 - Ash Harbor",
+        "isFile": false,
+        "mtimeMs": 1794490697249,
+        "ctimeMs": 1794490697249,
+        "birthtimeMs": 1794490692205,
+        "addedAt": 1794490836230,
+        "updatedAt": 1794490836230,
+        "isMissing": false,
+        "isInvalid": false,
+        "mediaType": "book",
+        "media": {
+          "id": "2dc74345-96f3-4450-9a4f-b84d0599d217",
+          "metadata": {
+            "title": "Ash Harbor",
+            "titleIgnorePrefix": "Ash Harbor",
+            "subtitle": null,
+            "authorName": "Theo Vance",
+            "authorNameLF": "Vance, Theo",
+            "narratorName": "Jonah Pryce",
+            "seriesName": "",
+            "genres": [
+              "Science Fiction"
+            ],
+            "publishedYear": "2024",
+            "publishedDate": null,
+            "publisher": "Affluent Demo Press",
+            "description": "<p>Book two of The Example Saga.</p>",
+            "isbn": null,
+            "asin": null,
+            "language": "English",
+            "explicit": false,
+            "abridged": false,
+            "series": {
+              "id": "d22d1a16-8a7a-4fef-b740-7d3e5b98f093",
+              "name": "The Example Saga",
+              "sequence": "2"
+            }
+          },
+          "coverPath": "/audiobooks/Theo Vance/The Example Saga/Book 2 - Ash Harbor/cover.jpg",
+          "tags": [],
+          "numTracks": 1,
+          "numAudioFiles": 1,
+          "numChapters": 4,
+          "duration": 720,
+          "size": 2959735
+        },
+        "numFiles": 3,
+        "size": 2968442
+      }
+    ],
+    "total": 1
+  },
+  {
+    "id": "recently-added",
+    "label": "Recently Added",
+    "labelStringKey": "LabelRecentlyAdded",
+    "type": "book",
+    "entities": [
+      {
+        "id": "7d0e9978-10ea-4527-93d9-8773da9aa05b",
+        "ino": "950754",
+        "oldLibraryItemId": null,
+        "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+        "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+        "path": "/audiobooks/Theo Vance/The Example Saga/Book 1 - Ember Road",
+        "relPath": "Theo Vance/The Example Saga/Book 1 - Ember Road",
+        "isFile": false,
+        "mtimeMs": 1794490692025,
+        "ctimeMs": 1794490692025,
+        "birthtimeMs": 1794490686781,
+        "addedAt": 1794490836404,
+        "updatedAt": 1794490836404,
+        "isMissing": false,
+        "isInvalid": false,
+        "mediaType": "book",
+        "media": {
+          "id": "25e9db9e-3bc9-4a17-8b06-f4e75ab8352f",
+          "metadata": {
+            "title": "Ember Road",
+            "titleIgnorePrefix": "Ember Road",
+            "subtitle": null,
+            "authorName": "Theo Vance",
+            "authorNameLF": "Vance, Theo",
+            "narratorName": "Jonah Pryce",
+            "seriesName": "The Example Saga #1",
+            "genres": [
+              "Science Fiction"
+            ],
+            "publishedYear": "2024",
+            "publishedDate": null,
+            "publisher": "Affluent Demo Press",
+            "description": "<p>Book one of The Example Saga.</p>",
+            "isbn": null,
+            "asin": null,
+            "language": "English",
+            "explicit": false,
+            "abridged": false
+          },
+          "coverPath": "/audiobooks/Theo Vance/The Example Saga/Book 1 - Ember Road/cover.jpg",
+          "tags": [],
+          "numTracks": 1,
+          "numAudioFiles": 1,
+          "numChapters": 4,
+          "duration": 720,
+          "size": 2959735
+        },
+        "numFiles": 3,
+        "size": 2968677
+      },
+      {
+        "id": "d558336e-07c1-4b2a-b011-0d23be820be7",
+        "ino": "950767",
+        "oldLibraryItemId": null,
+        "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+        "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+        "path": "/audiobooks/Theo Vance/The Example Saga/Book 10 - Kindling Sky",
+        "relPath": "Theo Vance/The Example Saga/Book 10 - Kindling Sky",
+        "isFile": false,
+        "mtimeMs": 1794490703301,
+        "ctimeMs": 1794490703301,
+        "birthtimeMs": 1794490700365,
+        "addedAt": 1794490836319,
+        "updatedAt": 1794490836319,
+        "isMissing": false,
+        "isInvalid": false,
+        "mediaType": "book",
+        "media": {
+          "id": "4c72dad9-c8c5-45d1-8dac-c13c4c353e53",
+          "metadata": {
+            "title": "Kindling Sky",
+            "titleIgnorePrefix": "Kindling Sky",
+            "subtitle": null,
+            "authorName": "Theo Vance",
+            "authorNameLF": "Vance, Theo",
+            "narratorName": "Jonah Pryce",
+            "seriesName": "The Example Saga #10",
+            "genres": [
+              "Science Fiction"
+            ],
+            "publishedYear": "2024",
+            "publishedDate": null,
+            "publisher": "Affluent Demo Press",
+            "description": "<p>Book ten. It exists to prove that 10 sorts after 2.5.</p>",
+            "isbn": null,
+            "asin": null,
+            "language": "English",
+            "explicit": false,
+            "abridged": false
+          },
+          "coverPath": "/audiobooks/Theo Vance/The Example Saga/Book 10 - Kindling Sky/cover.jpg",
+          "tags": [],
+          "numTracks": 1,
+          "numAudioFiles": 1,
+          "numChapters": 2,
+          "duration": 360,
+          "size": 1480911
+        },
+        "numFiles": 3,
+        "size": 1490373
+      }
+    ],
+    "total": 9
+  },
+  {
+    "id": "recent-series",
+    "label": "Recent Series",
+    "labelStringKey": "LabelRecentSeries",
+    "type": "series",
+    "entities": [
+      {
+        "id": "d22d1a16-8a7a-4fef-b740-7d3e5b98f093",
+        "name": "The Example Saga",
+        "nameIgnorePrefix": "Example Saga, The",
+        "description": null,
+        "addedAt": 1794490836158,
+        "updatedAt": 1794490836158,
+        "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+        "books": [
+          {
+            "id": "7d0e9978-10ea-4527-93d9-8773da9aa05b",
+            "ino": "950754",
+            "oldLibraryItemId": null,
+            "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+            "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+            "path": "/audiobooks/Theo Vance/The Example Saga/Book 1 - Ember Road",
+            "relPath": "Theo Vance/The Example Saga/Book 1 - Ember Road",
+            "isFile": false,
+            "mtimeMs": 1794490692025,
+            "ctimeMs": 1794490692025,
+            "birthtimeMs": 1794490686781,
+            "addedAt": 1794490836404,
+            "updatedAt": 1794490836404,
+            "isMissing": false,
+            "isInvalid": false,
+            "mediaType": "book",
+            "media": {
+              "id": "25e9db9e-3bc9-4a17-8b06-f4e75ab8352f",
+              "metadata": {
+                "title": "Ember Road",
+                "titleIgnorePrefix": "Ember Road",
+                "subtitle": null,
+                "authorName": "",
+                "authorNameLF": "",
+                "narratorName": "Jonah Pryce",
+                "seriesName": "",
+                "genres": [
+                  "Science Fiction"
+                ],
+                "publishedYear": "2024",
+                "publishedDate": null,
+                "publisher": "Affluent Demo Press",
+                "description": "<p>Book one of The Example Saga.</p>",
+                "isbn": null,
+                "asin": null,
+                "language": "English",
+                "explicit": false,
+                "abridged": false
+              },
+              "coverPath": "/audiobooks/Theo Vance/The Example Saga/Book 1 - Ember Road/cover.jpg",
+              "tags": [],
+              "numTracks": 1,
+              "numAudioFiles": 1,
+              "numChapters": 4,
+              "duration": 720,
+              "size": 2959735
+            },
+            "numFiles": 3,
+            "size": 2968677
+          },
+          {
+            "id": "6957113a-8be3-4a90-88da-cf2e0e342ed9",
+            "ino": "950760",
+            "oldLibraryItemId": null,
+            "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+            "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+            "path": "/audiobooks/Theo Vance/The Example Saga/Book 2 - Ash Harbor",
+            "relPath": "Theo Vance/The Example Saga/Book 2 - Ash Harbor",
+            "isFile": false,
+            "mtimeMs": 1794490697249,
+            "ctimeMs": 1794490697249,
+            "birthtimeMs": 1794490692205,
+            "addedAt": 1794490836230,
+            "updatedAt": 1794490836230,
+            "isMissing": false,
+            "isInvalid": false,
+            "mediaType": "book",
+            "media": {
+              "id": "2dc74345-96f3-4450-9a4f-b84d0599d217",
+              "metadata": {
+                "title": "Ash Harbor",
+                "titleIgnorePrefix": "Ash Harbor",
+                "subtitle": null,
+                "authorName": "",
+                "authorNameLF": "",
+                "narratorName": "Jonah Pryce",
+                "seriesName": "",
+                "genres": [
+                  "Science Fiction"
+                ],
+                "publishedYear": "2024",
+                "publishedDate": null,
+                "publisher": "Affluent Demo Press",
+                "description": "<p>Book two of The Example Saga.</p>",
+                "isbn": null,
+                "asin": null,
+                "language": "English",
+                "explicit": false,
+                "abridged": false
+              },
+              "coverPath": "/audiobooks/Theo Vance/The Example Saga/Book 2 - Ash Harbor/cover.jpg",
+              "tags": [],
+              "numTracks": 1,
+              "numAudioFiles": 1,
+              "numChapters": 4,
+              "duration": 720,
+              "size": 2959735
+            },
+            "numFiles": 3,
+            "size": 2968442
+          }
+        ]
+      }
+    ],
+    "total": 1
+  },
+  {
+    "id": "listen-again",
+    "label": "Listen Again",
+    "labelStringKey": "LabelListenAgain",
+    "type": "book",
+    "entities": [
+      {
+        "id": "7d0e9978-10ea-4527-93d9-8773da9aa05b",
+        "ino": "950754",
+        "oldLibraryItemId": null,
+        "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+        "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+        "path": "/audiobooks/Theo Vance/The Example Saga/Book 1 - Ember Road",
+        "relPath": "Theo Vance/The Example Saga/Book 1 - Ember Road",
+        "isFile": false,
+        "mtimeMs": 1794490692025,
+        "ctimeMs": 1794490692025,
+        "birthtimeMs": 1794490686781,
+        "addedAt": 1794490836404,
+        "updatedAt": 1794490836404,
+        "isMissing": false,
+        "isInvalid": false,
+        "mediaType": "book",
+        "media": {
+          "id": "25e9db9e-3bc9-4a17-8b06-f4e75ab8352f",
+          "metadata": {
+            "title": "Ember Road",
+            "titleIgnorePrefix": "Ember Road",
+            "subtitle": null,
+            "authorName": "Theo Vance",
+            "authorNameLF": "Vance, Theo",
+            "narratorName": "Jonah Pryce",
+            "seriesName": "The Example Saga #1",
+            "genres": [
+              "Science Fiction"
+            ],
+            "publishedYear": "2024",
+            "publishedDate": null,
+            "publisher": "Affluent Demo Press",
+            "description": "<p>Book one of The Example Saga.</p>",
+            "isbn": null,
+            "asin": null,
+            "language": "English",
+            "explicit": false,
+            "abridged": false
+          },
+          "coverPath": "/audiobooks/Theo Vance/The Example Saga/Book 1 - Ember Road/cover.jpg",
+          "tags": [],
+          "numTracks": 1,
+          "numAudioFiles": 1,
+          "numChapters": 4,
+          "duration": 720,
+          "size": 2959735
+        },
+        "numFiles": 3,
+        "size": 2968677
+      }
+    ],
+    "total": 1
+  },
+  {
+    "id": "newest-authors",
+    "label": "Newest Authors",
+    "labelStringKey": "LabelNewestAuthors",
+    "type": "authors",
+    "entities": [
+      {
+        "id": "e271d8df-7aa6-43d5-8e62-5b661bf2aafa",
+        "asin": null,
+        "name": "Theo Vance",
+        "description": null,
+        "imagePath": null,
+        "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+        "addedAt": 1794490836158,
+        "updatedAt": 1794490836158,
+        "numBooks": 4
+      },
+      {
+        "id": "99b80653-b97d-4e90-8abe-469ba1312697",
+        "asin": null,
+        "name": "Ines Okafor",
+        "description": null,
+        "imagePath": null,
+        "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+        "addedAt": 1794490836076,
+        "updatedAt": 1794490836076,
+        "numBooks": 1
+      }
+    ],
+    "total": 4
+  }
+]

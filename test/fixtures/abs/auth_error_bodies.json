@@ -1,0 +1,61 @@
+{
+  "_comment": "Compiled by hand from live responses, not one raw response. Each entry: endpoint, HTTP status, content type and exact body.",
+  "login_wrong_password": {
+    "request": "POST /login",
+    "status": 401,
+    "contentType": "text/plain",
+    "body": "Unauthorized"
+  },
+  "login_missing_fields": {
+    "request": "POST /login",
+    "status": 400,
+    "contentType": "text/plain",
+    "body": "Bad Request"
+  },
+  "api_missing_or_bad_or_expired_token": {
+    "request": "GET /api/me",
+    "status": 401,
+    "contentType": "text/plain",
+    "body": "Unauthorized"
+  },
+  "refresh_no_token": {
+    "request": "POST /auth/refresh",
+    "status": 401,
+    "contentType": "application/json",
+    "body": {
+      "error": "No refresh token provided"
+    }
+  },
+  "refresh_invalid_or_revoked_or_out_of_grace": {
+    "request": "POST /auth/refresh",
+    "status": 401,
+    "contentType": "application/json",
+    "body": {
+      "error": "Invalid refresh token"
+    }
+  },
+  "refresh_with_access_token": {
+    "request": "POST /auth/refresh",
+    "status": 401,
+    "contentType": "application/json",
+    "body": {
+      "error": "Invalid token type"
+    }
+  },
+  "refresh_expired": {
+    "request": "POST /auth/refresh",
+    "status": 401,
+    "contentType": "application/json",
+    "body": {
+      "error": "Refresh token expired"
+    }
+  },
+  "rate_limited": {
+    "request": "POST /login or POST /auth/refresh",
+    "status": 429,
+    "contentType": "application/json",
+    "body": {
+      "error": "Too many authentication requests"
+    }
+  }
+}

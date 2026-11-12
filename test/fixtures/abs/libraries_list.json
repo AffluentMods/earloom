@@ -1,0 +1,73 @@
+{
+  "libraries": [
+    {
+      "id": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "name": "Audiobooks",
+      "folders": [
+        {
+          "id": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+          "fullPath": "/audiobooks",
+          "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+          "addedAt": 1794490835286
+        }
+      ],
+      "displayOrder": 1,
+      "icon": "audiobookshelf",
+      "mediaType": "book",
+      "provider": "google",
+      "settings": {
+        "coverAspectRatio": 1,
+        "disableWatcher": false,
+        "autoScanCronExpression": null,
+        "skipMatchingMediaWithAsin": false,
+        "skipMatchingMediaWithIsbn": false,
+        "audiobooksOnly": false,
+        "epubsAllowScriptedContent": false,
+        "hideSingleBookSeries": false,
+        "onlyShowLaterBooksInContinueSeries": false,
+        "metadataPrecedence": [
+          "folderStructure",
+          "audioMetatags",
+          "nfoFile",
+          "txtFiles",
+          "opfFile",
+          "absMetadata"
+        ],
+        "markAsFinishedPercentComplete": null,
+        "markAsFinishedTimeRemaining": 10
+      },
+      "lastScan": 1794490836426,
+      "lastScanVersion": "2.37.2",
+      "createdAt": 1794490835282,
+      "lastUpdate": 1794490836426
+    },
+    {
+      "id": "739e95d2-1d1b-440b-86e2-22424fc2950b",
+      "name": "Podcasts",
+      "folders": [
+        {
+          "id": "d57cd4d0-4bfc-40b2-8416-d82f7137508b",
+          "fullPath": "/podcasts",
+          "libraryId": "739e95d2-1d1b-440b-86e2-22424fc2950b",
+          "addedAt": 1794490835307
+        }
+      ],
+      "displayOrder": 2,
+      "icon": "podcast",
+      "mediaType": "podcast",
+      "provider": "google",
+      "settings": {
+        "coverAspectRatio": 1,
+        "disableWatcher": false,
+        "autoScanCronExpression": null,
+        "podcastSearchRegion": "us",
+        "markAsFinishedPercentComplete": null,
+        "markAsFinishedTimeRemaining": 10
+      },
+      "lastScan": 1794490835516,
+      "lastScanVersion": "2.37.2",
+      "createdAt": 1794490835304,
+      "lastUpdate": 1794490835516
+    }
+  ]
+}

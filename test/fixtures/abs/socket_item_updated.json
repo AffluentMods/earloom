@@ -1,0 +1,411 @@
+{
+  "id": "ceefc37b-cda1-4a26-b975-6aee7e3f9482",
+  "ino": "958478",
+  "oldLibraryItemId": null,
+  "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+  "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+  "path": "/audiobooks/Rafael Dorn/The Long Way to Morning",
+  "relPath": "Rafael Dorn/The Long Way to Morning",
+  "isFile": false,
+  "mtimeMs": 1794490829885,
+  "ctimeMs": 1794490829885,
+  "birthtimeMs": 1794490711325,
+  "addedAt": 1794490835566,
+  "updatedAt": 1794492168470,
+  "isMissing": false,
+  "isInvalid": false,
+  "mediaType": "book",
+  "media": {
+    "id": "32fbe441-d29b-4a06-b384-15fd2ccfc52f",
+    "metadata": {
+      "title": "The Long Way to Morning",
+      "subtitle": "A Probe Subtitle",
+      "authors": [
+        {
+          "id": "c4eae851-0411-4f2d-aae3-1c39b37baecd",
+          "name": "Rafael Dorn"
+        }
+      ],
+      "narrators": [
+        "Jonah Pryce"
+      ],
+      "series": [],
+      "genres": [
+        "Fiction"
+      ],
+      "publishedYear": "2021",
+      "publishedDate": null,
+      "publisher": "Affluent Demo Press",
+      "description": "<p>Over five hours in one file: for sleep timers, long seeks and soak tests.</p>",
+      "isbn": null,
+      "asin": null,
+      "language": "English",
+      "explicit": false,
+      "abridged": false,
+      "titleIgnorePrefix": "Long Way to Morning, The",
+      "authorName": "Rafael Dorn",
+      "authorNameLF": "Dorn, Rafael",
+      "narratorName": "Jonah Pryce",
+      "seriesName": "",
+      "descriptionPlain": "Over five hours in one file: for sleep timers, long seeks and soak tests."
+    },
+    "coverPath": "/audiobooks/Rafael Dorn/The Long Way to Morning/cover.jpg",
+    "tags": [
+      "long"
+    ],
+    "numTracks": 1,
+    "numAudioFiles": 1,
+    "numChapters": 31,
+    "duration": 18600,
+    "size": 39235131,
+    "libraryItemId": "ceefc37b-cda1-4a26-b975-6aee7e3f9482",
+    "audioFiles": [
+      {
+        "index": 1,
+        "ino": "958480",
+        "metadata": {
+          "filename": "The Long Way to Morning.m4b",
+          "ext": ".m4b",
+          "path": "/audiobooks/Rafael Dorn/The Long Way to Morning/The Long Way to Morning.m4b",
+          "relPath": "The Long Way to Morning.m4b",
+          "size": 39235131,
+          "mtimeMs": 1794490829765,
+          "ctimeMs": 1794490829765,
+          "birthtimeMs": 1794490711705
+        },
+        "addedAt": 1794490835559,
+        "updatedAt": 1794490835559,
+        "trackNumFromMeta": null,
+        "discNumFromMeta": null,
+        "trackNumFromFilename": null,
+        "discNumFromFilename": null,
+        "manuallyVerified": false,
+        "exclude": false,
+        "error": null,
+        "format": "QuickTime / MOV",
+        "duration": 18600,
+        "bitRate": 16123,
+        "language": "und",
+        "codec": "aac",
+        "timeBase": "1/24000",
+        "channels": 1,
+        "channelLayout": "mono",
+        "chapters": [
+          {
+            "start": 0,
+            "end": 600,
+            "title": "Chapter 1",
+            "id": 0
+          },
+          {
+            "start": 600,
+            "end": 1200,
+            "title": "Chapter 2",
+            "id": 1
+          }
+        ],
+        "embeddedCoverArt": null,
+        "metaTags": {
+          "tagAlbum": "The Long Way to Morning",
+          "tagArtist": "Rafael Dorn",
+          "tagTitle": "The Long Way to Morning",
+          "tagAlbumArtist": "Rafael Dorn",
+          "tagDate": "2021",
+          "tagComposer": "Jonah Pryce",
+          "tagEncoder": "Lavf62.12.102"
+        },
+        "mimeType": "audio/mp4"
+      }
+    ],
+    "chapters": [
+      {
+        "start": 0,
+        "end": 600,
+        "title": "Chapter 1",
+        "id": 0
+      },
+      {
+        "start": 600,
+        "end": 1200,
+        "title": "Chapter 2",
+        "id": 1
+      },
+      {
+        "start": 1200,
+        "end": 1800,
+        "title": "Chapter 3",
+        "id": 2
+      },
+      {
+        "start": 1800,
+        "end": 2400,
+        "title": "Chapter 4",
+        "id": 3
+      },
+      {
+        "start": 2400,
+        "end": 3000,
+        "title": "Chapter 5",
+        "id": 4
+      },
+      {
+        "start": 3000,
+        "end": 3600,
+        "title": "Chapter 6",
+        "id": 5
+      },
+      {
+        "start": 3600,
+        "end": 4200,
+        "title": "Chapter 7",
+        "id": 6
+      },
+      {
+        "start": 4200,
+        "end": 4800,
+        "title": "Chapter 8",
+        "id": 7
+      },
+      {
+        "start": 4800,
+        "end": 5400,
+        "title": "Chapter 9",
+        "id": 8
+      },
+      {
+        "start": 5400,
+        "end": 6000,
+        "title": "Chapter 10",
+        "id": 9
+      },
+      {
+        "start": 6000,
+        "end": 6600,
+        "title": "Chapter 11",
+        "id": 10
+      },
+      {
+        "start": 6600,
+        "end": 7200,
+        "title": "Chapter 12",
+        "id": 11
+      },
+      {
+        "start": 7200,
+        "end": 7800,
+        "title": "Chapter 13",
+        "id": 12
+      },
+      {
+        "start": 7800,
+        "end": 8400,
+        "title": "Chapter 14",
+        "id": 13
+      },
+      {
+        "start": 8400,
+        "end": 9000,
+        "title": "Chapter 15",
+        "id": 14
+      },
+      {
+        "start": 9000,
+        "end": 9600,
+        "title": "Chapter 16",
+        "id": 15
+      },
+      {
+        "start": 9600,
+        "end": 10200,
+        "title": "Chapter 17",
+        "id": 16
+      },
+      {
+        "start": 10200,
+        "end": 10800,
+        "title": "Chapter 18",
+        "id": 17
+      },
+      {
+        "start": 10800,
+        "end": 11400,
+        "title": "Chapter 19",
+        "id": 18
+      },
+      {
+        "start": 11400,
+        "end": 12000,
+        "title": "Chapter 20",
+        "id": 19
+      },
+      {
+        "start": 12000,
+        "end": 12600,
+        "title": "Chapter 21",
+        "id": 20
+      },
+      {
+        "start": 12600,
+        "end": 13200,
+        "title": "Chapter 22",
+        "id": 21
+      },
+      {
+        "start": 13200,
+        "end": 13800,
+        "title": "Chapter 23",
+        "id": 22
+      },
+      {
+        "start": 13800,
+        "end": 14400,
+        "title": "Chapter 24",
+        "id": 23
+      },
+      {
+        "start": 14400,
+        "end": 15000,
+        "title": "Chapter 25",
+        "id": 24
+      },
+      {
+        "start": 15000,
+        "end": 15600,
+        "title": "Chapter 26",
+        "id": 25
+      },
+      {
+        "start": 15600,
+        "end": 16200,
+        "title": "Chapter 27",
+        "id": 26
+      },
+      {
+        "start": 16200,
+        "end": 16800,
+        "title": "Chapter 28",
+        "id": 27
+      },
+      {
+        "start": 16800,
+        "end": 17400,
+        "title": "Chapter 29",
+        "id": 28
+      },
+      {
+        "start": 17400,
+        "end": 18000,
+        "title": "Chapter 30",
+        "id": 29
+      },
+      {
+        "start": 18000,
+        "end": 18600,
+        "title": "Chapter 31",
+        "id": 30
+      }
+    ],
+    "ebookFile": null,
+    "tracks": [
+      {
+        "index": 1,
+        "ino": "958480",
+        "metadata": {
+          "filename": "The Long Way to Morning.m4b",
+          "ext": ".m4b",
+          "path": "/audiobooks/Rafael Dorn/The Long Way to Morning/The Long Way to Morning.m4b",
+          "relPath": "The Long Way to Morning.m4b",
+          "size": 39235131,
+          "mtimeMs": 1794490829765,
+          "ctimeMs": 1794490829765,
+          "birthtimeMs": 1794490711705
+        },
+        "addedAt": 1794490835559,
+        "updatedAt": 1794490835559,
+        "trackNumFromMeta": null,
+        "discNumFromMeta": null,
+        "trackNumFromFilename": null,
+        "discNumFromFilename": null,
+        "manuallyVerified": false,
+        "exclude": false,
+        "error": null,
+        "format": "QuickTime / MOV",
+        "duration": 18600,
+        "bitRate": 16123,
+        "language": "und",
+        "codec": "aac",
+        "timeBase": "1/24000",
+        "channels": 1,
+        "channelLayout": "mono",
+        "chapters": [
+          {
+            "start": 0,
+            "end": 600,
+            "title": "Chapter 1",
+            "id": 0
+          },
+          {
+            "start": 600,
+            "end": 1200,
+            "title": "Chapter 2",
+            "id": 1
+          }
+        ],
+        "embeddedCoverArt": null,
+        "metaTags": {
+          "tagAlbum": "The Long Way to Morning",
+          "tagArtist": "Rafael Dorn",
+          "tagTitle": "The Long Way to Morning",
+          "tagAlbumArtist": "Rafael Dorn",
+          "tagDate": "2021",
+          "tagComposer": "Jonah Pryce",
+          "tagEncoder": "Lavf62.12.102"
+        },
+        "mimeType": "audio/mp4",
+        "title": "The Long Way to Morning.m4b",
+        "startOffset": 0,
+        "contentUrl": "/api/items/ceefc37b-cda1-4a26-b975-6aee7e3f9482/file/958480"
+      }
+    ]
+  },
+  "numFiles": 3,
+  "size": 39245921,
+  "lastScan": 1794490835564,
+  "scanVersion": "2.37.2",
+  "libraryFiles": [
+    {
+      "ino": "958480",
+      "metadata": {
+        "filename": "The Long Way to Morning.m4b",
+        "ext": ".m4b",
+        "path": "/audiobooks/Rafael Dorn/The Long Way to Morning/The Long Way to Morning.m4b",
+        "relPath": "The Long Way to Morning.m4b",
+        "size": 39235131,
+        "mtimeMs": 1794490829765,
+        "ctimeMs": 1794490829765,
+        "birthtimeMs": 1794490711705
+      },
+      "isSupplementary": null,
+      "addedAt": 1794490835440,
+      "updatedAt": 1794490835440,
+      "fileType": "audio"
+    },
+    {
+      "ino": "958479",
+      "metadata": {
+        "filename": "cover.jpg",
+        "ext": ".jpg",
+        "path": "/audiobooks/Rafael Dorn/The Long Way to Morning/cover.jpg",
+        "relPath": "cover.jpg",
+        "size": 10362,
+        "mtimeMs": 1794490711488,
+        "ctimeMs": 1794490711488,
+        "birthtimeMs": 1794490711481
+      },
+      "isSupplementary": null,
+      "addedAt": 1794490835440,
+      "updatedAt": 1794490835440,
+      "fileType": "image"
+    }
+  ]
+}

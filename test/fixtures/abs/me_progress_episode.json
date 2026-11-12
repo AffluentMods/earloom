@@ -1,0 +1,18 @@
+{
+  "id": "4806899c-711b-46a1-8922-7cfc88e68daf",
+  "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+  "libraryItemId": "b3300253-3357-47bf-a078-334445ec4e79",
+  "episodeId": "826b4698-8c67-4baa-8c70-320f7ad05d5b",
+  "mediaItemId": "826b4698-8c67-4baa-8c70-320f7ad05d5b",
+  "mediaItemType": "podcastEpisode",
+  "duration": 300,
+  "progress": 0.15,
+  "currentTime": 45,
+  "isFinished": false,
+  "hideFromContinueListening": false,
+  "ebookLocation": null,
+  "ebookProgress": 0,
+  "lastUpdate": 1794491271918,
+  "startedAt": 1794491271918,
+  "finishedAt": null
+}

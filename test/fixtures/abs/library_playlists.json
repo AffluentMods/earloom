@@ -1,0 +1,500 @@
+{
+  "results": [
+    {
+      "id": "463c0707-46ba-4f8e-820a-90d839f50566",
+      "name": "Road Trip Mix",
+      "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+      "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+      "description": "Made by the probe, edited",
+      "lastUpdate": 1794492169561,
+      "createdAt": 1794491336544,
+      "items": [
+        {
+          "libraryItemId": "ceefc37b-cda1-4a26-b975-6aee7e3f9482",
+          "libraryItem": {
+            "id": "ceefc37b-cda1-4a26-b975-6aee7e3f9482",
+            "ino": "958478",
+            "oldLibraryItemId": null,
+            "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+            "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+            "path": "/audiobooks/Rafael Dorn/The Long Way to Morning",
+            "relPath": "Rafael Dorn/The Long Way to Morning",
+            "isFile": false,
+            "mtimeMs": 1794490829885,
+            "ctimeMs": 1794490829885,
+            "birthtimeMs": 1794490711325,
+            "addedAt": 1794490835566,
+            "updatedAt": 1794492169535,
+            "isMissing": false,
+            "isInvalid": false,
+            "mediaType": "book",
+            "media": {
+              "id": "32fbe441-d29b-4a06-b384-15fd2ccfc52f",
+              "metadata": {
+                "title": "The Long Way to Morning",
+                "subtitle": null,
+                "authors": [
+                  {
+                    "id": "c4eae851-0411-4f2d-aae3-1c39b37baecd",
+                    "name": "Rafael Dorn"
+                  }
+                ],
+                "narrators": [
+                  "Jonah Pryce"
+                ],
+                "series": [],
+                "genres": [
+                  "Fiction"
+                ],
+                "publishedYear": "2021",
+                "publishedDate": null,
+                "publisher": "Affluent Demo Press",
+                "description": "<p>Over five hours in one file: for sleep timers, long seeks and soak tests.</p>",
+                "isbn": null,
+                "asin": null,
+                "language": "English",
+                "explicit": false,
+                "abridged": false,
+                "titleIgnorePrefix": "Long Way to Morning, The",
+                "authorName": "Rafael Dorn",
+                "authorNameLF": "Dorn, Rafael",
+                "narratorName": "Jonah Pryce",
+                "seriesName": "",
+                "descriptionPlain": "Over five hours in one file: for sleep timers, long seeks and soak tests."
+              },
+              "coverPath": "/audiobooks/Rafael Dorn/The Long Way to Morning/cover.jpg",
+              "tags": [
+                "long"
+              ],
+              "numTracks": 1,
+              "numAudioFiles": 1,
+              "numChapters": 31,
+              "duration": 18600,
+              "size": 39235131,
+              "libraryItemId": "ceefc37b-cda1-4a26-b975-6aee7e3f9482",
+              "audioFiles": [
+                {
+                  "index": 1,
+                  "ino": "958480",
+                  "metadata": {
+                    "filename": "The Long Way to Morning.m4b",
+                    "ext": ".m4b",
+                    "path": "/audiobooks/Rafael Dorn/The Long Way to Morning/The Long Way to Morning.m4b",
+                    "relPath": "The Long Way to Morning.m4b",
+                    "size": 39235131,
+                    "mtimeMs": 1794490829765,
+                    "ctimeMs": 1794490829765,
+                    "birthtimeMs": 1794490711705
+                  },
+                  "addedAt": 1794490835559,
+                  "updatedAt": 1794490835559,
+                  "trackNumFromMeta": null,
+                  "discNumFromMeta": null,
+                  "trackNumFromFilename": null,
+                  "discNumFromFilename": null,
+                  "manuallyVerified": false,
+                  "exclude": false,
+                  "error": null,
+                  "format": "QuickTime / MOV",
+                  "duration": 18600,
+                  "bitRate": 16123,
+                  "language": "und",
+                  "codec": "aac",
+                  "timeBase": "1/24000",
+                  "channels": 1,
+                  "channelLayout": "mono",
+                  "chapters": [
+                    {
+                      "start": 0,
+                      "end": 600,
+                      "title": "Chapter 1",
+                      "id": 0
+                    },
+                    {
+                      "start": 600,
+                      "end": 1200,
+                      "title": "Chapter 2",
+                      "id": 1
+                    }
+                  ],
+                  "embeddedCoverArt": null,
+                  "metaTags": {
+                    "tagAlbum": "The Long Way to Morning",
+                    "tagArtist": "Rafael Dorn",
+                    "tagTitle": "The Long Way to Morning",
+                    "tagAlbumArtist": "Rafael Dorn",
+                    "tagDate": "2021",
+                    "tagComposer": "Jonah Pryce",
+                    "tagEncoder": "Lavf62.12.102"
+                  },
+                  "mimeType": "audio/mp4"
+                }
+              ],
+              "chapters": [
+                {
+                  "start": 0,
+                  "end": 600,
+                  "title": "Chapter 1",
+                  "id": 0
+                },
+                {
+                  "start": 600,
+                  "end": 1200,
+                  "title": "Chapter 2",
+                  "id": 1
+                }
+              ],
+              "ebookFile": null,
+              "tracks": [
+                {
+                  "index": 1,
+                  "ino": "958480",
+                  "metadata": {
+                    "filename": "The Long Way to Morning.m4b",
+                    "ext": ".m4b",
+                    "path": "/audiobooks/Rafael Dorn/The Long Way to Morning/The Long Way to Morning.m4b",
+                    "relPath": "The Long Way to Morning.m4b",
+                    "size": 39235131,
+                    "mtimeMs": 1794490829765,
+                    "ctimeMs": 1794490829765,
+                    "birthtimeMs": 1794490711705
+                  },
+                  "addedAt": 1794490835559,
+                  "updatedAt": 1794490835559,
+                  "trackNumFromMeta": null,
+                  "discNumFromMeta": null,
+                  "trackNumFromFilename": null,
+                  "discNumFromFilename": null,
+                  "manuallyVerified": false,
+                  "exclude": false,
+                  "error": null,
+                  "format": "QuickTime / MOV",
+                  "duration": 18600,
+                  "bitRate": 16123,
+                  "language": "und",
+                  "codec": "aac",
+                  "timeBase": "1/24000",
+                  "channels": 1,
+                  "channelLayout": "mono",
+                  "chapters": [
+                    {
+                      "start": 0,
+                      "end": 600,
+                      "title": "Chapter 1",
+                      "id": 0
+                    },
+                    {
+                      "start": 600,
+                      "end": 1200,
+                      "title": "Chapter 2",
+                      "id": 1
+                    }
+                  ],
+                  "embeddedCoverArt": null,
+                  "metaTags": {
+                    "tagAlbum": "The Long Way to Morning",
+                    "tagArtist": "Rafael Dorn",
+                    "tagTitle": "The Long Way to Morning",
+                    "tagAlbumArtist": "Rafael Dorn",
+                    "tagDate": "2021",
+                    "tagComposer": "Jonah Pryce",
+                    "tagEncoder": "Lavf62.12.102"
+                  },
+                  "mimeType": "audio/mp4",
+                  "title": "The Long Way to Morning.m4b",
+                  "startOffset": 0,
+                  "contentUrl": "/api/items/ceefc37b-cda1-4a26-b975-6aee7e3f9482/file/958480"
+                }
+              ]
+            },
+            "numFiles": 3,
+            "size": 39245921,
+            "lastScan": 1794490835564,
+            "scanVersion": "2.37.2",
+            "libraryFiles": [
+              {
+                "ino": "958480",
+                "metadata": {
+                  "filename": "The Long Way to Morning.m4b",
+                  "ext": ".m4b",
+                  "path": "/audiobooks/Rafael Dorn/The Long Way to Morning/The Long Way to Morning.m4b",
+                  "relPath": "The Long Way to Morning.m4b",
+                  "size": 39235131,
+                  "mtimeMs": 1794490829765,
+                  "ctimeMs": 1794490829765,
+                  "birthtimeMs": 1794490711705
+                },
+                "isSupplementary": null,
+                "addedAt": 1794490835440,
+                "updatedAt": 1794490835440,
+                "fileType": "audio"
+              },
+              {
+                "ino": "958479",
+                "metadata": {
+                  "filename": "cover.jpg",
+                  "ext": ".jpg",
+                  "path": "/audiobooks/Rafael Dorn/The Long Way to Morning/cover.jpg",
+                  "relPath": "cover.jpg",
+                  "size": 10362,
+                  "mtimeMs": 1794490711488,
+                  "ctimeMs": 1794490711488,
+                  "birthtimeMs": 1794490711481
+                },
+                "isSupplementary": null,
+                "addedAt": 1794490835440,
+                "updatedAt": 1794490835440,
+                "fileType": "image"
+              }
+            ]
+          }
+        },
+        {
+          "libraryItemId": "a2f63cfa-d15f-41dc-b251-ec4af204d633",
+          "libraryItem": {
+            "id": "a2f63cfa-d15f-41dc-b251-ec4af204d633",
+            "ino": "950746",
+            "oldLibraryItemId": null,
+            "libraryId": "9c69912d-0de3-4102-a1ce-50b7967c8141",
+            "folderId": "512fad68-cddb-4eb6-bfe3-07e84f15a244",
+            "path": "/audiobooks/Mara Ellison/Salt and Starlight",
+            "relPath": "Mara Ellison/Salt and Starlight",
+            "isFile": false,
+            "mtimeMs": 1794490686601,
+            "ctimeMs": 1794490686601,
+            "birthtimeMs": 1794490668525,
+            "addedAt": 1794490835998,
+            "updatedAt": 1794490835998,
+            "isMissing": false,
+            "isInvalid": false,
+            "mediaType": "book",
+            "media": {
+              "id": "0f7192d8-4299-486a-96e4-ff0670bf1926",
+              "metadata": {
+                "title": "Salt and Starlight",
+                "subtitle": "A Novel of the Outer Banks",
+                "authors": [
+                  {
+                    "id": "d549684d-0013-4cc6-b8fa-8833bbbc7ea7",
+                    "name": "Mara Ellison"
+                  }
+                ],
+                "narrators": [
+                  "Priya Castellan"
+                ],
+                "series": [],
+                "genres": [
+                  "Fiction",
+                  "Romance"
+                ],
+                "publishedYear": "2024",
+                "publishedDate": null,
+                "publisher": "Affluent Demo Press",
+                "description": "<p>One summer, one lighthouse, two people who should not get along.</p>",
+                "isbn": null,
+                "asin": null,
+                "language": "English",
+                "explicit": false,
+                "abridged": false,
+                "titleIgnorePrefix": "Salt and Starlight",
+                "authorName": "Mara Ellison",
+                "authorNameLF": "Ellison, Mara",
+                "narratorName": "Priya Castellan",
+                "seriesName": "",
+                "descriptionPlain": "One summer, one lighthouse, two people who should not get along."
+              },
+              "coverPath": "/metadata/items/a2f63cfa-d15f-41dc-b251-ec4af204d633/cover.jpg",
+              "tags": [
+                "single-file",
+                "embedded-cover"
+              ],
+              "numTracks": 1,
+              "numAudioFiles": 1,
+              "numChapters": 9,
+              "duration": 2700,
+              "size": 11102028,
+              "libraryItemId": "a2f63cfa-d15f-41dc-b251-ec4af204d633",
+              "audioFiles": [
+                {
+                  "index": 1,
+                  "ino": "950750",
+                  "metadata": {
+                    "filename": "Salt and Starlight.m4b",
+                    "ext": ".m4b",
+                    "path": "/audiobooks/Mara Ellison/Salt and Starlight/Salt and Starlight.m4b",
+                    "relPath": "Salt and Starlight.m4b",
+                    "size": 11102028,
+                    "mtimeMs": 1794490686509,
+                    "ctimeMs": 1794490686509,
+                    "birthtimeMs": 1794490668897
+                  },
+                  "addedAt": 1794490835847,
+                  "updatedAt": 1794490835847,
+                  "trackNumFromMeta": null,
+                  "discNumFromMeta": null,
+                  "trackNumFromFilename": null,
+                  "discNumFromFilename": null,
+                  "manuallyVerified": false,
+                  "exclude": false,
+                  "error": null,
+                  "format": "QuickTime / MOV",
+                  "duration": 2700,
+                  "bitRate": 32112,
+                  "language": "und",
+                  "codec": "aac",
+                  "timeBase": "1/24000",
+                  "channels": 1,
+                  "channelLayout": "mono",
+                  "chapters": [
+                    {
+                      "start": 0,
+                      "end": 300,
+                      "title": "Chapter 1",
+                      "id": 0
+                    },
+                    {
+                      "start": 300,
+                      "end": 600,
+                      "title": "Chapter 2",
+                      "id": 1
+                    }
+                  ],
+                  "embeddedCoverArt": "mjpeg",
+                  "metaTags": {
+                    "tagAlbum": "Salt and Starlight",
+                    "tagArtist": "Mara Ellison",
+                    "tagTitle": "Salt and Starlight",
+                    "tagAlbumArtist": "Mara Ellison",
+                    "tagDate": "2024",
+                    "tagComposer": "Priya Castellan",
+                    "tagEncoder": "Lavf62.12.102"
+                  },
+                  "mimeType": "audio/mp4"
+                }
+              ],
+              "chapters": [
+                {
+                  "start": 0,
+                  "end": 300,
+                  "title": "Chapter 1",
+                  "id": 0
+                },
+                {
+                  "start": 300,
+                  "end": 600,
+                  "title": "Chapter 2",
+                  "id": 1
+                }
+              ],
+              "ebookFile": null,
+              "tracks": [
+                {
+                  "index": 1,
+                  "ino": "950750",
+                  "metadata": {
+                    "filename": "Salt and Starlight.m4b",
+                    "ext": ".m4b",
+                    "path": "/audiobooks/Mara Ellison/Salt and Starlight/Salt and Starlight.m4b",
+                    "relPath": "Salt and Starlight.m4b",
+                    "size": 11102028,
+                    "mtimeMs": 1794490686509,
+                    "ctimeMs": 1794490686509,
+                    "birthtimeMs": 1794490668897
+                  },
+                  "addedAt": 1794490835847,
+                  "updatedAt": 1794490835847,
+                  "trackNumFromMeta": null,
+                  "discNumFromMeta": null,
+                  "trackNumFromFilename": null,
+                  "discNumFromFilename": null,
+                  "manuallyVerified": false,
+                  "exclude": false,
+                  "error": null,
+                  "format": "QuickTime / MOV",
+                  "duration": 2700,
+                  "bitRate": 32112,
+                  "language": "und",
+                  "codec": "aac",
+                  "timeBase": "1/24000",
+                  "channels": 1,
+                  "channelLayout": "mono",
+                  "chapters": [
+                    {
+                      "start": 0,
+                      "end": 300,
+                      "title": "Chapter 1",
+                      "id": 0
+                    },
+                    {
+                      "start": 300,
+                      "end": 600,
+                      "title": "Chapter 2",
+                      "id": 1
+                    }
+                  ],
+                  "embeddedCoverArt": "mjpeg",
+                  "metaTags": {
+                    "tagAlbum": "Salt and Starlight",
+                    "tagArtist": "Mara Ellison",
+                    "tagTitle": "Salt and Starlight",
+                    "tagAlbumArtist": "Mara Ellison",
+                    "tagDate": "2024",
+                    "tagComposer": "Priya Castellan",
+                    "tagEncoder": "Lavf62.12.102"
+                  },
+                  "mimeType": "audio/mp4",
+                  "title": "Salt and Starlight.m4b",
+                  "startOffset": 0,
+                  "contentUrl": "/api/items/a2f63cfa-d15f-41dc-b251-ec4af204d633/file/950750"
+                }
+              ]
+            },
+            "numFiles": 2,
+            "size": 11102535,
+            "lastScan": 1794490835848,
+            "scanVersion": "2.37.2",
+            "libraryFiles": [
+              {
+                "ino": "950750",
+                "metadata": {
+                  "filename": "Salt and Starlight.m4b",
+                  "ext": ".m4b",
+                  "path": "/audiobooks/Mara Ellison/Salt and Starlight/Salt and Starlight.m4b",
+                  "relPath": "Salt and Starlight.m4b",
+                  "size": 11102028,
+                  "mtimeMs": 1794490686509,
+                  "ctimeMs": 1794490686509,
+                  "birthtimeMs": 1794490668897
+                },
+                "isSupplementary": null,
+                "addedAt": 1794490835443,
+                "updatedAt": 1794490835443,
+                "fileType": "audio"
+              },
+              {
+                "ino": "950751",
+                "metadata": {
+                  "filename": "metadata.json",
+                  "ext": ".json",
+                  "path": "/audiobooks/Mara Ellison/Salt and Starlight/metadata.json",
+                  "relPath": "metadata.json",
+                  "size": 507,
+                  "mtimeMs": 1794490686601,
+                  "ctimeMs": 1794490686601,
+                  "birthtimeMs": 1794490686601
+                },
+                "isSupplementary": null,
+                "addedAt": 1794490835443,
+                "updatedAt": 1794490835443,
+                "fileType": "metadata"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "total": 1,
+  "limit": 0,
+  "page": 0
+}

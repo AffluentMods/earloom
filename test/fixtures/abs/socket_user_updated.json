@@ -1,0 +1,78 @@
+{
+  "id": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+  "username": "affluent",
+  "email": null,
+  "type": "user",
+  "token": "<redacted>",
+  "mediaProgress": [
+    {
+      "id": "301493af-0124-47cc-8a79-0e2701605bbe",
+      "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+      "libraryItemId": "695b9eb3-1a88-4320-b033-95089797f205",
+      "episodeId": null,
+      "mediaItemId": "92a61808-6046-4a57-b578-06354c7b1067",
+      "mediaItemType": "book",
+      "duration": 1920,
+      "progress": 0.07291666666666667,
+      "currentTime": 140,
+      "isFinished": false,
+      "hideFromContinueListening": false,
+      "ebookLocation": null,
+      "ebookProgress": 0,
+      "lastUpdate": 1794491213254,
+      "startedAt": 1794491213113,
+      "finishedAt": null
+    },
+    {
+      "id": "671a227e-5567-4e1b-aa0e-786046589514",
+      "userId": "ab8411d5-1155-45d2-ac81-0ba08d321480",
+      "libraryItemId": "d39c36ae-228b-49fd-8e34-481f4f8daf68",
+      "episodeId": null,
+      "mediaItemId": "06e6b5fd-0586-409b-94f1-77ceea04f5f6",
+      "mediaItemType": "book",
+      "duration": 600.013,
+      "progress": 0.01999956667605535,
+      "currentTime": 12,
+      "isFinished": false,
+      "hideFromContinueListening": false,
+      "ebookLocation": null,
+      "ebookProgress": 0,
+      "lastUpdate": 1794491243379,
+      "startedAt": 1794491243379,
+      "finishedAt": null
+    }
+  ],
+  "seriesHideFromContinueListening": [],
+  "bookmarks": [
+    {
+      "libraryItemId": "a2f63cfa-d15f-41dc-b251-ec4af204d633",
+      "time": 612,
+      "title": "Renamed",
+      "createdAt": 1794491305022
+    },
+    {
+      "libraryItemId": "a2f63cfa-d15f-41dc-b251-ec4af204d633",
+      "time": "613",
+      "title": "String time",
+      "createdAt": 1794491305085
+    }
+  ],
+  "isActive": true,
+  "isLocked": false,
+  "lastSeen": 1794491288002,
+  "createdAt": 1794490835357,
+  "permissions": {
+    "download": true,
+    "update": false,
+    "delete": false,
+    "upload": false,
+    "createEreader": false,
+    "accessAllLibraries": true,
+    "accessAllTags": true,
+    "accessExplicitContent": false,
+    "selectedTagsNotAccessible": false
+  },
+  "librariesAccessible": [],
+  "itemTagsSelected": [],
+  "hasOpenIDLink": false
+}

@@ -39,6 +39,15 @@ xcrun simctl terminate "$udid" com.affluentlabs.earloom || true
 xcrun simctl openurl "$udid" "earloom://item/test"
 sleep 15
 xcrun simctl io "$udid" screenshot "$out/ios_08_os_deep_link_item.png"
-xcrun simctl spawn "$udid" launchctl list | grep -q "com.affluentlabs.earloom" \
-  || { echo "FAIL: the app is not running after the deep link"; exit 1; }
+# Simulator apps are ordinary processes on the Mac, so look for it there.
+if pid=$(pgrep -f "/Runner.app/Runner"); then
+  echo "App running after the deep link (pid $pid)"
+else
+  echo "FAIL: the app is not running after the deep link"
+  echo "-- Simulator log for the app, last 2 minutes:"
+  xcrun simctl spawn "$udid" log show --last 2m --style compact --predicate 'process == "Runner"' | tail -80 || true
+  echo "-- Recent crash reports:"
+  ls -t ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -i runner | head -3 || true
+  exit 1
+fi
 echo "OK: iOS device checks passed"

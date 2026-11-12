@@ -20,7 +20,9 @@ adb logcat -v time AccessibilityBridge:S '*:I' >"$out/android-logcat.txt" 2>&1 &
 logcat_pid=$!
 trap 'kill $logcat_pid 2>/dev/null || true' EXIT
 
-flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_launch_test.dart
+# FLUTTER_DRIVE_ARGS lets CI adjust the run for its emulator (see devices.yml).
+# shellcheck disable=SC2086
+flutter drive ${FLUTTER_DRIVE_ARGS:-} --driver=test_driver/integration_test.dart --target=integration_test/app_launch_test.dart
 
 echo "== Deep links through Android"
 flutter build apk --debug

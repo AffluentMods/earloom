@@ -41,29 +41,22 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
-      - name: Keep Gradle from holding memory the emulator needs
-        # The project lets Gradle take up to 8 GB of heap and 4 GB of
-        # metaspace, and its daemons stay alive after the build. Next to the
-        # emulator on a 16 GB runner that ran out of memory and the emulator
-        # was killed mid-test. These user-level settings win over the
-        # project's, and only apply to this job.
-        run: |
-          mkdir -p ~/.gradle
-          {
-            echo 'org.gradle.daemon=false'
-            echo 'org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g'
-            echo 'kotlin.compiler.execution.strategy=in-process'
-          } >> ~/.gradle/gradle.properties
       - run: tool/bootstrap.sh
       - uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           target: default
           arch: x86_64
-          # The default 2 GB is tight for a debug build rendered in software.
-          ram-size: 4096M
           disable-animations: true
           script: tool/ci/device_check_android.sh
+        env:
+          # The CI emulator has no GPU: it renders through SwiftShader, and
+          # three runs in a row the emulator process itself died on the Now
+          # Playing preview (large blurred shadow, full-screen gradient) while
+          # Flutter drew with Impeller's OpenGL ES backend, with no app error
+          # and plenty of free memory. Skia is used on this emulator only.
+          # Real devices, and this script on a real device, keep Impeller.
+          FLUTTER_DRIVE_ARGS: --no-enable-impeller
       - name: Memory report (on failure)
         if: failure()
         run: |

@@ -62,21 +62,39 @@ limit 1500 flutter drive -d "$udid" --driver=test_driver/integration_test.dart -
 
 echo "== Deep link through iOS"
 limit 900 flutter build ios --simulator --debug
-limit 120 xcrun simctl install "$udid" build/ios/iphonesimulator/Runner.app
-xcrun simctl terminate "$udid" com.affluentlabs.earloom || true
-# openurl fails when no installed app claims the scheme.
-limit 60 xcrun simctl openurl "$udid" "earloom://item/test"
-sleep 15
-limit 60 xcrun simctl io "$udid" screenshot "$out/ios_08_os_deep_link_item.png"
-# Simulator apps are ordinary processes on the Mac, so look for it there.
-if pid=$(pgrep -f "/Runner.app/Runner"); then
-  echo "App running after the deep link (pid $pid)"
-else
-  echo "FAIL: the app is not running after the deep link"
+app=build/ios/iphonesimulator/Runner.app
+bundle=com.affluentlabs.earloom
+
+# 1. The built app declares the earloom:// scheme to iOS.
+scheme=$(plutil -extract CFBundleURLTypes.0.CFBundleURLSchemes.0 raw "$app/Info.plist")
+[[ "$scheme" == "earloom" ]] || { echo "FAIL: Info.plist declares scheme '$scheme', expected earloom"; exit 1; }
+echo "Info.plist declares the earloom:// scheme"
+
+limit 120 xcrun simctl install "$udid" "$app"
+xcrun simctl terminate "$udid" "$bundle" >/dev/null 2>&1 || true
+
+# Simulator apps are ordinary processes on the Mac, so look for them there.
+running() { pgrep -f "/Runner.app/Runner" >/dev/null; }
+diagnose() {
   echo "-- Simulator log for the app, last 2 minutes:"
   xcrun simctl spawn "$udid" log show --last 2m --style compact --predicate 'process == "Runner"' | tail -80 || true
   echo "-- Recent crash reports:"
   ls -t ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -i runner | head -3 || true
-  exit 1
-fi
+}
+
+# 2. The standalone build starts and stays up.
+limit 60 xcrun simctl launch "$udid" "$bundle"
+sleep 15
+running || { echo "FAIL: the app did not stay running after launch"; diagnose; exit 1; }
+echo "App launched and running"
+
+# 3. iOS hands the link to the running app. A cold start through a custom
+#    scheme can stop at a system "Open in Earloom?" prompt on the simulator,
+#    so the link is sent while the app runs. openurl fails when no installed
+#    app claims the scheme.
+limit 60 xcrun simctl openurl "$udid" "earloom://item/test"
+sleep 5
+limit 60 xcrun simctl io "$udid" screenshot "$out/ios_08_os_deep_link_item.png"
+running || { echo "FAIL: the app is not running after the deep link"; diagnose; exit 1; }
+echo "Deep link delivered, app still running"
 echo "OK: iOS device checks passed"

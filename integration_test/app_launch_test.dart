@@ -37,14 +37,13 @@ void main() {
     await settle(tester);
     expect(find.byType(HomeScreen), findsOneWidget);
 
-    // Android draws Flutter to a surface the screenshot API cannot read until
-    // it is switched to an image view.
-    if (Platform.isAndroid) {
-      await binding.convertFlutterSurfaceToImage();
-      await tester.pump();
-    }
+    // In-app screenshots only where they are cheap. On Android the screenshot
+    // API first has to move Flutter onto an image view, which a software
+    // rendered CI emulator could not keep up with (it dropped off mid-run).
+    // There, tool/ci/device_check_android.sh takes screenshots with adb.
     Future<void> shot(String name) async {
       await settle(tester);
+      if (Platform.isAndroid) return;
       await binding.takeScreenshot('${Platform.operatingSystem}_$name');
     }
 

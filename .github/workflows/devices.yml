@@ -47,6 +47,8 @@ jobs:
           api-level: 34
           target: default
           arch: x86_64
+          # The default 2 GB is tight for a debug build rendered in software.
+          ram-size: 4096M
           disable-animations: true
           script: tool/ci/device_check_android.sh
       - uses: actions/upload-artifact@v4

@@ -13,11 +13,23 @@ out=build/device-screenshots
 mkdir -p "$out"
 pkg=com.affluentlabs.earloom
 
+# Keep the device log (minus the very chatty semantics dumps) so a failure
+# can be diagnosed from the artifact.
+adb logcat -c || true
+adb logcat -v time AccessibilityBridge:S '*:I' >"$out/android-logcat.txt" 2>&1 &
+logcat_pid=$!
+trap 'kill $logcat_pid 2>/dev/null || true' EXIT
+
 flutter drive --driver=test_driver/integration_test.dart --target=integration_test/app_launch_test.dart
 
 echo "== Deep links through Android"
 flutter build apk --debug
 adb install -r build/app/outputs/flutter-apk/app-debug.apk
+
+# A plain launch first, for a screenshot of Home.
+adb shell monkey -p "$pkg" -c android.intent.category.LAUNCHER 1 >/dev/null
+sleep 20
+adb exec-out screencap -p >"$out/android_01_home.png"
 adb shell am force-stop "$pkg"
 
 # A link the app owns must open the app.

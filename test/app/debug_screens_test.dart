@@ -61,6 +61,24 @@ void main() {
     await open(DebugRoutes.designItem(999), DesignItemPreview);
   });
 
+  testWidgets('the previews fit the smallest phones without overflowing', (tester) async {
+    // 320 points wide: an iPhone SE (1st gen) and the default CI emulator,
+    // where the Now Playing controls once overflowed by 36 pixels.
+    tester.view.physicalSize = const Size(320, 568) * 2;
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    await pumpEarloom(tester);
+    final router = GoRouter.of(tester.element(find.byType(NavigationBar)));
+    for (var i = 0; i < demoBooks.length; i++) {
+      for (final location in [DebugRoutes.designItem(i), DebugRoutes.designPlayer(i)]) {
+        router.go(location);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(tester.takeException(), isNull, reason: location);
+      }
+    }
+  });
+
   testWidgets('the previews survive large text without overflowing', (tester) async {
     usePhone(tester);
     tester.platformDispatcher.textScaleFactorTestValue = 2;

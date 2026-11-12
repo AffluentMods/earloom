@@ -21,7 +21,7 @@ Do not copy code from other projects into Earloom unless its license is compatib
 | Tool | Version |
 |---|---|
 | Flutter | stable 3.50.x (do not use a newer or older minor version) |
-| Android | Android Studio or the command line SDK, API 36 |
+| Android | Android Studio or the command line SDK, with platform API 36 |
 | iOS | Xcode on a Mac. iOS builds are not possible on Windows or Linux. |
 | Docker | optional, for the local Audiobookshelf server |
 

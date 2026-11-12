@@ -31,7 +31,6 @@ dependencies:
   material_color_utilities: ^0.13.0
   flutter_web_auth_2: ^5.1.0
   home_widget: ^0.10.0
-  live_activities: ^2.6.0
   path_provider: ^2.1.6
   path: ^1.9.1
   intl: ^0.20.3

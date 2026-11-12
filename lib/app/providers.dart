@@ -15,12 +15,17 @@ final globalDbProvider = Provider<GlobalDb>(
 
 /// The cache database of the current account. Phase 1 provides it once an
 /// account is active. Until then only debug screens override it.
+///
+/// It is a scoped provider (`dependencies`), so a subtree can be given its
+/// own database, and everything built on it follows along.
 final accountDbProvider = Provider<AccountDb>(
   (ref) => throw StateError('No active account'),
+  dependencies: const [],
 );
 
 final coverSchemeServiceProvider = Provider<CoverSchemeService>(
   (ref) => CoverSchemeService(ref.watch(accountDbProvider)),
+  dependencies: [accountDbProvider],
 );
 
 /// The theme mode read from disk before the first frame, so the app never

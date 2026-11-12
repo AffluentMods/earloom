@@ -85,6 +85,13 @@ if grep -rnI 'eyJ[A-Za-z0-9_-]\{10,\}' test docs tool lib 2>/dev/null; then
   bad "something that looks like a token (eyJ...) is in the repo"
 fi
 
+note "No tracking, analytics or proprietary Google packages"
+# The user's data goes only to their own server, and the F-Droid build must
+# stay free of proprietary SDKs. Packages are matched by name in the lockfile.
+if grep -nE '^  (firebase[a-z_]*|google_mobile_ads|google_sign_in[a-z_]*|sentry[a-z_]*|[a-z_]*crashlytics[a-z_]*|[a-z_]*analytics[a-z_]*|amplitude[a-z_]*|mixpanel[a-z_]*|datadog[a-z_]*|appsflyer[a-z_]*|onesignal[a-z_]*|live_activities):' pubspec.lock; then
+  bad "a tracking or proprietary package is in pubspec.lock (see CONTRIBUTING.md rule 8)"
+fi
+
 note "No copyrighted or downloaded audio"
 for f in "${ours[@]}"; do
   case "$f" in

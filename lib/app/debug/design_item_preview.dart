@@ -97,18 +97,32 @@ class DesignItemPreview extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('5 hr 41 min listened', style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                  Flexible(
+                    child: Text(
+                      '5 hr 41 min listened',
+                      style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                    ),
+                  ),
+                  const SizedBox(width: Space.sm),
                   Text('64%', style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
                 ],
               ),
               const SizedBox(height: Space.lg),
               const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _Action(icon: Icons.download_outlined, label: 'Download'),
-                  _Action(icon: Icons.check_circle_outline, label: 'Finished'),
-                  _Action(icon: Icons.playlist_add, label: 'Playlist'),
-                  _Action(icon: Icons.ios_share, label: 'Share'),
+                  Expanded(
+                    child: _Action(icon: Icons.download_outlined, label: 'Download'),
+                  ),
+                  Expanded(
+                    child: _Action(icon: Icons.check_circle_outline, label: 'Finished'),
+                  ),
+                  Expanded(
+                    child: _Action(icon: Icons.playlist_add, label: 'Playlist'),
+                  ),
+                  Expanded(
+                    child: _Action(icon: Icons.ios_share, label: 'Share'),
+                  ),
                 ],
               ),
               const SizedBox(height: Space.xl),
@@ -136,6 +150,7 @@ class DesignItemPreview extends StatelessWidget {
               Row(
                 children: [
                   Expanded(child: Text('Chapters', style: text.titleMedium)),
+                  const SizedBox(width: Space.sm),
                   Text('32 chapters', style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
                 ],
               ),
@@ -171,13 +186,17 @@ class _Action extends StatelessWidget {
       onTap: () {},
       borderRadius: BorderRadius.circular(Space.md),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: Space.md, vertical: Space.sm),
+        padding: const EdgeInsets.symmetric(horizontal: Space.xs, vertical: Space.sm),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           spacing: Space.xs,
           children: [
             Icon(icon, color: theme.colorScheme.onSurfaceVariant),
-            Text(label, style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
           ],
         ),
       ),
@@ -225,6 +244,7 @@ class _ChapterRow extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: Space.sm),
           Text(
             length,
             style: theme.textTheme.bodySmall?.copyWith(color: current ? foreground : scheme.onSurfaceVariant),

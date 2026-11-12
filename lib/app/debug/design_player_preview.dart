@@ -85,6 +85,7 @@ class DesignPlayerPreview extends StatelessWidget {
                         style: text.titleSmall,
                       ),
                     ),
+                    const SizedBox(width: Space.sm),
                     Text('Chapter 7 of 32', style: text.bodySmall?.copyWith(color: muted)),
                   ],
                 ),
@@ -100,7 +101,16 @@ class DesignPlayerPreview extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('11:46', style: text.bodySmall?.copyWith(color: muted)),
-                    Text('16 min left', style: text.bodySmall?.copyWith(color: muted)),
+                    const SizedBox(width: Space.sm),
+                    Expanded(
+                      child: Text(
+                        '16 min left',
+                        maxLines: 1,
+                        textAlign: TextAlign.end,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodySmall?.copyWith(color: muted),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: Space.lg),

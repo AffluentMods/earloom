@@ -65,7 +65,7 @@ A polished, cover-art driven audiobook and podcast player for people who self-ho
 | Cover color | `ColorScheme.fromImageProvider` / `material_color_utilities` | Cached per item |
 | OIDC | `flutter_web_auth_2` + PKCE | Own redirect URI, never `audiobookshelf://oauth` |
 | Widgets | `home_widget` + native WidgetKit / Glance | |
-| Live Activities | `live_activities` or native ActivityKit | |
+| Live Activities | Native ActivityKit behind our own method channel | Not the `live_activities` package: it pulls Firebase Messaging and a Google push permission into the Android build (found in Phase 0). |
 | CarPlay | Native Swift scene + MethodChannel | See Phase 6 |
 | Fonts | Bundled assets, no runtime font fetching | Privacy |
 

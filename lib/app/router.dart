@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 
 import '../features/accounts/ui/accounts_screen.dart';
 import '../features/accounts/ui/add_server_screen.dart';
+import '../features/downloads/ui/download_settings_screen.dart';
+import '../features/downloads/ui/downloads_screen.dart';
 import '../features/home/ui/home_screen.dart';
 import '../features/item_detail/ui/item_detail_screen.dart';
 import '../features/library/ui/library_screen.dart';
@@ -31,6 +33,8 @@ abstract final class AppRoutes {
   static const onboarding = '/onboarding';
   static const addServer = '/accounts/add';
   static const accounts = '/you/accounts';
+  static const downloads = '/you/downloads';
+  static const downloadSettings = '/you/downloads/settings';
   static const importFiles = '/local/import';
   static String item(String id) => '/item/${Uri.encodeComponent(id)}';
 }
@@ -90,7 +94,14 @@ GoRouter buildRouter({
               GoRoute(
                 path: AppRoutes.you,
                 builder: (_, _) => const YouScreen(),
-                routes: [GoRoute(path: 'accounts', builder: (_, _) => const AccountsScreen())],
+                routes: [
+                  GoRoute(path: 'accounts', builder: (_, _) => const AccountsScreen()),
+                  GoRoute(
+                    path: 'downloads',
+                    builder: (_, _) => const DownloadsScreen(),
+                    routes: [GoRoute(path: 'settings', builder: (_, _) => const DownloadSettingsScreen())],
+                  ),
+                ],
               ),
             ],
           ),

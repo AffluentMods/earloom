@@ -14,6 +14,7 @@ import '../../core/library/source_id.dart';
 import '../../core/net/abs_client.dart';
 import '../accounts/data/account_session.dart';
 import '../accounts/data/accounts_repository.dart' show AccountRowX;
+import '../downloads/data/offline_providers.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../local_library/data/providers.dart';
 import 'abs_playback.dart';
@@ -43,7 +44,8 @@ final deviceIdProvider = FutureProvider<String>((ref) async {
 });
 
 /// Turns any [ItemRef] into a playable book: local books from the On this
-/// device library, server books through a new playback session.
+/// device library, downloaded server books from their files, other server
+/// books through a new playback session.
 final bookResolverProvider = Provider<BookResolver>((ref) {
   return (ItemRef item, {Duration? startAt}) async {
     switch (item.source) {
@@ -51,6 +53,9 @@ final bookResolverProvider = Provider<BookResolver>((ref) {
         final book = await ref.read(localLibraryRepositoryProvider).playable(item.itemId);
         return (book, StartDecision(startAt ?? book.startPosition));
       case AbsSource(:final accountId):
+        // A downloaded book plays from the phone and never asks the server.
+        final downloaded = ref.read(downloadedPlaybackProvider);
+        if (await downloaded.isPlayable(item)) return downloaded.open(item, startAt: startAt);
         final db = ref.read(globalDbProvider);
         final account = await db.accountById(accountId);
         if (account == null) throw StateError('The server account for this book was removed');
@@ -69,6 +74,7 @@ final bookResolverProvider = Provider<BookResolver>((ref) {
         final starter = AbsSessionStarter(
           api: ClientPlaybackApi(client, headers),
           device: device,
+          offline: ref.read(offlineHooksProvider),
           localPosition: (r) async {
             final last = await playerStore.loadLast();
             return last != null && last.ref == r ? PositionStamp(last.position, last.savedAt) : null;

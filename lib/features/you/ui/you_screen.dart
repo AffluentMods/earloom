@@ -12,6 +12,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../accounts/data/account_session.dart';
 import '../../accounts/data/accounts_repository.dart';
+import '../../downloads/ui/downloads_screen.dart' show DownloadsEntryTile;
 
 /// The You tab: servers, files on this phone, and (in later phases)
 /// downloads, stats and settings.
@@ -70,6 +71,7 @@ class YouScreen extends ConsumerWidget {
               onTap: () => context.push(AppRoutes.addServer),
             ),
           _SectionHeader(label: l10n.youOnThisDevice),
+          if (accounts.isNotEmpty) const DownloadsEntryTile(),
           ListTile(
             leading: const Icon(Icons.library_add_outlined),
             title: Text(l10n.youImportFiles),

@@ -9,8 +9,10 @@ import 'package:earloom/app/app.dart';
 import 'package:earloom/app/providers.dart';
 import 'package:earloom/app/theme/app_theme.dart';
 import 'package:earloom/core/db/global_db.dart';
+import 'package:earloom/core/db/offline_db.dart';
 import 'package:earloom/core/storage/secure_store.dart';
 import 'package:earloom/features/accounts/data/account_session.dart';
+import 'package:earloom/features/downloads/data/offline_providers.dart';
 import 'package:earloom/features/player/player_controller.dart';
 import 'package:earloom/features/player/ui/player_side_effects.dart';
 import 'package:earloom/l10n/gen/app_localizations.dart';
@@ -20,6 +22,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'fake_downloads.dart';
 import 'fake_player.dart';
 
 /// English strings for assertions, so tests never hardcode UI copy.
@@ -82,8 +85,10 @@ Future<GlobalDb> pumpEarloom(
   List<Override> overrides = const [],
   void Function(GlobalDb db)? onDb,
   SecureStore? secureStore,
+  OfflineDb? offlineDb,
 }) async {
   final db = await openTestGlobalDb(tester);
+  final offline = offlineDb ?? await openTestOfflineDb(tester);
   onDb?.call(db);
   addTearDown(db.close);
   if (initialRoute != null) {
@@ -99,6 +104,7 @@ Future<GlobalDb> pumpEarloom(
         initialThemeModeProvider.overrideWithValue(themeMode),
         initialOnboardedProvider.overrideWithValue(onboarded),
         secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),
+        ...offlineTestOverrides(offline),
         ...overrides,
       ],
       child: const EarloomApp(),
@@ -107,6 +113,19 @@ Future<GlobalDb> pumpEarloom(
   await tester.pumpAndSettle();
   return db;
 }
+
+/// The offline services without a network, a plugin or a disk: an
+/// in-memory database, a server that always answers and no connectivity
+/// events. Download manager tests override [downloadManagerProvider] or
+/// [downloadTransportProvider] themselves.
+List<Override> offlineTestOverrides(OfflineDb db) => [
+  offlineDbProvider.overrideWithValue(db),
+  connectivityChangesProvider.overrideWithValue(const Stream<void>.empty()),
+  pingerProvider.overrideWithValue((_, _) async => true),
+  supportDirProvider.overrideWithValue(() async => Directory.systemTemp),
+  supportPathProvider.overrideWith((ref) async => Directory.systemTemp.path),
+  freeSpaceProvider.overrideWith((ref) async => null),
+];
 
 /// Delivers a link the way the operating system does while the app runs.
 Future<void> openLink(WidgetTester tester, String link) async {

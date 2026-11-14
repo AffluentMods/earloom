@@ -9,8 +9,11 @@ import '../../app/providers.dart';
 import '../../core/library/models.dart';
 import '../../core/library/source_id.dart';
 import '../../core/net/abs_client.dart';
+import '../../core/net/abs_errors.dart';
+import '../../core/sync/outbox.dart';
 import '../accounts/data/account_session.dart';
 import '../accounts/data/accounts_repository.dart' show AccountRowX;
+import '../downloads/data/offline_providers.dart' show syncSchedulerProvider;
 import '../local_library/data/providers.dart';
 
 /// Bookmarks for any source. Audiobookshelf identifies a bookmark by its
@@ -62,7 +65,23 @@ class _RoutingBookmarks implements BookmarkService {
       store: _ref.read(secureStoreProvider),
       refresher: _ref.read(tokenRefresherProvider),
     );
-    return _servers[accountId] = _AbsBookmarks(client);
+    OutboxQueue? outbox;
+    try {
+      outbox = OutboxQueue(_ref.read(offlineDbProvider));
+    } on Object {
+      // No offline database (some tests): changes need the server.
+    }
+    return _servers[accountId] = _AbsBookmarks(
+      client,
+      outbox: outbox,
+      onQueued: () {
+        try {
+          _ref.read(syncSchedulerProvider).kick();
+        } on Object {
+          // Flushed on the next trigger instead.
+        }
+      },
+    );
   }
 
   @override
@@ -112,14 +131,19 @@ class _RoutingBookmarks implements BookmarkService {
   }
 }
 
-/// Server bookmarks, kept in memory and refetched after each change.
+/// Server bookmarks, kept in memory and refetched after each change. When
+/// the server cannot be reached the change is queued in the outbox and
+/// shown right away; it reaches the server when the outbox flushes.
 class _AbsBookmarks {
-  _AbsBookmarks(this._client);
+  _AbsBookmarks(this._client, {this.outbox, this.onQueued});
   final AbsClient _client;
+  final OutboxQueue? outbox;
+  final void Function()? onQueued;
   final _lists = <String, List<Bookmark>>{};
   final _changes = StreamController<String>.broadcast();
 
   static double _secs(Duration d) => d.inMilliseconds / 1000;
+  static Duration _fromSecs(Object? time) => Duration(milliseconds: ((num.tryParse('$time') ?? 0) * 1000).round());
 
   Stream<List<Bookmark>> watch(ItemRef ref) async* {
     yield await _load(ref);
@@ -129,41 +153,111 @@ class _AbsBookmarks {
   }
 
   Future<List<Bookmark>> _load(ItemRef ref) async {
-    final json = await _client.get<Map<String, Object?>>('/api/me/bookmarks/${ref.itemId}');
-    final list = [
-      for (final b in ((json['bookmarks'] as List?) ?? const []).cast<Map<String, Object?>>())
-        Bookmark(
-          ref: ref,
-          // Times can come back as strings from older writes: read leniently.
-          position: Duration(milliseconds: ((num.tryParse('${b['time']}') ?? 0) * 1000).round()),
-          title: (b['title'] ?? '').toString(),
-          createdAt: DateTime.fromMillisecondsSinceEpoch((b['createdAt'] as num?)?.toInt() ?? 0),
-        ),
-    ]..sort((a, b) => a.position.compareTo(b.position));
+    List<Bookmark> list;
+    try {
+      final json = await _client.get<Map<String, Object?>>('/api/me/bookmarks/${ref.itemId}');
+      list = [
+        for (final b in ((json['bookmarks'] as List?) ?? const []).cast<Map<String, Object?>>())
+          Bookmark(
+            ref: ref,
+            // Times can come back as strings from older writes: read leniently.
+            position: _fromSecs(b['time']),
+            title: (b['title'] ?? '').toString(),
+            createdAt: DateTime.fromMillisecondsSinceEpoch((b['createdAt'] as num?)?.toInt() ?? 0),
+          ),
+      ];
+    } on AbsUnreachable {
+      if (outbox == null) rethrow;
+      // Offline: what we had, plus the changes still waiting below.
+      list = [...?_lists[ref.itemId]];
+    }
+    list = await _withPending(ref, list);
+    list.sort((a, b) => a.position.compareTo(b.position));
     _lists[ref.itemId] = list;
     _changes.add(ref.itemId);
     return list;
   }
 
+  /// Applies bookmark changes that have not reached the server yet.
+  Future<List<Bookmark>> _withPending(ItemRef ref, List<Bookmark> list) async {
+    final queue = outbox;
+    if (queue == null) return list;
+    final result = [...list];
+    for (final e in await queue.pendingFor(ref)) {
+      final at = _fromSecs(e.payload['time']);
+      final title = (e.payload['title'] ?? '').toString();
+      switch (e.kind) {
+        case OutboxKind.bookmarkAdd:
+          result
+            ..removeWhere((b) => b.position == at)
+            ..add(Bookmark(ref: ref, position: at, title: title, createdAt: e.createdAt));
+        case OutboxKind.bookmarkUpdate:
+          final i = result.indexWhere((b) => b.position == at);
+          if (i >= 0) {
+            result[i] = Bookmark(ref: ref, position: at, title: title, createdAt: result[i].createdAt);
+          }
+        case OutboxKind.bookmarkDelete:
+          result.removeWhere((b) => b.position == at);
+        default:
+          break;
+      }
+    }
+    return result;
+  }
+
+  /// Sends [send]; when the server cannot be reached, queues the change
+  /// instead. Returns false when it was queued.
+  Future<bool> _sendOrQueue(
+    ItemRef ref,
+    Future<void> Function() send,
+    OutboxKind kind,
+    Map<String, Object?> body,
+  ) async {
+    try {
+      await send();
+      return true;
+    } on AbsUnreachable {
+      final queue = outbox;
+      if (queue == null) rethrow;
+      await queue.enqueue(ref, kind, body);
+      onQueued?.call();
+      return false;
+    }
+  }
+
   Future<Duration> add(ItemRef ref, Duration position, String title) async {
     final current = _lists[ref.itemId] ?? await _load(ref);
     final slot = bookmarkSlot(position, current.map((b) => b.position));
-    await _client.post<Object?>('/api/me/item/${ref.itemId}/bookmark', body: {'time': _secs(slot), 'title': title});
+    final body = {'time': _secs(slot), 'title': title};
+    await _sendOrQueue(
+      ref,
+      () => _client.post<Object?>('/api/me/item/${ref.itemId}/bookmark', body: body),
+      OutboxKind.bookmarkAdd,
+      body,
+    );
     await _load(ref);
     return slot;
   }
 
   Future<void> rename(ItemRef ref, Duration position, String title) async {
-    await _client.patch<Object?>(
-      '/api/me/item/${ref.itemId}/bookmark',
-      body: {'time': _secs(position), 'title': title},
+    final body = {'time': _secs(position), 'title': title};
+    await _sendOrQueue(
+      ref,
+      () => _client.patch<Object?>('/api/me/item/${ref.itemId}/bookmark', body: body),
+      OutboxKind.bookmarkUpdate,
+      body,
     );
     await _load(ref);
   }
 
   Future<void> delete(ItemRef ref, Duration position) async {
     final time = position.inMilliseconds % 1000 == 0 ? '${position.inSeconds}' : '${_secs(position)}';
-    await _client.delete<Object?>('/api/me/item/${ref.itemId}/bookmark/$time');
+    await _sendOrQueue(
+      ref,
+      () => _client.delete<Object?>('/api/me/item/${ref.itemId}/bookmark/$time'),
+      OutboxKind.bookmarkDelete,
+      {'time': _secs(position)},
+    );
     await _load(ref);
   }
 

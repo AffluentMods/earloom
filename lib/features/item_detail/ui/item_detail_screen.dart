@@ -29,6 +29,7 @@ import '../../downloads/ui/download_button.dart';
 import '../../local_library/ui/edit_book_sheet.dart';
 import '../../player/player_controller.dart';
 import '../../stats/ui/book_listening_card.dart';
+import 'book_bookmarks.dart';
 
 /// One book, themed with its cover: header, the main play button, progress,
 /// description, chapters, details and more in the series. Renders from the
@@ -176,6 +177,7 @@ class _DetailBody extends ConsumerWidget {
                 _Pad(child: DescriptionText(html: detail.descriptionHtml!)),
               ],
               if (detail.chapters.length > 1) _Chapters(detail: detail),
+              BookBookmarks(itemRef: book.ref, chapters: detail.chapters),
               Padding(
                 padding: const EdgeInsets.fromLTRB(Space.xl, Space.xl, Space.xl, 0),
                 child: BookListeningCard(itemRef: book.ref),

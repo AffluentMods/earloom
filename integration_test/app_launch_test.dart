@@ -38,12 +38,17 @@ void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('the app launches and the Phase 0 shell works on this device', (tester) async {
+    // One line per step in the device log, so a device that dies mid-run
+    // (the CI emulator has) shows where.
+    void step(String name) => debugPrint('walk: $name');
+    step('launch');
     await app.main();
     await settle(tester);
 
     // A fresh install opens the welcome screen. Earlier runs on the same
     // device may already have finished it.
     if (find.byType(OnboardingScreen).evaluate().isNotEmpty) {
+      step('onboarding');
       await shotNow(binding, tester, 'onboarding');
       final container = ProviderScope.containerOf(tester.element(find.byType(OnboardingScreen)));
       await container.read(onboardingProvider.notifier).complete();
@@ -69,44 +74,56 @@ void main() {
       await settle(tester);
     }
 
+    step('home');
     await shot('01_home');
 
     // Every tab opens its screen.
+    step('library tab');
     await tab(l10n.tabLibrary);
     expect(find.byType(LibraryScreen), findsOneWidget);
+    step('search tab');
     await tab(l10n.tabSearch);
     expect(find.byType(SearchScreen), findsOneWidget);
+    step('you tab');
     await tab(l10n.tabYou);
     expect(find.byType(YouScreen), findsOneWidget);
 
     // Developer screens, then the theme switch.
+    step('debug hub');
     await tester.tap(find.byIcon(Icons.bug_report_outlined));
     await settle(tester);
     expect(find.byType(DebugHubScreen), findsOneWidget);
 
     Brightness brightness() => Theme.of(tester.element(find.byType(DebugHubScreen))).brightness;
+    step('dark theme');
     await setTheme(tester, 'Dark');
     expect(brightness(), Brightness.dark);
     await shot('02_debug_hub_dark');
 
     // Design previews: first book in dark, then light, then a second book.
+    step('item preview dark');
     await openPreview(tester, item: true, book: 0);
     expect(find.byType(DesignItemPreview), findsOneWidget);
     await shot('03_item_dark');
     await back(tester);
 
+    step('player preview dark');
     await openPreview(tester, item: false, book: 0);
     expect(find.byType(DesignPlayerPreview), findsOneWidget);
     await shot('04_player_dark');
     await back(tester);
 
+    step('light theme');
     await setTheme(tester, 'Light');
     expect(brightness(), Brightness.light);
+    step('item preview light');
     await openPreview(tester, item: true, book: 1);
     await shot('05_item_light');
     await back(tester);
 
+    step('amoled theme');
     await setTheme(tester, 'AMOLED');
+    step('player preview amoled');
     await openPreview(tester, item: false, book: 6);
     await shot('06_player_amoled');
     await back(tester);
@@ -115,11 +132,13 @@ void main() {
     await setTheme(tester, 'System');
 
     // Deep links, delivered the way the operating system hands them over.
+    step('deep link item');
     await openLink(tester, 'earloom://item/test');
     expect(tester.widget<ItemDetailScreen>(find.byType(ItemDetailScreen)).itemId, 'test');
     await shot('07_deep_link_item');
 
     // Nothing is loaded on a fresh install: the player link lands on Home.
+    step('deep link player');
     await openLink(tester, 'earloom://player');
     expect(find.byType(NowPlayingScreen), findsNothing);
     expect(find.byType(HomeScreen), findsOneWidget);

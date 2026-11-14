@@ -2136,6 +2136,16 @@
     "description": "Sort order: Z to A, newest first, longest first."
   },
   "libraryFilter": "Filter",
+  "libraryFilterShort": "Filter ({count})",
+  "@libraryFilterShort": {
+    "description": "Library bar chip when filters are on; count is already formatted.",
+    "placeholders": {"count": {"type": "String"}}
+  },
+  "librarySortedBy": "Sorted by {field}, {direction}. Change sort",
+  "@librarySortedBy": {
+    "description": "Screen reader label of the sort chip in Library, e.g. Sorted by Title, Ascending. Change sort",
+    "placeholders": {"field": {"type": "String"}, "direction": {"type": "String"}}
+  },
   "@libraryFilter": {
     "description": "Button and sheet title for filtering books."
   },

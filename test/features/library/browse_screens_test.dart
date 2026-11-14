@@ -343,6 +343,9 @@ void main() {
       expect(find.text('A Field Guide to Quiet Places'), findsNothing);
       expect(find.text('Ash Harbor'), findsOneWidget);
 
+      // Clear all ends the sideways chip row: scroll it into view first.
+      await tester.ensureVisible(find.text(l10n.filterClearAll));
+      await tester.pumpAndSettle();
       await tester.tap(find.text(l10n.filterClearAll));
       await settle(tester);
       expect(find.text('A Field Guide to Quiet Places'), findsOneWidget);

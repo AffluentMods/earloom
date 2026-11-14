@@ -18,6 +18,12 @@ import UserNotifications
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    // CarPlay, Siri and Live Activities talk to the app through this.
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "EarloomBridge") {
+      EarloomBridge.shared.attach(registrar.messenger())
+    }
+    // A sleep timer activity left over from a killed app goes away.
+    Task { await SleepActivity.endAll() }
     // Folder picking for imports (lib/features/local_library).
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "FolderAccessPlugin") {
       FolderAccessPlugin.register(with: registrar)

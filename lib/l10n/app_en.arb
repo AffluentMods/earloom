@@ -3361,5 +3361,17 @@
   "autoPodcasts": "Podcasts",
   "@autoPodcasts": {
     "description": "Car and Android Auto folder with the newest podcast episodes."
+  },
+  "carplayOpenPhone": "Open Earloom on your phone to start.",
+  "@carplayOpenPhone": {
+    "description": "CarPlay text while the app is not ready. Mirrored in ios/Runner/CarPlaySceneDelegate.swift."
+  },
+  "shortcutAddBookmark": "Add bookmark",
+  "@shortcutAddBookmark": {
+    "description": "Siri and Shortcuts action. Mirrored in ios/Runner/AppIntents.swift."
+  },
+  "shortcutSleepTimer": "Sleep timer",
+  "@shortcutSleepTimer": {
+    "description": "Siri and Shortcuts action. Mirrored in ios/Runner/AppIntents.swift."
   }
 }

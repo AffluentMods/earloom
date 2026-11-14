@@ -10,6 +10,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../platform/native_bridge.dart';
 import '../../../platform/widget_bridge.dart';
 import '../../podcasts/data/podcast_providers.dart';
 import '../../stats/data/stats_repository.dart';
@@ -141,6 +142,7 @@ class _PlayerSideEffectsState extends ConsumerState<PlayerSideEffects> with Widg
     ref.watch(remoteProgressBridgeProvider);
     ref.watch(listeningRecorderProvider);
     ref.watch(widgetBridgeProvider);
+    ref.watch(nativeBridgeProvider);
     ref.watch(podcastPlaybackBridgeProvider);
     ref.watch(podcastAutomationProvider);
     ref.listen(playerNoticesProvider, (_, next) {

@@ -76,12 +76,31 @@ class WidgetBridge {
   String? _coverFor;
   String? _coverPath;
 
+  /// The App Group the iOS widget reads (set up with the widget target,
+  /// ios/NowPlayingWidget/README.md).
+  static const appGroup = 'group.com.affluentlabs.earloom';
+
   static Future<void> _writeHomeWidget(Map<String, Object?> data) async {
-    if (!Platform.isAndroid) return;
+    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (Platform.isIOS) {
+      await HomeWidget.setAppGroupId(appGroup);
+      // The widget extension cannot read the app's own files: copy the cover
+      // into the shared container.
+      final cover = data['np.cover'] as String?;
+      if (cover != null && File(cover).existsSync()) {
+        data = {
+          ...data,
+          'np.cover': await HomeWidget.saveFile('np_cover', await File(cover).readAsBytes(), extension: 'img'),
+        };
+      }
+    }
     for (final e in data.entries) {
       await HomeWidget.saveWidgetData<Object>(e.key, e.value, deleteFile: false);
     }
-    await HomeWidget.updateWidget(qualifiedAndroidName: 'com.affluentlabs.earloom.widget.NowPlayingWidget');
+    await HomeWidget.updateWidget(
+      qualifiedAndroidName: 'com.affluentlabs.earloom.widget.NowPlayingWidget',
+      iOSName: 'NowPlayingWidget',
+    );
   }
 
   Future<String?> _cover(NowPlaying now) async {

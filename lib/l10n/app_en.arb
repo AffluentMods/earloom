@@ -1341,5 +1341,9 @@
   "autoSignInOnPhone": "Open Earloom on your phone to sign in again.",
   "@autoSignInOnPhone": {
     "description": "Car message when the account is signed out."
+  },
+  "widgetNowPlayingDescription": "What you are listening to, with play and pause",
+  "@widgetNowPlayingDescription": {
+    "description": "Android widget picker description. Mirrored in android/app/src/main/res/values/strings.xml."
   }
 }

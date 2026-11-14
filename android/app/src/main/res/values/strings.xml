@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strings Android reads before Flutter starts (the widget picker). They
+     mirror keys in lib/l10n/app_en.arb: widgetNowPlayingDescription. -->
+<resources>
+    <string name="widget_now_playing_description">What you are listening to, with play and pause</string>
+</resources>

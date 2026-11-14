@@ -1,7 +1,17 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// The upload key lives outside the repo: android/key.properties (git-ignored)
+// names the keystore file and its passwords. Without it, release builds are
+// signed with the debug key so `flutter run --release` still works.
+val keyProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
 }
 
 android {
@@ -43,12 +53,21 @@ android {
         create("foss") { dimension = "store" }
     }
 
+    signingConfigs {
+        if (keyProperties.isNotEmpty()) {
+            create("upload") {
+                storeFile = file(keyProperties.getProperty("storeFile"))
+                storePassword = keyProperties.getProperty("storePassword")
+                keyAlias = keyProperties.getProperty("keyAlias")
+                keyPassword = keyProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // Debug keys for now, so `flutter run --release` works. The release
-            // pipeline (Phase 9) signs with the upload key from key.properties,
-            // which lives outside the repo.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig =
+                if (keyProperties.isNotEmpty()) signingConfigs.getByName("upload") else signingConfigs.getByName("debug")
         }
     }
 }

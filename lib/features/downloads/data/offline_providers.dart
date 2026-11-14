@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -30,6 +29,7 @@ import 'download_server.dart';
 import 'download_transport.dart';
 import 'downloaded_playback.dart';
 import 'item_snapshot.dart';
+import '../../../core/util/dev_log.dart';
 
 /// Application Support. Tests point it at a temporary folder.
 final supportDirProvider = Provider<Future<Directory> Function()>((ref) => getApplicationSupportDirectory);
@@ -152,7 +152,7 @@ class SyncScheduler {
     try {
       await _ref.read(outboxFlusherProvider).flush();
     } on Object catch (e) {
-      debugPrint('Outbox flush stopped: $e');
+      devLog('Outbox flush stopped: $e');
     }
   }
 
@@ -307,7 +307,7 @@ class DownloadRulesRunner {
     } on Object catch (e) {
       // Offline or the series is gone: try again next time the book plays.
       _nextAsked.remove(item.key);
-      debugPrint('Downloads: next in series not queued: $e');
+      devLog('Downloads: next in series not queued: $e');
     }
   }
 }

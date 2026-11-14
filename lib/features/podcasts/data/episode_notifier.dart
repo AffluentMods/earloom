@@ -3,8 +3,9 @@
 
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import '../../../core/util/dev_log.dart';
 
 /// Shows "New episode" notifications on this phone. Local only: nothing
 /// goes through a push service (F-Droid friendly, no tracking).
@@ -55,7 +56,7 @@ class LocalEpisodeNotifier implements EpisodeNotifier {
       );
       return ok ?? false;
     } on Object catch (e) {
-      debugPrint('Notifications unavailable: $e');
+      devLog('Notifications unavailable: $e');
       return false;
     }
   }();
@@ -73,7 +74,7 @@ class LocalEpisodeNotifier implements EpisodeNotifier {
         return await ios?.requestPermissions(alert: true, sound: true) ?? false;
       }
     } on Object catch (e) {
-      debugPrint('Notification permission not asked: $e');
+      devLog('Notification permission not asked: $e');
     }
     return false;
   }

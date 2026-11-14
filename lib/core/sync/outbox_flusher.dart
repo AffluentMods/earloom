@@ -7,12 +7,11 @@ library;
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
-
 import '../db/offline_db.dart';
 import '../net/abs_client.dart';
 import '../net/abs_errors.dart';
 import 'outbox.dart';
+import '../../core/util/dev_log.dart';
 
 /// Local sessions go to `/api/session/local-all` this many at a time.
 const localSessionBatch = 25;
@@ -69,7 +68,7 @@ class OutboxFlusher {
       client = await _clientFor(accountId);
     } on Object catch (e) {
       // The account is gone or broken: nothing can be sent for it now.
-      debugPrint('Outbox: no client for an account: $e');
+      devLog('Outbox: no client for an account: $e');
       return;
     }
     try {
@@ -153,7 +152,7 @@ class OutboxFlusher {
   Future<void> _dead(OutboxEntry entry, String details) async {
     // Logged without the payload: it is the user's data, not a secret, but
     // the details row in Settings is where it belongs.
-    debugPrint('Outbox: ${entry.kind.name} refused by the server, kept as a dead letter: $details');
+    devLog('Outbox: ${entry.kind.name} refused by the server, kept as a dead letter: $details');
     await queue.deadLetter(entry.id, details);
   }
 

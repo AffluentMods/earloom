@@ -27,6 +27,7 @@ import 'features/player/media_browser.dart';
 import 'features/player/offline_session_recorder.dart';
 import 'features/player/player_controller.dart';
 import 'features/player/ui/player_widgets.dart';
+import 'core/util/dev_log.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,7 +76,7 @@ Future<void> _startOffline(ProviderContainer container, GlobalDb globalDb, Offli
     await scheduler.onForeground();
     await container.read(downloadRulesProvider).run();
   } on Object catch (e) {
-    debugPrint('Offline services did not start: $e');
+    devLog('Offline services did not start: $e');
   }
 }
 
@@ -120,6 +121,6 @@ Future<void> _startPlayer(ProviderContainer container) async {
     );
   } on Object catch (e) {
     // Without the service, audio still plays while the app is open.
-    debugPrint('Audio service did not start: $e');
+    devLog('Audio service did not start: $e');
   }
 }

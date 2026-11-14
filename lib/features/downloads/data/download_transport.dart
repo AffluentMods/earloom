@@ -4,7 +4,8 @@
 import 'dart:async';
 
 import 'package:background_downloader/background_downloader.dart';
-import 'package:flutter/foundation.dart';
+
+import '../../../core/util/dev_log.dart';
 
 /// One audio file to fetch in the background.
 final class FileJob {
@@ -235,7 +236,7 @@ class BackgroundTransport implements DownloadTransport {
       final status = await _downloader.permissions.status(PermissionType.notifications);
       if (status != PermissionStatus.granted) await _downloader.permissions.request(PermissionType.notifications);
     } on Object catch (e) {
-      debugPrint('Downloads: notification permission not asked: $e');
+      devLog('Downloads: notification permission not asked: $e');
     }
   }
 
@@ -247,7 +248,7 @@ class BackgroundTransport implements DownloadTransport {
       if (await _downloader.getRequireWiFiSetting() == want) return;
       await _downloader.requireWiFi(want);
     } on Object catch (e) {
-      debugPrint('Downloads: Wi-Fi setting not applied: $e');
+      devLog('Downloads: Wi-Fi setting not applied: $e');
     }
   }
 

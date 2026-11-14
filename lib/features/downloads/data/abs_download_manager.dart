@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart' show Value;
-import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:uuid/uuid.dart';
 
@@ -18,6 +17,7 @@ import 'download_paths.dart';
 import 'download_server.dart';
 import 'download_transport.dart';
 import 'item_snapshot.dart';
+import '../../../core/util/dev_log.dart';
 
 /// Download row states (`downloads.status`).
 abstract final class DownloadStatus {
@@ -242,7 +242,7 @@ class AbsDownloadManager implements DownloadManager {
         }
       } on Object catch (e) {
         // The book plays without its cover; the placeholder shows instead.
-        debugPrint('Downloads: cover not saved: $e');
+        devLog('Downloads: cover not saved: $e');
         coverPath = null;
       }
 
@@ -460,7 +460,7 @@ class AbsDownloadManager implements DownloadManager {
       final dir = (await _paths()).dir(DownloadPaths.folderFor(ref));
       if (await dir.exists()) await dir.delete(recursive: true);
     } on FileSystemException catch (e) {
-      debugPrint('Downloads: folder not removed: ${e.message}');
+      devLog('Downloads: folder not removed: ${e.message}');
     }
   }
 

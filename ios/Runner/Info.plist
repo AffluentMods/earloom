@@ -94,6 +94,9 @@
 	</array>
 	<!-- Audiobookshelf servers are the user's own, often plain http on a home
 	     network or a VPN address. The app warns before signing in over http. -->
+	<!-- Standard HTTPS only: exempt from export documentation. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

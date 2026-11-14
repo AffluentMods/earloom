@@ -17,6 +17,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../data/account_session.dart';
 import '../../downloads/data/offline_providers.dart' show removeAccountOfflineData;
 import '../data/accounts_repository.dart';
+import '../../../core/util/dev_log.dart';
 
 /// Every server account on this phone: which one is in use, switching,
 /// signing out and removing.
@@ -119,7 +120,7 @@ class _AccountTile extends ConsumerWidget {
           await removeAccountOfflineData(ref, account.id);
         } on Object catch (e) {
           // Best effort: what is left can no longer sync and is harmless.
-          debugPrint('Offline data of a removed account not cleared: $e');
+          devLog('Offline data of a removed account not cleared: $e');
         }
         await _deleteLocalData(account.id);
     }

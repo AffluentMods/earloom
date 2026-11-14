@@ -82,3 +82,8 @@ final class AbsHttpError extends AbsFailure {
 final class AbsUnexpected extends AbsFailure {
   const AbsUnexpected(super.details);
 }
+
+/// Single sign-on came back with a different state than it started with.
+final class OidcStateMismatch extends AbsFailure {
+  const OidcStateMismatch(super.details);
+}

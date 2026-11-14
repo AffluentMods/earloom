@@ -13,11 +13,14 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final globalDb = GlobalDb.open();
   final themeMode = AppThemeMode.fromName(await globalDb.readSetting(SettingKeys.themeMode));
+  final onboarded =
+      await globalDb.readSetting(SettingKeys.onboarded) == 'true' || (await globalDb.allAccounts()).isNotEmpty;
   runApp(
     ProviderScope(
       overrides: [
         globalDbProvider.overrideWithValue(globalDb),
         initialThemeModeProvider.overrideWithValue(themeMode),
+        initialOnboardedProvider.overrideWithValue(onboarded),
       ],
       child: const EarloomApp(),
     ),

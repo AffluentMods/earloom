@@ -34,6 +34,22 @@ final coverSchemeServiceProvider = Provider<CoverSchemeService>(
 /// flashes the wrong theme. Overridden in `main`.
 final initialThemeModeProvider = Provider<AppThemeMode>((ref) => AppThemeMode.system);
 
+/// Whether onboarding is done, read from disk before the first frame.
+/// Overridden in `main`.
+final initialOnboardedProvider = Provider<bool>((ref) => false);
+
+final onboardingProvider = NotifierProvider<OnboardingController, bool>(OnboardingController.new);
+
+class OnboardingController extends Notifier<bool> {
+  @override
+  bool build() => ref.read(initialOnboardedProvider);
+
+  Future<void> complete() async {
+    state = true;
+    await ref.read(globalDbProvider).writeSetting(SettingKeys.onboarded, 'true');
+  }
+}
+
 final themeModeProvider = NotifierProvider<ThemeModeController, AppThemeMode>(ThemeModeController.new);
 
 class ThemeModeController extends Notifier<AppThemeMode> {

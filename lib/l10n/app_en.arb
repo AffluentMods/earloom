@@ -8,25 +8,197 @@
   "durationHours": "{hours, plural, =1{1 hr} other{{hours} hrs}}",
   "@durationHours": {
     "description": "A whole number of hours, short form.",
-    "placeholders": { "hours": { "type": "int" } }
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
   },
   "durationMinutes": "{minutes, plural, =1{1 min} other{{minutes} min}}",
   "@durationMinutes": {
     "description": "A whole number of minutes, short form.",
-    "placeholders": { "minutes": { "type": "int" } }
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
   },
   "durationHoursMinutes": "{hours} {minutes}",
   "@durationHoursMinutes": {
     "description": "Joins an already formatted hours part and minutes part, for example '1 hr 5 min'. Reorder or change the separator for your language.",
-    "placeholders": { "hours": { "type": "String" }, "minutes": { "type": "String" } }
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "String"
+      }
+    }
   },
   "timeLeft": "{duration} left",
   "@timeLeft": {
     "description": "Time remaining in a book or chapter. The duration is already formatted, for example '3 hr 12 min'.",
-    "placeholders": { "duration": { "type": "String" } }
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
   },
   "genericRetry": "Try again",
   "genericCancel": "Cancel",
   "genericSave": "Save",
-  "offlineBanner": "Offline. Showing what is on this device."
+  "offlineBanner": "Offline. Showing what is on this device.",
+  "genericContinue": "Continue",
+  "genericClose": "Close",
+  "genericCopyDetails": "Copy details",
+  "@genericCopyDetails": {
+    "description": "Copies technical error details to the clipboard."
+  },
+  "genericDetailsCopied": "Details copied",
+  "genericLearnMore": "Learn more",
+  "genericRemove": "Remove",
+  "genericSomethingWentWrong": "Something went wrong.",
+  "onboardingTitle": "Your audiobooks, ready when you are",
+  "@onboardingTitle": {
+    "description": "Welcome screen headline."
+  },
+  "onboardingBody": "Listen to your Audiobookshelf library, or to audiobook files on this phone. No ads, no tracking.",
+  "onboardingConnectServer": "Connect a server",
+  "onboardingUseLocalFiles": "Play files on this phone",
+  "onboardingWhatIsAbs": "What is Audiobookshelf?",
+  "onboardingWhatIsAbsBody": "Audiobookshelf is a free server you run at home to keep your audiobook and podcast library. Earloom plays from it, and also plays files you add to this phone.",
+  "addServerTitle": "Connect a server",
+  "addServerIntro": "Enter the address you use to open Audiobookshelf in a browser.",
+  "addServerAddressLabel": "Server address",
+  "addServerAddressHint": "books.example.com or 192.168.1.20:13378",
+  "addServerAdvanced": "Advanced",
+  "addServerCustomHeaders": "Custom headers",
+  "addServerCustomHeadersHelp": "For servers behind a proxy that needs extra headers, such as Cloudflare Access. They are stored securely on this device.",
+  "addServerAddHeader": "Add header",
+  "addServerHeaderName": "Header name",
+  "addServerHeaderValue": "Value",
+  "addServerRemoveHeader": "Remove header",
+  "probeChecking": "Checking the server",
+  "probeUnreachable": "Can't reach a server at that address. Check the address and that this phone is on the same network or VPN.",
+  "probeNotAbs": "Something answered at that address, but it isn't Audiobookshelf.",
+  "probeNotInitialized": "This Audiobookshelf server has not been set up yet. Open it in a browser to create the first user, then try again.",
+  "probeTooOld": "This server runs Audiobookshelf {version}. Earloom needs version 2.26.0 or newer. Ask the server admin to update it.",
+  "@probeTooOld": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "probeInvalidAddress": "That does not look like a server address.",
+  "probeCleartextWarning": "This connection is not encrypted. Anyone on the same network could see what you send, including your password. Use https if your server supports it.",
+  "probeServerVersion": "Audiobookshelf {version}",
+  "@probeServerVersion": {
+    "description": "Shown on the card of a server that was found.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "probeChangeServer": "Change server",
+  "signInTitle": "Sign in",
+  "signInUsername": "Username",
+  "signInPassword": "Password",
+  "signInShowPassword": "Show password",
+  "signInHidePassword": "Hide password",
+  "signInButton": "Sign in",
+  "signInWrongCredentials": "Wrong username or password.",
+  "signInRateLimited": "Too many sign-in attempts from this network. Try again in {minutes, plural, =1{1 minute} other{{minutes} minutes}}.",
+  "@signInRateLimited": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "signInRateLimitedNoTime": "Too many sign-in attempts from this network. Try again in a few minutes.",
+  "signInUnreachable": "Can't reach the server. Check your connection and try again.",
+  "signInFailed": "Sign-in did not work.",
+  "signInWithSso": "Sign in with {provider}",
+  "@signInWithSso": {
+    "description": "Button for single sign-on. provider is the name the server admin configured.",
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "signInSsoDefault": "single sign-on",
+  "@signInSsoDefault": {
+    "description": "Used when the server does not name its sign-on provider."
+  },
+  "signInSsoTrouble": "Having trouble signing in?",
+  "signInOr": "or",
+  "ssoAdminHelpTitle": "Single sign-on needs one setting",
+  "ssoAdminHelpBody": "Your server admin needs to add {redirectUri} to \"Allowed Mobile Redirect URIs\" in Audiobookshelf, under Settings, Authentication.",
+  "@ssoAdminHelpBody": {
+    "placeholders": {
+      "redirectUri": {
+        "type": "String"
+      }
+    }
+  },
+  "ssoStateMismatch": "The sign-in did not come back the way it started. Try again.",
+  "signInAgainTitle": "Sign in again",
+  "signInAgainBody": "Sign in to {server} to sync your listening again. Downloaded books keep playing meanwhile.",
+  "@signInAgainBody": {
+    "placeholders": {
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionExpiredBanner": "Sign in again to sync your progress.",
+  "sessionExpiredAction": "Sign in",
+  "securityAdvisoryBanner": "This server runs Audiobookshelf {version}, which has known security problems. Update it to 2.37.0 or newer.",
+  "@securityAdvisoryBanner": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "securityAdvisoryLearnMore": "Release notes",
+  "accountsTitle": "Accounts",
+  "accountsAdd": "Connect another server",
+  "accountsCurrent": "In use",
+  "accountsSignedOut": "Signed out",
+  "accountsUseThis": "Use this account",
+  "accountsSignOut": "Sign out",
+  "accountsSignIn": "Sign in",
+  "accountsRemove": "Remove account",
+  "accountsRemoveTitle": "Remove {name}?",
+  "@accountsRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "accountsRemoveBody": "Earloom forgets this account and deletes what it stored for it on this phone, including downloads. Your library and progress on the server are not affected.",
+  "accountsRemoveConfirm": "Remove account",
+  "accountsUserOnServer": "{username} on {server}",
+  "@accountsUserOnServer": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      },
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "accountsMenu": "Account options",
+  "accountsEmpty": "No servers connected yet.",
+  "youServers": "Servers",
+  "youOnThisDevice": "On this device",
+  "youImportFiles": "Add audiobooks from files",
+  "youImportFilesBody": "Copy audiobook files from this phone into Earloom.",
+  "youAbout": "About Earloom"
 }

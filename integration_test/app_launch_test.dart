@@ -17,16 +17,20 @@ import 'package:earloom/app/debug/debug_hub_screen.dart';
 import 'package:earloom/app/debug/demo_books.dart';
 import 'package:earloom/app/debug/design_item_preview.dart';
 import 'package:earloom/app/debug/design_player_preview.dart';
+import 'package:earloom/app/providers.dart';
 import 'package:earloom/features/home/ui/home_screen.dart';
 import 'package:earloom/features/item_detail/ui/item_detail_screen.dart';
 import 'package:earloom/features/library/ui/library_screen.dart';
+import 'package:earloom/features/onboarding/ui/onboarding_screen.dart';
 import 'package:earloom/features/player/ui/now_playing_screen.dart';
 import 'package:earloom/features/search/ui/search_screen.dart';
 import 'package:earloom/features/you/ui/you_screen.dart';
 import 'package:earloom/l10n/gen/app_localizations.dart';
 import 'package:earloom/main.dart' as app;
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -36,6 +40,16 @@ void main() {
   testWidgets('the app launches and the Phase 0 shell works on this device', (tester) async {
     await app.main();
     await settle(tester);
+
+    // A fresh install opens the welcome screen. Earlier runs on the same
+    // device may already have finished it.
+    if (find.byType(OnboardingScreen).evaluate().isNotEmpty) {
+      await shotNow(binding, tester, 'onboarding');
+      final container = ProviderScope.containerOf(tester.element(find.byType(OnboardingScreen)));
+      await container.read(onboardingProvider.notifier).complete();
+      GoRouter.of(tester.element(find.byType(OnboardingScreen))).go('/home');
+      await settle(tester);
+    }
     expect(find.byType(HomeScreen), findsOneWidget);
 
     // In-app screenshots only where they are cheap. On Android the screenshot
@@ -112,6 +126,14 @@ void main() {
     expect(find.byType(HomeScreen), findsOneWidget);
     expect(find.byType(ItemDetailScreen), findsNothing);
   });
+}
+
+/// A screenshot before the regular shot() helper exists (iOS only, see the
+/// note on Android screenshots below).
+Future<void> shotNow(IntegrationTestWidgetsFlutterBinding binding, WidgetTester tester, String name) async {
+  if (Platform.isAndroid) return;
+  await settle(tester);
+  await binding.takeScreenshot('${Platform.operatingSystem}_00_$name');
 }
 
 /// Lets real async work finish (image decoding, database reads), then waits

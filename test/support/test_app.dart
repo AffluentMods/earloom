@@ -3,14 +3,18 @@
 
 import 'dart:io';
 
+import 'package:drift/drift.dart' show DatabaseConnection;
 import 'package:drift/native.dart';
 import 'package:earloom/app/app.dart';
 import 'package:earloom/app/providers.dart';
 import 'package:earloom/app/theme/app_theme.dart';
 import 'package:earloom/core/db/global_db.dart';
+import 'package:earloom/core/storage/secure_store.dart';
+import 'package:earloom/features/accounts/data/account_session.dart';
 import 'package:earloom/l10n/gen/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -39,6 +43,30 @@ Future<void> loadAppFonts() async {
   }
 }
 
+/// An in-memory GlobalDb that works inside widget tests.
+///
+/// drift must be opened outside the test's fake clock (the first query opens
+/// SQLite), and its streams must close synchronously, or watching a query
+/// hangs the test. Pair with [settle] instead of pumpAndSettle whenever the
+/// screen reads the database.
+Future<GlobalDb> openTestGlobalDb(WidgetTester tester) async {
+  final db = GlobalDb(DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true));
+  await tester.runAsync(() => db.readSetting('warm-up'));
+  addTearDown(() => tester.runAsync(db.close));
+  return db;
+}
+
+/// Lets real asynchronous work (database queries, stream updates, image
+/// decoding) finish between frames, then waits for animations to end.
+Future<void> settle(WidgetTester tester, {int rounds = 4}) async {
+  for (var i = 0; i < rounds; i++) {
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 15)));
+    // Advance the fake clock too: HTTP clients arm timers that must tick.
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+  await tester.pumpAndSettle();
+}
+
 /// Pumps the whole app with an in-memory settings database.
 ///
 /// Returns the database so a test can check what was saved.
@@ -46,8 +74,13 @@ Future<GlobalDb> pumpEarloom(
   WidgetTester tester, {
   AppThemeMode themeMode = AppThemeMode.system,
   String? initialRoute,
+  bool onboarded = true,
+  List<Override> overrides = const [],
+  void Function(GlobalDb db)? onDb,
+  SecureStore? secureStore,
 }) async {
-  final db = GlobalDb(NativeDatabase.memory());
+  final db = await openTestGlobalDb(tester);
+  onDb?.call(db);
   addTearDown(db.close);
   if (initialRoute != null) {
     tester.platformDispatcher.defaultRouteNameTestValue = initialRoute;
@@ -58,6 +91,9 @@ Future<GlobalDb> pumpEarloom(
       overrides: [
         globalDbProvider.overrideWithValue(db),
         initialThemeModeProvider.overrideWithValue(themeMode),
+        initialOnboardedProvider.overrideWithValue(onboarded),
+        secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),
+        ...overrides,
       ],
       child: const EarloomApp(),
     ),

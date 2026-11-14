@@ -1834,5 +1834,9 @@
   "shortcutSearch": "Search",
   "@shortcutSearch": {
     "description": "App icon shortcut label. Mirrored in android/app/src/main/res/values/strings.xml."
+  },
+  "iosLocalNetworkUsage": "Earloom connects to your Audiobookshelf server when it is on your home network.",
+  "@iosLocalNetworkUsage": {
+    "description": "iOS local network permission text. Mirrored in ios/Runner/Info.plist NSLocalNetworkUsageDescription."
   }
 }

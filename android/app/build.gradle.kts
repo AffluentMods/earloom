@@ -28,6 +28,16 @@ android {
         versionName = flutter.versionName
     }
 
+    // play: Google Play and the App Store build (may later carry Google Cast).
+    // foss: F-Droid and IzzyOnDroid, with no proprietary SDKs. Today both are
+    // the same app; CI checks that foss never pulls a Google proprietary
+    // library. Build with --flavor play or --flavor foss.
+    flavorDimensions += "store"
+    productFlavors {
+        create("play") { dimension = "store" }
+        create("foss") { dimension = "store" }
+    }
+
     buildTypes {
         release {
             // Debug keys for now, so `flutter run --release` works. The release

@@ -29,7 +29,7 @@ Development happens mostly on Windows, so scripts in `tool/` must run in Git Bas
 
 ```bash
 tool/bootstrap.sh   # packages, generated code, git hooks
-flutter run
+flutter run --flavor foss   # Android; on iOS plain `flutter run`
 ```
 
 Run `tool/bootstrap.sh` again after pulling changes to `pubspec.yaml`, to the database tables in `lib/core/db/` or to `lib/l10n/app_en.arb`. Generated files (`*.g.dart`, `lib/l10n/gen/`) are not committed.

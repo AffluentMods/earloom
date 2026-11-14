@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../features/home/ui/home_screen.dart';
 import '../features/item_detail/ui/item_detail_screen.dart';
 import '../features/library/ui/library_screen.dart';
+import '../features/local_library/ui/import_books_screen.dart';
 import '../features/onboarding/ui/onboarding_screen.dart';
 import '../features/player/ui/now_playing_screen.dart';
 import '../features/search/ui/search_screen.dart';
@@ -24,6 +25,7 @@ abstract final class AppRoutes {
   static const you = '/you';
   static const player = '/player';
   static const onboarding = '/onboarding';
+  static const localImport = '/local/import';
   static String item(String id) => '/item/${Uri.encodeComponent(id)}';
 }
 
@@ -75,6 +77,7 @@ GoRouter buildRouter({String initialLocation = AppRoutes.home}) {
         pageBuilder: (_, state) => NowPlayingPage(key: state.pageKey),
       ),
       GoRoute(path: AppRoutes.onboarding, builder: (_, _) => const OnboardingScreen()),
+      GoRoute(path: AppRoutes.localImport, builder: (_, _) => const ImportBooksScreen()),
       // Developer screens exist in debug builds only.
       if (kDebugMode) ...debugRoutes,
     ],

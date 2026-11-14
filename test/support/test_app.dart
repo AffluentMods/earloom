@@ -3,20 +3,26 @@
 
 import 'dart:io';
 
-import 'package:drift/drift.dart' show DatabaseConnection;
+import 'package:drift/drift.dart' show DatabaseConnection, driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:earloom/app/app.dart';
 import 'package:earloom/app/providers.dart';
 import 'package:earloom/app/theme/app_theme.dart';
+import 'package:earloom/core/db/account_db.dart';
 import 'package:earloom/core/db/global_db.dart';
+import 'package:earloom/core/db/local_db.dart';
 import 'package:earloom/core/storage/secure_store.dart';
 import 'package:earloom/features/accounts/data/account_session.dart';
+import 'package:earloom/features/local_library/data/local_storage.dart';
+import 'package:earloom/features/local_library/data/providers.dart';
 import 'package:earloom/l10n/gen/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+
+import 'offline_covers.dart';
 
 /// English strings for assertions, so tests never hardcode UI copy.
 Future<AppLocalizations> loadL10n() => AppLocalizations.delegate.load(const Locale('en'));
@@ -56,6 +62,15 @@ Future<GlobalDb> openTestGlobalDb(WidgetTester tester) async {
   return db;
 }
 
+/// An in-memory LocalDb for widget tests, opened like [openTestGlobalDb].
+Future<LocalDb> openTestLocalDb(WidgetTester tester) async {
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+  final db = LocalDb(DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true));
+  await tester.runAsync(() => db.select(db.localBooks).get());
+  addTearDown(() => tester.runAsync(db.close));
+  return db;
+}
+
 /// Lets real asynchronous work (database queries, stream updates, image
 /// decoding) finish between frames, then waits for animations to end.
 Future<void> settle(WidgetTester tester, {int rounds = 4}) async {
@@ -78,10 +93,15 @@ Future<GlobalDb> pumpEarloom(
   List<Override> overrides = const [],
   void Function(GlobalDb db)? onDb,
   SecureStore? secureStore,
+  LocalDb? localDb,
 }) async {
+  useOfflineCoverCache();
   final db = await openTestGlobalDb(tester);
   onDb?.call(db);
   addTearDown(db.close);
+  final local = localDb ?? await openTestLocalDb(tester);
+  final storage = Directory.systemTemp.createTempSync('earloom_app_test_');
+  addTearDown(() => storage.deleteSync(recursive: true));
   if (initialRoute != null) {
     tester.platformDispatcher.defaultRouteNameTestValue = initialRoute;
     addTearDown(tester.platformDispatcher.clearDefaultRouteNameTestValue);
@@ -93,6 +113,12 @@ Future<GlobalDb> pumpEarloom(
         initialThemeModeProvider.overrideWithValue(themeMode),
         initialOnboardedProvider.overrideWithValue(onboarded),
         secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),
+        localDbProvider.overrideWithValue(local),
+        // A signed-in account gets an in-memory cache, never a file.
+        accountDbOpenerProvider.overrideWithValue(
+          (_) => AccountDb(DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true)),
+        ),
+        localStorageProvider.overrideWithValue(LocalStorage(Directory('${storage.path}/local'))),
         ...overrides,
       ],
       child: const EarloomApp(),

@@ -58,11 +58,28 @@ void main() {
       ]);
       await repository.syncLibrary(testLibraryId);
       final books = await repository.watchBooks(testLibraryId, const LibraryQuery()).first;
-      expect(books.map((b) => b.title), ['Ash Harbor', 'Cinder Interlude', 'A Field Guide to Quiet Places']);
+      expect(books.map((b) => b.title), [
+        'Ash Harbor',
+        'Cinder Interlude',
+        "The Clockmaker's Tide",
+        'A Field Guide to Quiet Places',
+      ]);
       final request = server.requestsTo('/api/libraries/$testLibraryId/items').single;
       expect(request.uri.queryParameters['limit'], '${AbsLibraryRepository.syncPageSize}');
       expect(request.headers['Authorization'], startsWith('Bearer '));
       expect(request.uri.toString(), isNot(contains('token')));
+    });
+
+    test('a listing shorter than its own total removes nothing', () async {
+      await repository.syncLibrary(testLibraryId);
+      server.routes['/api/libraries/$testLibraryId/items'] = (_) => {
+        ...libraryPage(),
+        'results': <Object?>[],
+        'total': 40,
+      };
+      await repository.syncLibrary(testLibraryId, force: true);
+      final books = await repository.watchBooks(testLibraryId, const LibraryQuery()).first;
+      expect(books, hasLength(4));
     });
 
     test('a sync runs at most every six hours unless forced', () async {
@@ -95,6 +112,7 @@ void main() {
       expect(await titles(const LibraryQuery(filters: [LibraryFilter(FilterKind.narrator, 'Jonah Pryce')])), [
         'Ash Harbor',
         'Cinder Interlude',
+        "The Clockmaker's Tide",
       ]);
       expect(
         await titles(
@@ -132,7 +150,7 @@ void main() {
               .toList();
       expect(await titles(ProgressFilterValue.inProgress), ['Ash Harbor']);
       expect(await titles(ProgressFilterValue.finished), ['A Field Guide to Quiet Places']);
-      expect(await titles(ProgressFilterValue.notStarted), ['Cinder Interlude']);
+      expect(await titles(ProgressFilterValue.notStarted), ['Cinder Interlude', "The Clockmaker's Tide"]);
     });
   });
 

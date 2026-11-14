@@ -85,7 +85,10 @@ class HomeRepository {
           serverLabel: label,
           books: [
             for (final e in entities)
-              if (byId[e['id']] case final book?) _withSeries(book, e),
+              // A book not in the item cache (yet, or any more) still shows,
+              // from the shelf's own copy.
+              if (AbsJson.str(e['id']) != null)
+                _withSeries(byId[e['id']] ?? AbsJson.summaryFromJson(source, e, null), e),
           ],
         );
       case 'series':

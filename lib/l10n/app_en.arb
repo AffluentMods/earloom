@@ -486,5 +486,888 @@
   "bookNoCoverLabel": "No cover",
   "@bookNoCoverLabel": {
     "description": "Screen reader label for a book without a cover."
+  },
+  "genericRefreshFailed": "Could not refresh. Showing what was saved.",
+  "@genericRefreshFailed": {
+    "description": "Quiet notice when fetching fresh data failed but saved content is shown."
+  },
+  "genericActionFailed": "That did not work. Check the connection to your server and try again.",
+  "@genericActionFailed": {
+    "description": "Error when a server action (mark finished, playlist change) failed."
+  },
+  "genericSeeAll": "See all",
+  "@genericSeeAll": {
+    "description": "Button that opens the full list behind a shelf."
+  },
+  "genericDelete": "Delete",
+  "@genericDelete": {
+    "description": "Confirm button of a delete dialog."
+  },
+  "genericRename": "Rename",
+  "@genericRename": {
+    "description": "Confirm button of a rename dialog."
+  },
+  "genericCreate": "Create",
+  "@genericCreate": {
+    "description": "Confirm button of a create dialog."
+  },
+  "genericFinished": "Finished",
+  "@genericFinished": {
+    "description": "Badge on a book the user finished."
+  },
+  "listenedPercent": "{percent}% listened",
+  "@listenedPercent": {
+    "description": "Screen reader text for a progress ring or bar.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "bookCountLabel": "{count, plural, =1{1 book} other{{count} books}}",
+  "@bookCountLabel": {
+    "description": "Number of books in a series, author, collection or playlist.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "countAndDuration": "{count}, {duration}",
+  "@countAndDuration": {
+    "description": "Joins a book count and a total duration, for example '4 books, 12 hr 30 min'. Both are already formatted.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "sourceOnThisDevice": "On this device",
+  "@sourceOnThisDevice": {
+    "description": "Name of the library of books imported from files on this phone."
+  },
+  "sourceServerLibrary": "{library} on {server}",
+  "@sourceServerLibrary": {
+    "description": "A server library in the library switcher, for example 'Audiobooks on Home server'.",
+    "placeholders": {
+      "library": {
+        "type": "String"
+      },
+      "server": {
+        "type": "String"
+      }
+    }
+  },
+  "homeContinueListening": "Continue listening",
+  "@homeContinueListening": {
+    "description": "Home shelf and hero label: books the user is in the middle of."
+  },
+  "homeResume": "Resume",
+  "@homeResume": {
+    "description": "Button on the Home hero card that continues the book without leaving Home."
+  },
+  "homePause": "Pause",
+  "@homePause": {
+    "description": "Button on the Home hero card while the book is playing."
+  },
+  "homeShelfContinueSeries": "Continue series",
+  "@homeShelfContinueSeries": {
+    "description": "Home shelf: the next book in series the user has started."
+  },
+  "homeShelfContinueReading": "Continue reading",
+  "@homeShelfContinueReading": {
+    "description": "Home shelf from the server: ebooks in progress."
+  },
+  "homeShelfRecentlyAdded": "Recently added",
+  "@homeShelfRecentlyAdded": {
+    "description": "Home shelf: newest books in the library."
+  },
+  "homeShelfRecentSeries": "Recent series",
+  "@homeShelfRecentSeries": {
+    "description": "Home shelf: series with new books."
+  },
+  "homeShelfDiscover": "Discover",
+  "@homeShelfDiscover": {
+    "description": "Home shelf: books picked by the server for discovery."
+  },
+  "homeShelfListenAgain": "Listen again",
+  "@homeShelfListenAgain": {
+    "description": "Home shelf: finished books."
+  },
+  "homeShelfReadAgain": "Read again",
+  "@homeShelfReadAgain": {
+    "description": "Home shelf from the server: finished ebooks."
+  },
+  "homeShelfNewestAuthors": "Newest authors",
+  "@homeShelfNewestAuthors": {
+    "description": "Home shelf: authors added most recently."
+  },
+  "homeShelfNewestEpisodes": "Newest episodes",
+  "@homeShelfNewestEpisodes": {
+    "description": "Home shelf of a podcast library."
+  },
+  "homeShelfDownloaded": "Downloaded",
+  "@homeShelfDownloaded": {
+    "description": "Home shelf of books that play without a network."
+  },
+  "homeShelfOnThisDevice": "On this device",
+  "@homeShelfOnThisDevice": {
+    "description": "Home shelf of books imported from files on this phone."
+  },
+  "homeEmptyNoLibraries": "This server has no libraries you can see yet.",
+  "@homeEmptyNoLibraries": {
+    "description": "Home when the signed-in user has access to no library."
+  },
+  "homeEmptyNothingInProgress": "Nothing in progress. Pick a book and it will wait for you here.",
+  "@homeEmptyNothingInProgress": {
+    "description": "Home section when no book is started."
+  },
+  "homeEmptyLibrary": "This library is empty.",
+  "@homeEmptyLibrary": {
+    "description": "Home when the selected library has no books."
+  },
+  "homeWelcomeTitle": "Your listening starts here",
+  "@homeWelcomeTitle": {
+    "description": "Home title when there is no server and no imported book."
+  },
+  "homeWelcomeBody": "Connect your Audiobookshelf server, or add audiobook files from this phone.",
+  "@homeWelcomeBody": {
+    "description": "Home text when there is no server and no imported book."
+  },
+  "homeAddFiles": "Add files",
+  "@homeAddFiles": {
+    "description": "Button that opens the import screen from Home."
+  },
+  "homeChapterOf": "Chapter {number} of {total}",
+  "@homeChapterOf": {
+    "description": "Where the user is in a book, when the chapter has no title.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "librarySwitcherTitle": "Choose a library",
+  "@librarySwitcherTitle": {
+    "description": "Title of the sheet that switches between libraries."
+  },
+  "librarySwitcherLabel": "Library: {name}. Change library",
+  "@librarySwitcherLabel": {
+    "description": "Screen reader label of the library switcher button.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "libraryBooks": "Books",
+  "@libraryBooks": {
+    "description": "Library tab section: all books."
+  },
+  "librarySeries": "Series",
+  "@librarySeries": {
+    "description": "Library tab section: series."
+  },
+  "libraryAuthors": "Authors",
+  "@libraryAuthors": {
+    "description": "Library tab section: authors."
+  },
+  "libraryCollections": "Collections",
+  "@libraryCollections": {
+    "description": "Library tab section: collections made on the server."
+  },
+  "libraryPlaylists": "Playlists",
+  "@libraryPlaylists": {
+    "description": "Library tab section: the user's playlists."
+  },
+  "libraryGrid": "Show as grid",
+  "@libraryGrid": {
+    "description": "Button that shows books as a grid of covers."
+  },
+  "libraryList": "Show as list",
+  "@libraryList": {
+    "description": "Button that shows books as a list."
+  },
+  "librarySort": "Sort",
+  "@librarySort": {
+    "description": "Button and sheet title for sorting books."
+  },
+  "librarySortTitle": "Title",
+  "@librarySortTitle": {
+    "description": "Sort books by title."
+  },
+  "librarySortAuthor": "Author",
+  "@librarySortAuthor": {
+    "description": "Sort books by author."
+  },
+  "librarySortAdded": "Date added",
+  "@librarySortAdded": {
+    "description": "Sort books by when they were added."
+  },
+  "librarySortDuration": "Length",
+  "@librarySortDuration": {
+    "description": "Sort books by how long they are."
+  },
+  "librarySortProgress": "Recently listened",
+  "@librarySortProgress": {
+    "description": "Sort books by when the user last listened."
+  },
+  "librarySortPublished": "Year published",
+  "@librarySortPublished": {
+    "description": "Sort books by publication year."
+  },
+  "librarySortAscending": "Ascending",
+  "@librarySortAscending": {
+    "description": "Sort order: A to Z, oldest first, shortest first."
+  },
+  "librarySortDescending": "Descending",
+  "@librarySortDescending": {
+    "description": "Sort order: Z to A, newest first, longest first."
+  },
+  "libraryFilter": "Filter",
+  "@libraryFilter": {
+    "description": "Button and sheet title for filtering books."
+  },
+  "libraryFilterCount": "{count, plural, =1{Filter, 1 active} other{Filter, {count} active}}",
+  "@libraryFilterCount": {
+    "description": "Screen reader label of the filter button with active filters.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterProgress": "Progress",
+  "@filterProgress": {
+    "description": "Filter group: listening progress."
+  },
+  "filterNotStarted": "Not started",
+  "@filterNotStarted": {
+    "description": "Filter: books not started."
+  },
+  "filterInProgress": "In progress",
+  "@filterInProgress": {
+    "description": "Filter: books started but not finished."
+  },
+  "filterFinished": "Finished",
+  "@filterFinished": {
+    "description": "Filter: finished books."
+  },
+  "filterGenres": "Genres",
+  "@filterGenres": {
+    "description": "Filter group: genres."
+  },
+  "filterTags": "Tags",
+  "@filterTags": {
+    "description": "Filter group: tags."
+  },
+  "filterNarrators": "Narrators",
+  "@filterNarrators": {
+    "description": "Filter group: narrators."
+  },
+  "filterLanguages": "Languages",
+  "@filterLanguages": {
+    "description": "Filter group: languages."
+  },
+  "filterDownloadedOnly": "Downloaded only",
+  "@filterDownloadedOnly": {
+    "description": "Filter: only books that play without a network."
+  },
+  "filterClearAll": "Clear all",
+  "@filterClearAll": {
+    "description": "Removes every active filter."
+  },
+  "filterRemove": "Remove filter {name}",
+  "@filterRemove": {
+    "description": "Screen reader label of the remove button on a filter chip.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filterShowBooks": "Show books",
+  "@filterShowBooks": {
+    "description": "Closes the filter sheet."
+  },
+  "libraryEmpty": "No books here yet.",
+  "@libraryEmpty": {
+    "description": "Library list with no books."
+  },
+  "libraryEmptyFiltered": "No books match these filters.",
+  "@libraryEmptyFiltered": {
+    "description": "Library list with no books for the active filters."
+  },
+  "libraryEmptyLocal": "No books on this phone yet.",
+  "@libraryEmptyLocal": {
+    "description": "On this device library with no imported books."
+  },
+  "libraryEmptyLocalBody": "Add audiobook files and they play here, with or without a server.",
+  "@libraryEmptyLocalBody": {
+    "description": "Explains the empty On this device library."
+  },
+  "libraryEmptySeries": "No series in this library.",
+  "@libraryEmptySeries": {
+    "description": "Series section with nothing in it."
+  },
+  "libraryEmptyAuthors": "No authors in this library.",
+  "@libraryEmptyAuthors": {
+    "description": "Authors section with nothing in it."
+  },
+  "libraryEmptyCollections": "No collections in this library.",
+  "@libraryEmptyCollections": {
+    "description": "Collections section with nothing in it."
+  },
+  "libraryEmptyPlaylists": "No playlists in this library yet.",
+  "@libraryEmptyPlaylists": {
+    "description": "Playlists section with nothing in it."
+  },
+  "libraryEndOfList": "That is everything.",
+  "@libraryEndOfList": {
+    "description": "Shown at the end of a long list."
+  },
+  "itemPlay": "Play",
+  "@itemPlay": {
+    "description": "Main button on a book that was never started."
+  },
+  "itemResume": "Resume",
+  "@itemResume": {
+    "description": "Main button on a started book."
+  },
+  "itemPause": "Pause",
+  "@itemPause": {
+    "description": "Main button on the book that is playing."
+  },
+  "itemListenAgain": "Listen again",
+  "@itemListenAgain": {
+    "description": "Main button on a finished book: starts from the beginning."
+  },
+  "itemActionWithDetail": "{action} · {detail}",
+  "@itemActionWithDetail": {
+    "description": "Main button text with a detail, for example 'Resume · 3 hr 12 min left'. Both parts are already formatted.",
+    "placeholders": {
+      "action": {
+        "type": "String"
+      },
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "itemMarkFinished": "Mark as finished",
+  "@itemMarkFinished": {
+    "description": "Marks the book finished."
+  },
+  "itemMarkUnfinished": "Mark as not finished",
+  "@itemMarkUnfinished": {
+    "description": "Marks a finished book as not finished."
+  },
+  "itemMarkedFinished": "Marked as finished",
+  "@itemMarkedFinished": {
+    "description": "Confirmation after marking a book finished."
+  },
+  "itemMarkedUnfinished": "Marked as not finished",
+  "@itemMarkedUnfinished": {
+    "description": "Confirmation after marking a book not finished."
+  },
+  "itemFinishedShort": "Finished",
+  "@itemFinishedShort": {
+    "description": "Short label of the mark finished action under the main button."
+  },
+  "itemAddToPlaylist": "Add to playlist",
+  "@itemAddToPlaylist": {
+    "description": "Adds the book to one of the user's playlists."
+  },
+  "itemPlaylistShort": "Playlist",
+  "@itemPlaylistShort": {
+    "description": "Short label of the add to playlist action under the main button."
+  },
+  "itemPlayNextAction": "Play next",
+  "@itemPlayNextAction": {
+    "description": "Puts the book first in the up next list."
+  },
+  "itemAddToUpNext": "Add to Up next",
+  "@itemAddToUpNext": {
+    "description": "Puts the book last in the up next list."
+  },
+  "itemAddedToUpNext": "Added to Up next",
+  "@itemAddedToUpNext": {
+    "description": "Confirmation after adding a book to the up next list."
+  },
+  "itemMore": "More",
+  "@itemMore": {
+    "description": "Opens more actions for the book."
+  },
+  "itemMoreActions": "More actions",
+  "@itemMoreActions": {
+    "description": "Screen reader label of the more actions button."
+  },
+  "itemTimeLeftPercent": "{timeLeft}, {percent}%",
+  "@itemTimeLeftPercent": {
+    "description": "Progress line, for example '3 hr 12 min left, 64%'. The time is already formatted.",
+    "placeholders": {
+      "timeLeft": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "itemListened": "{duration} listened",
+  "@itemListened": {
+    "description": "How much of the book the user heard. The duration is already formatted.",
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "itemFinishedOn": "Finished on {date}",
+  "@itemFinishedOn": {
+    "description": "When the user finished the book. The date is already formatted.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "itemNarratedBy": "Narrated by {names}",
+  "@itemNarratedBy": {
+    "description": "Narrator line on a book.",
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "itemDescriptionMore": "More",
+  "@itemDescriptionMore": {
+    "description": "Expands a collapsed description."
+  },
+  "itemDescriptionLess": "Less",
+  "@itemDescriptionLess": {
+    "description": "Collapses an expanded description."
+  },
+  "itemChapters": "Chapters",
+  "@itemChapters": {
+    "description": "Section title: the chapters of a book."
+  },
+  "itemChapterCount": "{count, plural, =1{1 chapter} other{{count} chapters}}",
+  "@itemChapterCount": {
+    "description": "Number of chapters.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemShowAllChapters": "Show all {count} chapters",
+  "@itemShowAllChapters": {
+    "description": "Expands a shortened chapter list.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemShowFewerChapters": "Show fewer chapters",
+  "@itemShowFewerChapters": {
+    "description": "Shortens an expanded chapter list."
+  },
+  "itemPlayFromChapter": "Play from {title}",
+  "@itemPlayFromChapter": {
+    "description": "Screen reader hint of a chapter row.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "itemCurrentChapter": "Current chapter",
+  "@itemCurrentChapter": {
+    "description": "Screen reader text for the chapter the user is in."
+  },
+  "itemDetails": "Details",
+  "@itemDetails": {
+    "description": "Section title: publisher, year, language and file details."
+  },
+  "itemGenres": "Genres",
+  "@itemGenres": {
+    "description": "Details row label."
+  },
+  "itemTags": "Tags",
+  "@itemTags": {
+    "description": "Details row label."
+  },
+  "itemPublisher": "Publisher",
+  "@itemPublisher": {
+    "description": "Details row label."
+  },
+  "itemPublished": "Published",
+  "@itemPublished": {
+    "description": "Details row label: publication year."
+  },
+  "itemLanguage": "Language",
+  "@itemLanguage": {
+    "description": "Details row label."
+  },
+  "itemFormat": "Format",
+  "@itemFormat": {
+    "description": "Details row label: audio file format."
+  },
+  "itemSize": "Size",
+  "@itemSize": {
+    "description": "Details row label: size on disk."
+  },
+  "itemLength": "Length",
+  "@itemLength": {
+    "description": "Details row label: total listening time."
+  },
+  "itemBitRate": "Bit rate",
+  "@itemBitRate": {
+    "description": "Details row label."
+  },
+  "itemBitRateValue": "{kbps} kbps",
+  "@itemBitRateValue": {
+    "description": "Audio bit rate, kilobits per second.",
+    "placeholders": {
+      "kbps": {
+        "type": "int"
+      }
+    }
+  },
+  "itemIsbn": "ISBN",
+  "@itemIsbn": {
+    "description": "Details row label."
+  },
+  "itemAsin": "ASIN",
+  "@itemAsin": {
+    "description": "Details row label: Audible product number."
+  },
+  "itemSource": "Source",
+  "@itemSource": {
+    "description": "Details row label: where the book is."
+  },
+  "itemMoreInSeries": "More in this series",
+  "@itemMoreInSeries": {
+    "description": "Shelf of other books in the same series."
+  },
+  "itemSeriesPosition": "Book {sequence} of {series}",
+  "@itemSeriesPosition": {
+    "description": "Series link on a book, for example 'Book 2 of The Example Saga'.",
+    "placeholders": {
+      "sequence": {
+        "type": "String"
+      },
+      "series": {
+        "type": "String"
+      }
+    }
+  },
+  "itemEdit": "Edit details",
+  "@itemEdit": {
+    "description": "Opens the editor for an imported book's title, authors and cover."
+  },
+  "itemDeleteLocal": "Delete from this phone",
+  "@itemDeleteLocal": {
+    "description": "Deletes an imported book and its files."
+  },
+  "itemDeleteLocalTitle": "Delete this book from this phone?",
+  "@itemDeleteLocalTitle": {
+    "description": "Title of the delete confirmation."
+  },
+  "itemDeleteLocalBody": "The audio files are removed and {size} is freed. Your progress and bookmarks in this book are removed too.",
+  "@itemDeleteLocalBody": {
+    "description": "Body of the delete confirmation. The size is already formatted.",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "itemDeleteLocalBodyNoSize": "The audio files are removed. Your progress and bookmarks in this book are removed too.",
+  "@itemDeleteLocalBodyNoSize": {
+    "description": "Body of the delete confirmation when the size is not known yet."
+  },
+  "itemDeleted": "Book deleted from this phone",
+  "@itemDeleted": {
+    "description": "Confirmation after deleting an imported book."
+  },
+  "itemOpenOnServer": "Open on the server",
+  "@itemOpenOnServer": {
+    "description": "Opens the book in the server's web app."
+  },
+  "itemNotFound": "This book is not available",
+  "@itemNotFound": {
+    "description": "Item detail when the book cannot be shown."
+  },
+  "itemNotFoundBody": "It may have been removed, or it belongs to a server account that is not the current one.",
+  "@itemNotFoundBody": {
+    "description": "Explains why a book cannot be shown."
+  },
+  "itemPlaybackFailed": "This book did not start playing.",
+  "@itemPlaybackFailed": {
+    "description": "Error when playback could not start from the detail screen."
+  },
+  "seriesBooksCount": "{count, plural, =1{1 book} other{{count} books}}",
+  "@seriesBooksCount": {
+    "description": "Number of books in a series.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seriesContinue": "Continue series",
+  "@seriesContinue": {
+    "description": "Plays the first unfinished book of the series."
+  },
+  "seriesStart": "Start the series",
+  "@seriesStart": {
+    "description": "Plays the first book of a series the user has not started."
+  },
+  "seriesListenAgain": "Listen again from book one",
+  "@seriesListenAgain": {
+    "description": "Plays the first book of a finished series."
+  },
+  "seriesProgress": "{finished} of {total} finished",
+  "@seriesProgress": {
+    "description": "How many books of a series the user finished.",
+    "placeholders": {
+      "finished": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "seriesNotFound": "This series is not available.",
+  "@seriesNotFound": {
+    "description": "Series screen when the series cannot be shown."
+  },
+  "authorBooks": "Books",
+  "@authorBooks": {
+    "description": "Section of an author's books."
+  },
+  "authorStandalone": "Other books",
+  "@authorStandalone": {
+    "description": "Section of an author's books that are in no series."
+  },
+  "authorAbout": "About",
+  "@authorAbout": {
+    "description": "Section title of an author's biography."
+  },
+  "authorPhotoLabel": "Photo of {name}",
+  "@authorPhotoLabel": {
+    "description": "Screen reader label of an author photo.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "authorNotFound": "This author is not available.",
+  "@authorNotFound": {
+    "description": "Author screen when the author cannot be shown."
+  },
+  "narratorLabel": "Narrator",
+  "@narratorLabel": {
+    "description": "Subtitle of the narrator screen."
+  },
+  "collectionEmpty": "This collection is empty.",
+  "@collectionEmpty": {
+    "description": "Collection with no books."
+  },
+  "collectionNotFound": "This collection is not available.",
+  "@collectionNotFound": {
+    "description": "Collection screen when it cannot be shown."
+  },
+  "playlistNew": "New playlist",
+  "@playlistNew": {
+    "description": "Creates a playlist."
+  },
+  "playlistName": "Name",
+  "@playlistName": {
+    "description": "Label of the playlist name field."
+  },
+  "playlistNameRequired": "Give the playlist a name.",
+  "@playlistNameRequired": {
+    "description": "Error when the playlist name is empty."
+  },
+  "playlistRename": "Rename playlist",
+  "@playlistRename": {
+    "description": "Renames a playlist."
+  },
+  "playlistDelete": "Delete playlist",
+  "@playlistDelete": {
+    "description": "Deletes a playlist."
+  },
+  "playlistDeleteConfirm": "Delete the playlist {name}? The books stay in your library.",
+  "@playlistDeleteConfirm": {
+    "description": "Delete playlist confirmation.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistDeleted": "Playlist deleted",
+  "@playlistDeleted": {
+    "description": "Confirmation after deleting a playlist."
+  },
+  "playlistEmpty": "This playlist is empty. Add books from their detail page.",
+  "@playlistEmpty": {
+    "description": "Playlist with no books."
+  },
+  "playlistNotFound": "This playlist is not available.",
+  "@playlistNotFound": {
+    "description": "Playlist screen when the playlist is gone."
+  },
+  "playlistRemoveItem": "Remove from playlist",
+  "@playlistRemoveItem": {
+    "description": "Removes a book from the playlist."
+  },
+  "playlistRemoveLastTitle": "Remove the last book?",
+  "@playlistRemoveLastTitle": {
+    "description": "Title of the confirmation before removing the last book of a playlist."
+  },
+  "playlistRemoveLastBody": "Your server deletes a playlist when its last book is removed.",
+  "@playlistRemoveLastBody": {
+    "description": "Explains that removing the last book deletes the playlist."
+  },
+  "playlistAdded": "Added to {name}",
+  "@playlistAdded": {
+    "description": "Confirmation after adding a book to a playlist.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistAlreadyIn": "Already in {name}",
+  "@playlistAlreadyIn": {
+    "description": "Shown when the book is already in that playlist.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistRemoved": "Removed from the playlist",
+  "@playlistRemoved": {
+    "description": "Confirmation after removing a book from a playlist."
+  },
+  "playlistChooseTitle": "Add to playlist",
+  "@playlistChooseTitle": {
+    "description": "Title of the sheet that picks a playlist."
+  },
+  "playlistReorderHandle": "Drag to change the order",
+  "@playlistReorderHandle": {
+    "description": "Screen reader label of the drag handle on a playlist row."
+  },
+  "playlistPlayAll": "Play",
+  "@playlistPlayAll": {
+    "description": "Plays the first book of a playlist or collection and queues the rest."
+  },
+  "searchHint": "Titles, authors, narrators, series",
+  "@searchHint": {
+    "description": "Placeholder of the search field."
+  },
+  "searchFieldLabel": "Search",
+  "@searchFieldLabel": {
+    "description": "Screen reader label of the search field."
+  },
+  "searchClear": "Clear search",
+  "@searchClear": {
+    "description": "Clears the search field."
+  },
+  "searchRecent": "Recent searches",
+  "@searchRecent": {
+    "description": "Section with the last searches."
+  },
+  "searchClearRecent": "Clear",
+  "@searchClearRecent": {
+    "description": "Clears the recent searches."
+  },
+  "searchClearRecentLabel": "Clear recent searches",
+  "@searchClearRecentLabel": {
+    "description": "Screen reader label of the clear recent searches button."
+  },
+  "searchAllLibraries": "Search all libraries",
+  "@searchAllLibraries": {
+    "description": "Switch that searches every library of the server."
+  },
+  "searchNoResults": "Nothing found for “{query}”",
+  "@searchNoResults": {
+    "description": "Search with no results.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchNoResultsBody": "Check the spelling, or try an author or a series.",
+  "@searchNoResultsBody": {
+    "description": "Hint under no results."
+  },
+  "searchGroupBooks": "Books",
+  "@searchGroupBooks": {
+    "description": "Search results group."
+  },
+  "searchGroupSeries": "Series",
+  "@searchGroupSeries": {
+    "description": "Search results group."
+  },
+  "searchGroupAuthors": "Authors",
+  "@searchGroupAuthors": {
+    "description": "Search results group."
+  },
+  "searchGroupNarrators": "Narrators",
+  "@searchGroupNarrators": {
+    "description": "Search results group."
+  },
+  "searchGroupTags": "Genres and tags",
+  "@searchGroupTags": {
+    "description": "Search results group."
+  },
+  "searchGroupOnThisDevice": "On this device",
+  "@searchGroupOnThisDevice": {
+    "description": "Search results group: books imported on this phone."
+  },
+  "searchOffline": "The server cannot be reached. These results come from saved books.",
+  "@searchOffline": {
+    "description": "Notice above offline search results."
+  },
+  "searchStartTitle": "Find your next listen",
+  "@searchStartTitle": {
+    "description": "Search tab before typing, when there are no recent searches."
+  },
+  "searchStartBody": "Search by title, author, narrator or series. Books on this phone are included.",
+  "@searchStartBody": {
+    "description": "Search tab hint before typing."
+  },
+  "searchGenre": "Genre",
+  "@searchGenre": {
+    "description": "Kind of a genre result."
+  },
+  "searchTag": "Tag",
+  "@searchTag": {
+    "description": "Kind of a tag result."
+  },
+  "itemNarratorsLabel": "Narrated by",
+  "@itemNarratorsLabel": {
+    "description": "Label in front of the narrator names on a book, which follow as links."
+  },
+  "browseNotFound": "This page is not available.",
+  "@browseNotFound": {
+    "description": "Shown when a link to a book, series or author is broken."
   }
 }

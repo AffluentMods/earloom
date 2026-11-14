@@ -28,6 +28,15 @@ final testBaseUrl = Uri.parse('https://abs.example.test');
 /// A fixture from test/fixtures/abs, decoded.
 Object? fixture(String name) => jsonDecode(File('test/fixtures/abs/$name.json').readAsStringSync());
 
+/// The whole library as one page: the items page fixture plus the book in
+/// progress, with a total that matches.
+Map<String, Object?> libraryPage() {
+  final page = Map<String, Object?>.from(fixture('library_items_page')! as Map);
+  final inProgress = Map<String, Object?>.from(fixture('item_book_expanded')! as Map)..remove('userMediaProgress');
+  final results = [...(page['results']! as List), inProgress];
+  return {...page, 'results': results, 'total': results.length, 'limit': 0};
+}
+
 /// A fake Audiobookshelf server: answers each path with a fixture or a
 /// handler, records every request, and can go offline.
 class FakeAbsServer {
@@ -41,7 +50,7 @@ class FakeAbsServer {
     '/api/me/items-in-progress': (_) => fixture('me_items_in_progress'),
     '/api/libraries/$testLibraryId/items': (r) => r.uri.queryParameters['filter']?.startsWith('series.') ?? false
         ? fixture('library_items_series_filter')
-        : fixture('library_items_page'),
+        : libraryPage(),
     '/api/libraries/$testLibraryId/personalized': (_) => fixture('library_personalized_book'),
     '/api/libraries/$testLibraryId/series': (_) => fixture('library_series'),
     '/api/libraries/$testLibraryId/authors': (_) => fixture('library_authors'),

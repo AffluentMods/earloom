@@ -4,9 +4,22 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/theme/tokens.dart';
+
+/// The disk cache for server covers and author photos: its own store, so
+/// covers never push other images out, capped by count (about 300 MB at
+/// the sizes the app requests), least recently used first out.
+abstract final class CoverCache {
+  static const key = 'earloomCovers';
+
+  /// Replaced in tests, which have no disk cache plugin and no network.
+  static BaseCacheManager manager = CacheManager(
+    Config(key, stalePeriod: const Duration(days: 90), maxNrOfCacheObjects: 3000),
+  );
+}
 
 /// Where a cover comes from.
 sealed class CoverSource {
@@ -84,6 +97,7 @@ class CoverImage extends StatelessWidget {
         return CachedNetworkImage(
           imageUrl: itemCoverUrl.replace(queryParameters: {'width': '$width', 'format': 'webp'}).toString(),
           cacheKey: '$cacheKey-$width',
+          cacheManager: CoverCache.manager,
           httpHeaders: headers,
           fit: BoxFit.contain,
           fadeInDuration: Motion.fast,

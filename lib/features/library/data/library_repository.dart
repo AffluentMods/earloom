@@ -150,6 +150,7 @@ class AbsLibraryRepository {
     final future =
         _fresh('items:$libraryId', Freshness.fullSync, force, () async {
           final seen = <String>{};
+          var total = 0;
           for (var page = 0; ; page++) {
             final json = await client.get<Map<String, Object?>>(
               '/api/libraries/$libraryId/items',
@@ -162,10 +163,13 @@ class AbsLibraryRepository {
             ];
             seen.addAll(rows.map((r) => r.id.value));
             await _dao.upsertItems(rows);
-            final total = AbsJson.integer(json['total']);
+            total = AbsJson.integer(json['total']);
             if (results.length < syncPageSize || (page + 1) * syncPageSize >= total) break;
           }
-          await _dao.deleteItemsNotIn(libraryId, seen);
+          // Only a complete listing proves an item is gone. A server that
+          // answered fewer items than its own total (a proxy cap, a scan
+          // in progress) removes nothing.
+          if (seen.length >= total) await _dao.deleteItemsNotIn(libraryId, seen);
         }).whenComplete(() {
           _syncs.remove(libraryId);
         });

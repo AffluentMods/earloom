@@ -45,7 +45,7 @@ Rule: **the UI reads the database.** Repositories write what the server says int
 | Database | File | Holds |
 |---|---|---|
 | `GlobalDb` | `global.sqlite` | app settings, accounts list, device id, recently played across sources |
-| `AccountDb` | `account_<id>.sqlite` | everything cached for one ABS account: libraries, items, details, progress, series, authors, collections, playlists, shelves, filter data, cover colors |
+| `AccountDb` | `account_<id>.sqlite` | everything cached for one ABS account: libraries, items, details, progress, series, authors, collections, playlists, shelves, filter data, cover colors, podcast episodes and this phone's per-show settings (`podcast_prefs`) |
 | `OfflineDb` | `offline.sqlite` | downloads and their files, item snapshots for offline playback, local listening sessions, the outbox; every row carries its `accountId` |
 | `LocalDb` | `local.sqlite` | the On this device library: books, files, chapters, progress, bookmarks |
 
@@ -85,6 +85,14 @@ From `docs/abs-api.md` section 18, which overrides the original plan:
 - **Reachability** (`core/net/reachability.dart`): online means the current server answers `/ping` within 3 s. Checked on account change, connectivity change, app foreground, after failures, and every 60 s while offline. The offline banner sits on top of the tabs and shows only while the server does not answer.
 - `TrackMap` is the only place that converts whole-book positions to (track, offset).
 
+## 7b. Podcasts (Phase 5)
+
+- **Data:** `AbsPodcastRepository` (`features/podcasts/data`) next to the library repository, over the same AccountDb. Episodes live in their own table (`episodes`), written from the expanded show, the socket, episode shelves and `recent-episodes`; the show's cached detail JSON keeps no episodes. `items.num_episodes` gives the unplayed count before a show's episodes are cached; after, it is counted per episode (not finished), which is what the server's web app shows.
+- **Screens:** with a podcast library selected, Home is `PodcastHome` (hero = latest episode in progress, the server's episode shelves, Latest episodes) and Library is `PodcastLibraryScreen` (shows with unplayed badges). The show screen and the episode sheet are reached from anywhere through `BrowseNav.show`, `BrowseNav.open` and `showEpisodeSheet`.
+- **Playback:** an episode is an `ItemRef` with an `episodeId`; `/play/:episodeId` is used for it. The player asks `EpisodeHooks` (set by `podcastPlaybackBridgeProvider`) for the show speed and, when an episode ends with an empty Up next, the next unplayed episode of the show. Episode speed: the show's (`podcast_prefs.speed`), else the podcast default (`PlayerPrefs.podcastSpeed`). The lock screen shows the episode title and the show as the artist.
+- **New episodes:** found when the socket sends the updated show (`item_updated` carries every episode), when a show is refreshed, and from shelves. The first look at a show announces nothing. `PodcastAutomation` then downloads (reason `podcast`) and notifies (local notifications, `flutter_local_notifications`) per the show's settings, and keeps automatic downloads within "keep latest" and "remove played", never removing an episode in progress. There is no background refresh: it would need a token outside the main isolate (Phase 5 notes).
+- **Admin actions** (check new, download to the server, add podcast) show for `admin` and `root` users; Edit feed also for users with the update permission. The user type and permissions are kept from `/api/me` (`SyncMeta` key `me.access`).
+
 ## 8. Local library
 
 - **Import, not link:** the user picks audio files or a folder (system picker); files are copied into `<support>/local/<bookId>/`. This works the same on iOS and Android and survives the original files moving. (Linking a folder in place with Android's storage framework is a later option for very large libraries.)
@@ -105,6 +113,7 @@ From `docs/abs-api.md` section 18, which overrides the original plan:
 | `/you` (tab) | Downloads, Stats, Accounts, Settings, On this device | |
 | `/you/downloads` | Downloads: active, on this phone, storage | Settings at `/you/downloads/settings` |
 | `/book/:source/:id` | Book detail | Cover themed. `:source` is the encoded source key (`local`, `abs%3A<accountId>`) |
+| `/show/:source/:id` | Podcast show | Cover themed; episodes open in the episode sheet. A podcast reached through `/book` or `/item` shows this screen too |
 | `/series/:source/:id`, `/author/:source/:id` | Series, author | For On this device the id is the name |
 | `/filtered/:source/:library/:kind/:value` | Books of one library with one filter | Narrator (no narrator entity on the server), genre, tag |
 | `/collection/:source/:id`, `/playlist/:source/:id` | Collection (read only), playlist (edit) | Server only |

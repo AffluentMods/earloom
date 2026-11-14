@@ -96,6 +96,12 @@ abstract final class AbsJson {
     final tags = strings(media['tags']);
     final subtitle = str(meta['subtitle']);
     final sortAuthor = str(meta['authorNameLF']) ?? (authors.isEmpty ? '' : authors.first);
+    // Shelves and search send numEpisodes 0 and no episodes: leave the
+    // cached count alone then.
+    final episodeList = media['episodes'];
+    final numEpisodes = episodeList is List && episodeList.isNotEmpty
+        ? episodeList.length
+        : integer(media['numEpisodes']);
     final duration = media['duration'] != null
         ? number(media['duration'])
         : maps(media['tracks']).fold<double>(0, (sum, t) => sum + number(t['duration']));
@@ -119,6 +125,7 @@ abstract final class AbsJson {
       hasCover: Value(str(media['coverPath']) != null),
       addedAt: integer(json['addedAt']),
       updatedAt: integer(json['updatedAt']),
+      numEpisodes: isPodcast && numEpisodes > 0 ? Value(numEpisodes) : const Value.absent(),
       searchText: foldForSearch(
         [
           title,
@@ -253,6 +260,7 @@ abstract final class AbsJson {
       addedAt: c.addedAt.value,
       updatedAt: c.updatedAt.value,
       isDownloaded: false,
+      numEpisodes: c.numEpisodes.present ? c.numEpisodes.value : 0,
       searchText: c.searchText.value,
     );
     return summary(source, row, progress);

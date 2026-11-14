@@ -45,6 +45,8 @@ class SearchRepository {
     return SearchResults(
       query: query,
       books: merged.books,
+      podcasts: merged.podcasts,
+      episodes: merged.episodes,
       series: merged.series,
       authors: merged.authors,
       narrators: merged.narrators,
@@ -68,6 +70,8 @@ class SearchRepository {
     return SearchResults(
       query: query,
       books: [for (final p in parts) ...p.books],
+      podcasts: [for (final p in parts) ...p.podcasts],
+      episodes: [for (final p in parts) ...p.episodes],
       series: [for (final p in parts) ...p.series],
       authors: [for (final p in parts) ...p.authors],
       narrators: counts(parts.expand((p) => p.narrators)),

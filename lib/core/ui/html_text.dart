@@ -8,16 +8,34 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../app/theme/tokens.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../util/html_sanitize.dart';
+import '../util/timestamps.dart';
 
 /// Server or tag HTML drawn as text through the sanitizer: paragraphs,
 /// line breaks, bold, italic and safe links only. Collapsed to [maxLines]
 /// with More and Less when it is longer.
+///
+/// With [onTimestamp], times in the text ("12:34", "1:02:03") become links
+/// that call it with the position, as show notes use them. Times past
+/// [maxPosition] stay plain.
 class DescriptionText extends StatefulWidget {
-  const DescriptionText({super.key, required this.html, this.maxLines = 6, this.style});
+  const DescriptionText({
+    super.key,
+    required this.html,
+    this.maxLines = 6,
+    this.style,
+    this.onTimestamp,
+    this.maxPosition,
+    this.timestampLabel,
+  });
 
   final String html;
   final int maxLines;
   final TextStyle? style;
+  final void Function(Duration position)? onTimestamp;
+  final Duration? maxPosition;
+
+  /// What a screen reader says for a timestamp link ("Play from 12:34").
+  final String Function(String time)? timestampLabel;
 
   @override
   State<DescriptionText> createState() => _DescriptionTextState();
@@ -54,6 +72,32 @@ class _DescriptionTextState extends State<DescriptionText> {
       if (i > 0) children.add(const TextSpan(text: '\n\n'));
       for (final run in paragraph.runs) {
         final link = run.link;
+        final onTimestamp = widget.onTimestamp;
+        if (link == null && onTimestamp != null) {
+          for (final piece in splitTimestamps(run.text, maxPosition: widget.maxPosition)) {
+            final at = piece.at;
+            TapGestureRecognizer? recognizer;
+            if (at != null) {
+              recognizer = TapGestureRecognizer()..onTap = () => onTimestamp(at);
+              _recognizers.add(recognizer);
+            }
+            children.add(
+              TextSpan(
+                text: piece.text,
+                recognizer: recognizer,
+                semanticsLabel: at == null ? null : widget.timestampLabel?.call(piece.text),
+                style: TextStyle(
+                  fontWeight: run.bold || at != null ? FontWeight.w600 : null,
+                  fontVariations: run.bold || at != null ? const [FontVariation.weight(600)] : null,
+                  fontStyle: run.italic ? FontStyle.italic : null,
+                  color: at != null ? linkColor : null,
+                  fontFeatures: at != null ? const [FontFeature.tabularFigures()] : null,
+                ),
+              ),
+            );
+          }
+          continue;
+        }
         TapGestureRecognizer? recognizer;
         if (link != null) {
           recognizer = TapGestureRecognizer()..onTap = () => launchUrl(link, mode: LaunchMode.externalApplication);

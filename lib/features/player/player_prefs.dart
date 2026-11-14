@@ -34,6 +34,8 @@ final class PlayerPrefs {
     this.autoSleepFrom = 22 * 60,
     this.autoSleepUntil = 6 * 60,
     this.lockScreenChapter = false,
+    this.podcastSpeed = 1.0,
+    this.podcastAutoNext = true,
   });
 
   static const skipChoices = [5, 10, 15, 30, 45, 60, 90];
@@ -68,6 +70,14 @@ final class PlayerPrefs {
   /// whole book (false) as their progress bar.
   final bool lockScreenChapter;
 
+  /// The speed podcast episodes start at, unless their show has its own
+  /// (docs/plan/06-phase5-podcasts.md 5.3).
+  final double podcastSpeed;
+
+  /// When an episode ends with nothing queued, play the next unplayed
+  /// episode of the same show.
+  final bool podcastAutoNext;
+
   /// Whether [time] falls inside the auto sleep window.
   bool inAutoSleepWindow(DateTime time) {
     final m = time.hour * 60 + time.minute;
@@ -95,6 +105,8 @@ final class PlayerPrefs {
     int? autoSleepFrom,
     int? autoSleepUntil,
     bool? lockScreenChapter,
+    double? podcastSpeed,
+    bool? podcastAutoNext,
   }) => PlayerPrefs(
     skipBack: skipBack ?? this.skipBack,
     skipForward: skipForward ?? this.skipForward,
@@ -113,6 +125,8 @@ final class PlayerPrefs {
     autoSleepFrom: autoSleepFrom ?? this.autoSleepFrom,
     autoSleepUntil: autoSleepUntil ?? this.autoSleepUntil,
     lockScreenChapter: lockScreenChapter ?? this.lockScreenChapter,
+    podcastSpeed: podcastSpeed ?? this.podcastSpeed,
+    podcastAutoNext: podcastAutoNext ?? this.podcastAutoNext,
   );
 
   Map<String, Object?> toJson() => {
@@ -133,6 +147,8 @@ final class PlayerPrefs {
     'autoSleepFrom': autoSleepFrom,
     'autoSleepUntil': autoSleepUntil,
     'lockScreenChapter': lockScreenChapter,
+    'podcastSpeed': podcastSpeed,
+    'podcastAutoNext': podcastAutoNext,
   };
 
   /// Unknown or broken values fall back to the defaults one by one.
@@ -162,6 +178,8 @@ final class PlayerPrefs {
       autoSleepFrom: number('autoSleepFrom', d.autoSleepFrom.toDouble()).round().clamp(0, 1439),
       autoSleepUntil: number('autoSleepUntil', d.autoSleepUntil.toDouble()).round().clamp(0, 1439),
       lockScreenChapter: flag('lockScreenChapter', d.lockScreenChapter),
+      podcastSpeed: number('podcastSpeed', d.podcastSpeed).clamp(minSpeed, maxSpeed),
+      podcastAutoNext: flag('podcastAutoNext', d.podcastAutoNext),
     );
   }
 }

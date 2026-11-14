@@ -20,9 +20,17 @@ import '../../player/player_controller.dart';
 /// button that plays right here. The card takes the cover's colors and
 /// cross-fades when the book changes.
 class HeroCard extends ConsumerWidget {
-  const HeroCard({super.key, required this.book});
+  const HeroCard({super.key, required this.book, this.onOpen, this.cover});
 
   final BookSummary book;
+
+  /// What the cover shows, when it is not [book] itself (an episode shows
+  /// its show's cover).
+  final BookSummary? cover;
+
+  /// What tapping the card opens. Defaults to the book (or show) page; a
+  /// podcast episode opens its episode sheet.
+  final VoidCallback? onOpen;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,16 +41,18 @@ class HeroCard extends ConsumerWidget {
         duration: reduceMotion ? Duration.zero : Motion.normal,
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
-        child: _HeroContent(key: ValueKey(book.ref), book: book),
+        child: _HeroContent(key: ValueKey(book.ref), book: book, onOpen: onOpen, cover: cover),
       ),
     );
   }
 }
 
 class _HeroContent extends ConsumerWidget {
-  const _HeroContent({super.key, required this.book});
+  const _HeroContent({super.key, required this.book, this.onOpen, this.cover});
 
   final BookSummary book;
+  final VoidCallback? onOpen;
+  final BookSummary? cover;
 
   static const coverSize = 116.0;
 
@@ -78,7 +88,7 @@ class _HeroContent extends ConsumerWidget {
         borderRadius: BorderRadius.circular(Radii.card),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () => BrowseNav.book(context, book.ref, heroTag: tag),
+          onTap: onOpen ?? () => BrowseNav.open(context, book, heroTag: tag),
           child: Padding(
             padding: const EdgeInsets.all(Space.lg),
             child: Column(
@@ -91,7 +101,7 @@ class _HeroContent extends ConsumerWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      BookCover(book: book, size: coverSize, heroTag: tag, showProgress: false),
+                      BookCover(book: cover ?? book, size: coverSize, heroTag: tag, showProgress: false),
                       const SizedBox(width: Space.lg),
                       Expanded(
                         child: Column(

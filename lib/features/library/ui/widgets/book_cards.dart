@@ -52,7 +52,7 @@ class BookGridCard extends ConsumerWidget {
         label: bookSemantics(l10n, book),
         excludeSemantics: true,
         child: InkWell(
-          onTap: () => BrowseNav.book(context, book.ref, heroTag: tag),
+          onTap: () => BrowseNav.open(context, book, heroTag: tag),
           borderRadius: BorderRadius.circular(coverRadius(width)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,7 +129,7 @@ class BookListRow extends ConsumerWidget {
       label: bookSemantics(l10n, book),
       excludeSemantics: trailing == null,
       child: InkWell(
-        onTap: onTap ?? () => BrowseNav.book(context, book.ref, heroTag: tag),
+        onTap: onTap ?? () => BrowseNav.open(context, book, heroTag: tag),
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 88),
           child: Padding(

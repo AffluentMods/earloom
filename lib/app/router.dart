@@ -23,6 +23,7 @@ import '../features/library/ui/series_screen.dart';
 import '../features/local_library/ui/import_books_screen.dart';
 import '../features/onboarding/ui/onboarding_screen.dart';
 import '../features/player/player_controller.dart';
+import '../features/podcasts/ui/show_screen.dart';
 import '../features/player/ui/now_playing_screen.dart';
 import '../features/search/ui/search_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
@@ -61,6 +62,9 @@ abstract final class AppRoutes {
   /// the tab root (`/home`) or empty for the top level.
   static String book(ItemRef ref, {String base = ''}) => _browse(base, 'book', ref.source, ref.itemId);
   static String series(SourceId source, String id, {String base = ''}) => _browse(base, 'series', source, id);
+
+  /// A podcast show with its episodes.
+  static String show(ItemRef ref, {String base = ''}) => _browse(base, 'show', ref.source, ref.itemId);
   static String author(SourceId source, String id, {String base = ''}) => _browse(base, 'author', source, id);
 
   /// Books of one library with one filter (a narrator, a genre, a tag).
@@ -97,6 +101,13 @@ List<RouteBase> browseRoutes({bool top = false}) {
         final args = _browseArgs(state, 'id');
         if (args == null) return missing();
         return ItemDetailScreen(itemId: args.$2, source: args.$1, heroTag: state.extra);
+      },
+    ),
+    GoRoute(
+      path: '${p}show/:source/:id',
+      builder: (_, state) {
+        final args = _browseArgs(state, 'id');
+        return args == null ? missing() : ShowScreen(show: ItemRef(args.$1, args.$2), heroTag: state.extra);
       },
     ),
     GoRoute(

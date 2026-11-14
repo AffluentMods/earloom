@@ -16,6 +16,7 @@ import '../../../core/library/models.dart';
 import '../../../core/library/source_id.dart';
 import '../../../core/ui/states.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../podcasts/ui/podcast_library_screen.dart';
 import '../data/library_providers.dart';
 import '../data/library_repository.dart';
 import 'book_actions.dart';
@@ -44,6 +45,9 @@ class LibraryScreen extends ConsumerWidget {
       );
     }
     // A new library starts with its own sort, filters and scroll position.
+    if (value.isPodcast && value.source is AbsSource) {
+      return PodcastLibraryScreen(key: ValueKey(selectionKey(value)), library: value);
+    }
     return _LibraryView(key: ValueKey(selectionKey(value)), library: value);
   }
 }

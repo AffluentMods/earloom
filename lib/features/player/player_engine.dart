@@ -177,6 +177,19 @@ final class ListeningSpan {
 /// [startAt] wins over saved progress when given.
 typedef BookResolver = Future<(PlayableBook, StartDecision)> Function(ItemRef ref, {Duration? startAt});
 
+/// What the engine asks about podcast episodes (Phase 5). Set by the
+/// podcasts feature; without it episodes play like books.
+abstract interface class EpisodeHooks {
+  /// The speed of the episode's show, or null to use the podcast default.
+  Future<double?> showSpeed(ItemRef episode);
+
+  /// Remembers [speed] for the episode's show.
+  Future<void> saveShowSpeed(ItemRef episode, double speed);
+
+  /// The next unplayed episode of the same show after [finished], or null.
+  Future<QueueEntry?> nextEpisode(ItemRef finished);
+}
+
 /// Names for fallback chapters (from l10n, set by the app).
 final class ChapterNames {
   const ChapterNames({required this.forTrack, required this.wholeBook});
@@ -209,6 +222,9 @@ class PlayerEngine {
   /// Receives every stretch of real listening (stats), and finished books.
   void Function(ListeningSpan span)? onListened;
   void Function(NowPlaying book, DateTime at)? onFinishedBook;
+
+  /// Show speeds and the next episode for podcasts.
+  EpisodeHooks? episodes;
   String _sessionId = '';
 
   static const tick = Duration(milliseconds: 250);
@@ -264,7 +280,7 @@ class PlayerEngine {
       _emit(_value.copyWith(queue: queue, speed: _prefs.defaultSpeed));
       return;
     }
-    final speed = (_prefs.speedPerBook ? await _store.speedFor(last.ref) : null) ?? _prefs.defaultSpeed;
+    final speed = await _speedFor(last.ref);
     _emit(
       PlayerSnapshot(
         now: NowPlaying(
@@ -291,9 +307,28 @@ class PlayerEngine {
     await _store.savePrefs(prefs);
     if (old.skipSilence != prefs.skipSilence) await _backend.setSkipSilence(prefs.skipSilence);
     if (old.boostDecibels != prefs.boostDecibels) await _backend.setBoost(prefs.boostDecibels);
-    if (!prefs.speedPerBook && old.defaultSpeed != prefs.defaultSpeed && _value.hasBook) {
-      await setSpeed(prefs.defaultSpeed);
+    final ref = _value.now?.ref;
+    if (ref == null) return;
+    final defaultChanged = ref.episodeId != null
+        ? old.podcastSpeed != prefs.podcastSpeed
+        : !prefs.speedPerBook && old.defaultSpeed != prefs.defaultSpeed;
+    if (defaultChanged) await _applySpeed(await _speedFor(ref));
+  }
+
+  /// The speed [ref] plays at: an episode its show's speed, else the
+  /// podcast default; a book its own speed (when remembered per book), else
+  /// the default.
+  Future<double> _speedFor(ItemRef ref) async {
+    if (ref.episodeId != null) {
+      double? show;
+      try {
+        show = await episodes?.showSpeed(ref);
+      } on Object {
+        show = null;
+      }
+      return show ?? _prefs.podcastSpeed;
     }
+    return (_prefs.speedPerBook ? await _store.speedFor(ref) : null) ?? _prefs.defaultSpeed;
   }
 
   // Loading -----------------------------------------------------------------
@@ -335,7 +370,7 @@ class PlayerEngine {
       titleForTrack: chapterNames.forTrack,
       wholeBookTitle: chapterNames.wholeBook,
     );
-    final speed = (_prefs.speedPerBook ? await _store.speedFor(book.ref) : null) ?? _prefs.defaultSpeed;
+    final speed = await _speedFor(book.ref);
     final total = map.total;
     // A finished book (or one within a second of its end) starts over.
     final from = start >= total - const Duration(seconds: 1) ? Duration.zero : start;
@@ -474,17 +509,39 @@ class PlayerEngine {
   Future<void> previousChapter() => seek(previousChapterTarget(_value.now?.chapters ?? const [], _value.position));
 
   Future<void> setSpeed(double speed) async {
-    final s = ((speed.clamp(PlayerPrefs.minSpeed, PlayerPrefs.maxSpeed) * 20).round() / 20);
-    _accumulate();
-    if (_value.loaded) await _backend.setSpeed(s);
-    _emit(_value.copyWith(speed: s));
+    final s = await _applySpeed(speed);
     final ref = _value.now?.ref;
-    if (_prefs.speedPerBook && ref != null) {
+    final hooks = episodes;
+    if (ref?.episodeId != null) {
+      // Episodes remember their speed per show, else as the podcast default.
+      if (_prefs.speedPerBook && hooks != null) {
+        await hooks.saveShowSpeed(ref!, s);
+      } else {
+        _prefs = _prefs.copyWith(podcastSpeed: s);
+        await _store.savePrefs(_prefs);
+      }
+    } else if (_prefs.speedPerBook && ref != null) {
       await _store.saveSpeed(ref, s);
     } else if (!_prefs.speedPerBook) {
       _prefs = _prefs.copyWith(defaultSpeed: s);
       await _store.savePrefs(_prefs);
     }
+  }
+
+  /// Looks the speed of what is loaded up again, after a setting it
+  /// depends on changed elsewhere (a show's speed).
+  Future<void> reapplySpeed() async {
+    final ref = _value.now?.ref;
+    if (ref != null) await _applySpeed(await _speedFor(ref));
+  }
+
+  /// Plays at [speed] now, without remembering it.
+  Future<double> _applySpeed(double speed) async {
+    final s = ((speed.clamp(PlayerPrefs.minSpeed, PlayerPrefs.maxSpeed) * 20).round() / 20);
+    _accumulate();
+    if (_value.loaded) await _backend.setSpeed(s);
+    _emit(_value.copyWith(speed: s));
+    return s;
   }
 
   /// Stops playback, reports and closes the book, and clears the player.
@@ -802,6 +859,19 @@ class PlayerEngine {
       await _setQueue(_value.queue.skip(1).toList());
       await playItem(next.ref);
       return;
+    }
+    // An episode with nothing queued: the next unplayed one of its show.
+    if (!stopHere && book.ref.episodeId != null && _prefs.podcastAutoNext) {
+      QueueEntry? next;
+      try {
+        next = await episodes?.nextEpisode(book.ref);
+      } on Object {
+        next = null;
+      }
+      if (next != null) {
+        await playItem(next.ref);
+        return;
+      }
     }
     unawaited(_saveLast());
   }

@@ -10,6 +10,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../player_controller.dart';
 import '../player_prefs.dart';
+import 'player_widgets.dart' show formatSpeed;
 
 Future<void> showPlayerSettings(BuildContext context) => showModalBottomSheet<void>(
   context: context,
@@ -137,6 +138,36 @@ class PlayerSettingsList extends ConsumerWidget {
             ),
           ),
         ],
+        heading(l10n.settingsPodcastHeading),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Space.xl, vertical: Space.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.settingsPodcastDefaultSpeed, style: theme.textTheme.bodyLarge),
+              const SizedBox(height: Space.sm),
+              Wrap(
+                spacing: Space.sm,
+                runSpacing: Space.sm,
+                children: [
+                  for (final speed in {...PlayerPrefs.speedPresets, prefs.podcastSpeed}.toList()..sort())
+                    ChoiceChip(
+                      label: Text(formatSpeed(l10n, speed)),
+                      selected: (prefs.podcastSpeed - speed).abs() < 0.001,
+                      onSelected: (_) => set((p) => p.copyWith(podcastSpeed: speed)),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        SwitchListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
+          title: Text(l10n.settingsPodcastAutoPlayNextUnplayed),
+          subtitle: Text(l10n.settingsPodcastAutoPlayNextUnplayedBody),
+          value: prefs.podcastAutoNext,
+          onChanged: (v) => set((p) => p.copyWith(podcastAutoNext: v)),
+        ),
         heading(l10n.playerSettingsRemoteButtons),
         RadioGroup<RemoteButtons>(
           groupValue: prefs.remoteButtons,

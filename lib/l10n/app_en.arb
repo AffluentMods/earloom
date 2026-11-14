@@ -2841,5 +2841,508 @@
         "type": "int"
       }
     }
+  },
+  "podcastLatestEpisodes": "Latest episodes",
+  "@podcastLatestEpisodes": {
+    "description": "Section on a podcast library Home: the newest episodes across all shows."
+  },
+  "podcastPlayLatest": "Play latest",
+  "@podcastPlayLatest": {
+    "description": "Button on a show: plays its newest episode."
+  },
+  "podcastPlayAllUnplayed": "Play unplayed",
+  "@podcastPlayAllUnplayed": {
+    "description": "Button on a show: plays the first unplayed episode and puts the others in Up next."
+  },
+  "podcastQueuedUnplayed": "{count, plural, =1{1 more episode is in Up next} other{{count} more episodes are in Up next}}",
+  "@podcastQueuedUnplayed": {
+    "description": "Shown after Play unplayed queued the other unplayed episodes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "podcastEpisodes": "{count, plural, =1{1 episode} other{{count} episodes}}",
+  "@podcastEpisodes": {
+    "description": "Number of episodes of a show.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "podcastUnplayed": "{count, plural, =1{1 unplayed} other{{count} unplayed}}",
+  "@podcastUnplayed": {
+    "description": "Number of episodes of a show the user has not finished.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "podcastEpisodesTitle": "Episodes",
+  "@podcastEpisodesTitle": {
+    "description": "Heading of the episode list on a show."
+  },
+  "podcastSortNewest": "Newest first",
+  "@podcastSortNewest": {
+    "description": "Episode order on a show."
+  },
+  "podcastSortOldest": "Oldest first",
+  "@podcastSortOldest": {
+    "description": "Episode order on a show."
+  },
+  "podcastSortUpdated": "New episodes",
+  "@podcastSortUpdated": {
+    "description": "Sort shows by their newest episode."
+  },
+  "podcastFilterAll": "All",
+  "@podcastFilterAll": {
+    "description": "Episode filter: every episode."
+  },
+  "podcastFilterUnplayed": "Unplayed",
+  "@podcastFilterUnplayed": {
+    "description": "Episode filter: episodes not finished yet."
+  },
+  "podcastFilterInProgress": "In progress",
+  "@podcastFilterInProgress": {
+    "description": "Episode filter: started, not finished."
+  },
+  "podcastFilterDownloaded": "Downloaded",
+  "@podcastFilterDownloaded": {
+    "description": "Episode filter: on this phone."
+  },
+  "podcastSeason": "Season {number}",
+  "@podcastSeason": {
+    "description": "Heading of a season in the episode list. The number is written as the feed writes it.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "podcastNoSeason": "Other episodes",
+  "@podcastNoSeason": {
+    "description": "Heading for episodes without a season when other episodes have one."
+  },
+  "podcastEpisodeNumber": "Episode {number}",
+  "@podcastEpisodeNumber": {
+    "description": "The number of an episode, as the feed writes it.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeTrailer": "Trailer",
+  "@episodeTrailer": {
+    "description": "Kind of podcast episode."
+  },
+  "episodeBonus": "Bonus",
+  "@episodeBonus": {
+    "description": "Kind of podcast episode."
+  },
+  "podcastPlayed": "Played",
+  "@podcastPlayed": {
+    "description": "An episode the user finished, and the label of the button that marks it."
+  },
+  "podcastMarkPlayed": "Mark as played",
+  "@podcastMarkPlayed": {
+    "description": "Action on an episode."
+  },
+  "podcastMarkUnplayed": "Mark as unplayed",
+  "@podcastMarkUnplayed": {
+    "description": "Action on an episode."
+  },
+  "podcastMarkedPlayed": "Marked as played",
+  "@podcastMarkedPlayed": {
+    "description": "Confirmation after marking an episode played."
+  },
+  "podcastMarkedUnplayed": "Marked as unplayed",
+  "@podcastMarkedUnplayed": {
+    "description": "Confirmation after marking an episode unplayed."
+  },
+  "queueAddShort": "Up next",
+  "@queueAddShort": {
+    "description": "Short label of the Add to Up next button under an episode."
+  },
+  "podcastShowNotes": "Show notes",
+  "@podcastShowNotes": {
+    "description": "Heading of an episode description."
+  },
+  "podcastNoShowNotes": "This episode has no show notes.",
+  "@podcastNoShowNotes": {
+    "description": "Shown when an episode has no description."
+  },
+  "episodePlayFrom": "Play from {time}",
+  "@episodePlayFrom": {
+    "description": "Screen reader label of a time in show notes, which plays the episode from there.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "podcastGoToShow": "Show",
+  "@podcastGoToShow": {
+    "description": "Button in the episode sheet that opens the episode's show."
+  },
+  "podcastEpisodeNotFound": "This episode could not be loaded. It may have been removed from the server.",
+  "@podcastEpisodeNotFound": {
+    "description": "Episode sheet when the episode is not cached and the server did not send it."
+  },
+  "podcastNoEpisodes": "No episodes yet.",
+  "@podcastNoEpisodes": {
+    "description": "Show with no episodes."
+  },
+  "podcastNoEpisodesOffline": "The episodes appear once the server can be reached.",
+  "@podcastNoEpisodesOffline": {
+    "description": "Show opened offline before its episodes were ever loaded."
+  },
+  "podcastNoEpisodesFiltered": "No episodes match this filter.",
+  "@podcastNoEpisodesFiltered": {
+    "description": "Episode list empty because of a filter."
+  },
+  "podcastShowMore": "Show all {count}",
+  "@podcastShowMore": {
+    "description": "Expands the Latest episodes list.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "podcastShowFewer": "Show fewer",
+  "@podcastShowFewer": {
+    "description": "Collapses the Latest episodes list."
+  },
+  "podcastHomeEmpty": "No podcasts yet",
+  "@podcastHomeEmpty": {
+    "description": "Home of an empty podcast library."
+  },
+  "podcastHomeEmptyBody": "Shows added on your server appear here.",
+  "@podcastHomeEmptyBody": {
+    "description": "Home of an empty podcast library."
+  },
+  "podcastHomeNothingInProgress": "Nothing in progress. Pick an episode below to start.",
+  "@podcastHomeNothingInProgress": {
+    "description": "Home of a podcast library when no episode is in progress."
+  },
+  "podcastLibraryEmpty": "This podcast library has no shows yet.",
+  "@podcastLibraryEmpty": {
+    "description": "Library tab of an empty podcast library."
+  },
+  "podcastSettingsTitle": "Show settings",
+  "@podcastSettingsTitle": {
+    "description": "Title of the per-show settings sheet, and the tooltip of its button."
+  },
+  "podcastSettingsDownloads": "Downloads on this phone",
+  "@podcastSettingsDownloads": {
+    "description": "Section of the show settings."
+  },
+  "podcastSettingsNotifications": "Notifications",
+  "@podcastSettingsNotifications": {
+    "description": "Section of the show settings."
+  },
+  "podcastAutoDownload": "Download new episodes",
+  "@podcastAutoDownload": {
+    "description": "Show setting: download new episodes on this phone by themselves."
+  },
+  "podcastAutoDownloadBody": "When a new episode appears on your server while Earloom is open.",
+  "@podcastAutoDownloadBody": {
+    "description": "Explains when automatic downloads happen."
+  },
+  "podcastKeepLatestTitle": "Keep downloaded",
+  "@podcastKeepLatestTitle": {
+    "description": "Show setting: how many automatically downloaded episodes to keep."
+  },
+  "podcastKeepLatest": "{count, plural, =1{Latest 1} other{Latest {count}}}",
+  "@podcastKeepLatest": {
+    "description": "Choice for how many automatically downloaded episodes to keep.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "podcastKeepAll": "All",
+  "@podcastKeepAll": {
+    "description": "Choice: keep every automatically downloaded episode."
+  },
+  "podcastDeletePlayed": "Remove played episodes",
+  "@podcastDeletePlayed": {
+    "description": "Show setting: delete automatically downloaded episodes once played."
+  },
+  "podcastDeletePlayedBody": "Episodes you are in the middle of always stay.",
+  "@podcastDeletePlayedBody": {
+    "description": "Explains the remove played setting."
+  },
+  "podcastNotifyNew": "Notify me about new episodes",
+  "@podcastNotifyNew": {
+    "description": "Show setting."
+  },
+  "podcastNotifyNewBody": "A notification on this phone when a new episode appears.",
+  "@podcastNotifyNewBody": {
+    "description": "Explains the notify setting."
+  },
+  "podcastNotifyDenied": "Notifications are turned off for Earloom. Turn them on in the phone settings.",
+  "@podcastNotifyDenied": {
+    "description": "Shown when the system denied the notification permission."
+  },
+  "podcastShowSpeed": "Playback speed for this show",
+  "@podcastShowSpeed": {
+    "description": "Section of the show settings."
+  },
+  "podcastSpeedDefault": "Podcast default ({speed})",
+  "@podcastSpeedDefault": {
+    "description": "Speed choice: follow the podcast default speed.",
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationNewEpisode": "New episode: {title}",
+  "@notificationNewEpisode": {
+    "description": "Title of the new episode notification. The show name is in the body.",
+    "placeholders": {
+      "show": {
+        "type": "String"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationNewEpisodeChannel": "New episodes",
+  "@notificationNewEpisodeChannel": {
+    "description": "Name of the Android notification channel for new podcast episodes."
+  },
+  "notificationNewEpisodeChannelBody": "When a show you follow has a new episode.",
+  "@notificationNewEpisodeChannelBody": {
+    "description": "Description of the new episodes notification channel."
+  },
+  "settingsPodcastHeading": "Podcasts",
+  "@settingsPodcastHeading": {
+    "description": "Section of the playback settings."
+  },
+  "settingsPodcastDefaultSpeed": "Default speed for podcasts",
+  "@settingsPodcastDefaultSpeed": {
+    "description": "Playback setting. Shows can set their own."
+  },
+  "settingsPodcastAutoPlayNextUnplayed": "Play the next unplayed episode",
+  "@settingsPodcastAutoPlayNextUnplayed": {
+    "description": "Playback setting: when an episode ends and Up next is empty."
+  },
+  "settingsPodcastAutoPlayNextUnplayedBody": "When an episode ends and Up next is empty, the next unplayed episode of the same show plays.",
+  "@settingsPodcastAutoPlayNextUnplayedBody": {
+    "description": "Explains the setting."
+  },
+  "searchGroupPodcasts": "Podcasts",
+  "@searchGroupPodcasts": {
+    "description": "Search results group."
+  },
+  "searchGroupEpisodes": "Episodes",
+  "@searchGroupEpisodes": {
+    "description": "Search results group."
+  },
+  "podcastAdminActions": "Server actions",
+  "@podcastAdminActions": {
+    "description": "Title of the admin actions of a show, and the tooltip of their button."
+  },
+  "podcastAdminAdd": "Add podcast",
+  "@podcastAdminAdd": {
+    "description": "Admin action: add a show to the podcast library on the server."
+  },
+  "podcastAdminSearchHint": "Search podcasts or paste a feed address",
+  "@podcastAdminSearchHint": {
+    "description": "Hint in the add podcast search field."
+  },
+  "podcastAdminSearchTitle": "Find a podcast",
+  "@podcastAdminSearchTitle": {
+    "description": "Add podcast screen before searching."
+  },
+  "podcastAdminSearchBody": "Your server searches the podcast directory and reads the feed. Nothing is sent from this phone to anyone else.",
+  "@podcastAdminSearchBody": {
+    "description": "Add podcast screen before searching."
+  },
+  "podcastAdminNoResults": "No podcasts found. Try other words, or paste the feed address.",
+  "@podcastAdminNoResults": {
+    "description": "Add podcast search without results."
+  },
+  "podcastAdminPreview": "Preview",
+  "@podcastAdminPreview": {
+    "description": "Heading of the feed preview."
+  },
+  "podcastAdminChooseFolder": "Library folder",
+  "@podcastAdminChooseFolder": {
+    "description": "Heading of the folder choice when adding a podcast."
+  },
+  "podcastAdminNoFolders": "This library has no folder to add the show to.",
+  "@podcastAdminNoFolders": {
+    "description": "Shown when the podcast library has no folders."
+  },
+  "podcastAdminAddConfirm": "Add {title} to {folder} on your server?",
+  "@podcastAdminAddConfirm": {
+    "description": "Confirmation before adding a podcast.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "podcastAdminAdded": "Added {title}",
+  "@podcastAdminAdded": {
+    "description": "Shown after a podcast was added.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "podcastAdminCheckNew": "Check for new episodes",
+  "@podcastAdminCheckNew": {
+    "description": "Admin action on a show."
+  },
+  "podcastAdminCheckNewBody": "The server reads the feed and downloads up to 3 new episodes.",
+  "@podcastAdminCheckNewBody": {
+    "description": "Explains the check for new episodes action."
+  },
+  "podcastAdminCheckNewConfirm": "Ask the server to check the feed of {title}? It downloads up to 3 new episodes.",
+  "@podcastAdminCheckNewConfirm": {
+    "description": "Confirmation before checking for new episodes.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "podcastAdminFoundNew": "{count, plural, =1{Found 1 new episode. The server is downloading it.} other{Found {count} new episodes. The server is downloading them.}}",
+  "@podcastAdminFoundNew": {
+    "description": "Result of checking for new episodes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "podcastAdminNoNew": "No new episodes in the feed.",
+  "@podcastAdminNoNew": {
+    "description": "Result of checking for new episodes."
+  },
+  "podcastAdminDownloadToServer": "Download episodes to the server",
+  "@podcastAdminDownloadToServer": {
+    "description": "Admin action on a show: pick feed episodes for the server to download."
+  },
+  "podcastAdminDownloadToServerBody": "Pick episodes from the feed that are not on the server yet.",
+  "@podcastAdminDownloadToServerBody": {
+    "description": "Explains the download to server action."
+  },
+  "podcastAdminPickEpisodes": "Episodes not on the server",
+  "@podcastAdminPickEpisodes": {
+    "description": "Title of the episode picker."
+  },
+  "podcastAdminSelectAll": "Select all",
+  "@podcastAdminSelectAll": {
+    "description": "Selects every episode in the picker."
+  },
+  "podcastAdminSelectNone": "Select none",
+  "@podcastAdminSelectNone": {
+    "description": "Clears the selection in the picker."
+  },
+  "podcastAdminDownloadCount": "{count, plural, =0{Download to the server} =1{Download 1 to the server} other{Download {count} to the server}}",
+  "@podcastAdminDownloadCount": {
+    "description": "Button in the episode picker.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "podcastAdminDownloadConfirm": "{count, plural, =1{Ask the server to download 1 episode of {title}?} other{Ask the server to download {count} episodes of {title}?}}",
+  "@podcastAdminDownloadConfirm": {
+    "description": "Confirmation before downloading episodes to the server.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "podcastAdminDownloadQueued": "{count, plural, =1{The server is downloading 1 episode.} other{The server is downloading {count} episodes.}}",
+  "@podcastAdminDownloadQueued": {
+    "description": "Result of downloading episodes to the server.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "podcastAdminAllOnServer": "Every episode in the feed is already on the server.",
+  "@podcastAdminAllOnServer": {
+    "description": "Shown when no feed episode is missing."
+  },
+  "podcastAdminEditFeed": "Edit feed",
+  "@podcastAdminEditFeed": {
+    "description": "Admin action on a show: feed address and the server's download schedule."
+  },
+  "podcastAdminEditFeedBody": "The feed address, and whether the server downloads new episodes by itself.",
+  "@podcastAdminEditFeedBody": {
+    "description": "Explains the edit feed action."
+  },
+  "podcastAdminFeedUrl": "Feed address",
+  "@podcastAdminFeedUrl": {
+    "description": "Label of the feed address field."
+  },
+  "podcastAdminFeedInvalid": "Enter a web address that starts with https:// or http://",
+  "@podcastAdminFeedInvalid": {
+    "description": "Error under the feed address field."
+  },
+  "podcastAdminServerAutoDownload": "Server downloads new episodes",
+  "@podcastAdminServerAutoDownload": {
+    "description": "Setting on the server for this show."
+  },
+  "podcastAdminSchedule": "Schedule",
+  "@podcastAdminSchedule": {
+    "description": "Label of the server's check schedule field."
+  },
+  "podcastAdminScheduleHint": "A cron schedule, for example 0 * * * * for every hour.",
+  "@podcastAdminScheduleHint": {
+    "description": "Help under the schedule field."
+  },
+  "podcastAdminSaved": "Saved on the server",
+  "@podcastAdminSaved": {
+    "description": "Result of editing the feed."
+  },
+  "podcastAdminNoFeed": "This show has no feed address on the server.",
+  "@podcastAdminNoFeed": {
+    "description": "Shown when an action needs a feed and the show has none."
+  },
+  "podcastAdminConfirm": "Continue",
+  "@podcastAdminConfirm": {
+    "description": "Confirm button of an admin action dialog."
+  },
+  "podcastAdminWorking": "Waiting for the server...",
+  "@podcastAdminWorking": {
+    "description": "Shown while an admin action runs."
+  },
+  "podcastAdminForbidden": "Your account on this server may not do that.",
+  "@podcastAdminForbidden": {
+    "description": "Admin action refused by the server (403)."
+  },
+  "podcastAdminServerSaid": "The server said: {message}",
+  "@podcastAdminServerSaid": {
+    "description": "Admin action failed with a message from the server.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
   }
 }

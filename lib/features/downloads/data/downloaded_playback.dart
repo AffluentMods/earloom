@@ -127,12 +127,14 @@ class DownloadedPlayback {
       onProgress: onProgress,
       clock: _clock,
     );
+    final isEpisode = ref.episodeId != null;
     final book = PlayableBook(
       ref: ref,
       title: snap.title,
-      author: snap.author,
+      // An episode shows its show (kept as the series line) as the artist.
+      author: isEpisode ? snap.seriesLine ?? snap.author : snap.author,
       narrator: snap.narrator,
-      seriesLine: snap.seriesLine,
+      seriesLine: isEpisode ? null : snap.seriesLine,
       tracks: [
         for (final t in tracks)
           PlayableTrack(

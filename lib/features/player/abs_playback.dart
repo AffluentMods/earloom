@@ -279,9 +279,13 @@ final class AbsSessionStarter {
       book: PlayableBook(
         ref: ref,
         title: title,
-        author: _nonEmpty(session['displayAuthor'] as String?),
+        // An episode shows its show as the artist (lock screen, car), not
+        // the podcast's author.
+        author: ref.episodeId != null
+            ? _nonEmpty(meta['title'] as String?) ?? _nonEmpty(session['displayAuthor'] as String?)
+            : _nonEmpty(session['displayAuthor'] as String?),
         narrator: _nonEmpty(meta['narratorName'] as String?),
-        seriesLine: _nonEmpty(meta['seriesName'] as String?),
+        seriesLine: ref.episodeId != null ? null : _nonEmpty(meta['seriesName'] as String?),
         tracks: tracks,
         chapters: chapters,
         startPosition: _seconds(session['currentTime']),

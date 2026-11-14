@@ -39,7 +39,7 @@ void main() {
     expect(actual, _tablesOfDump(db.schemaVersion));
   });
 
-  test('version 1 (cover colors only) migrates to version 2 and keeps its rows', () async {
+  test('version 1 (cover colors only) migrates to the current version and keeps its rows', () async {
     expect(_tablesOfDump(1).keys, ['cover_colors']);
     // A database exactly as Phase 0 created it.
     final db = AccountDb(
@@ -60,7 +60,7 @@ void main() {
     // Every table, column and index is exactly what a fresh install gets.
     await db.validateDatabaseSchema();
     final version = await db.customSelect('PRAGMA user_version').getSingle();
-    expect(version.data.values.single, 2);
+    expect(version.data.values.single, db.schemaVersion);
     final indexes = await db.customSelect("SELECT name FROM sqlite_master WHERE type = 'index'").get();
     expect(
       indexes.map((r) => r.read<String>('name')),
@@ -69,6 +69,47 @@ void main() {
     // The new tables work.
     await db.catalogDao.setMeta('k', 'v');
     expect(await db.catalogDao.meta('k'), 'v');
+  });
+
+  test('version 2 (the browsing cache) migrates to version 3 with podcasts and keeps its rows', () async {
+    expect(_tablesOfDump(2).keys, isNot(contains('episodes')));
+    expect(_tablesOfDump(3)['items'], contains('num_episodes'));
+    final dir = Directory.systemTemp.createTempSync('earloom_account_v2_');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final file = File('${dir.path}/account.sqlite');
+    // A version 2 database: today's schema without what version 3 added.
+    final v2 = AccountDb(NativeDatabase(file));
+    await v2.catalogDao.upsertItems([
+      AbsJson.item({
+        'id': 'show-1',
+        'libraryId': 'lib',
+        'mediaType': 'podcast',
+        'addedAt': 1,
+        'updatedAt': 1,
+        'media': {
+          'metadata': {'title': 'Shelf Talk'},
+        },
+      }),
+    ]);
+    await v2.customStatement('DROP INDEX episodes_item_date');
+    await v2.customStatement('DROP TABLE episodes');
+    await v2.customStatement('DROP TABLE podcast_prefs');
+    await v2.customStatement('ALTER TABLE items DROP COLUMN num_episodes');
+    await v2.customStatement('PRAGMA user_version = 2');
+    await v2.close();
+
+    final db = AccountDb(NativeDatabase(file));
+    addTearDown(db.close);
+    expect((await db.catalogDao.watchItem('show-1').first)?.item.title, 'Shelf Talk');
+    await db.validateDatabaseSchema();
+    final version = await db.customSelect('PRAGMA user_version').getSingle();
+    expect(version.data.values.single, 3);
+    final indexes = await db.customSelect("SELECT name FROM sqlite_master WHERE type = 'index'").get();
+    expect(indexes.map((r) => r.read<String>('name')), contains('episodes_item_date'));
+    // The new tables work.
+    await db.podcastDao.putPrefs(const PodcastPrefsCompanion(itemId: Value('show-1'), notifyNew: Value(true)));
+    expect((await db.podcastDao.prefsOf('show-1'))?.notifyNew, isTrue);
+    expect((await db.podcastDao.prefsOf('show-1'))?.keepLatest, 3);
   });
 
   group('series order', () {

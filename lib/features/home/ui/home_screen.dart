@@ -19,6 +19,7 @@ import '../../library/data/library_providers.dart';
 import '../../library/ui/library_switcher.dart';
 import '../../library/ui/widgets/book_cards.dart';
 import '../../library/ui/widgets/browse_layout.dart';
+import '../../podcasts/ui/podcast_home.dart';
 import '../data/home_repository.dart';
 import 'hero_card.dart';
 
@@ -64,6 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RefreshingState {
     final repository = ref.read(absLibraryRepositoryProvider);
     final library = ref.read(currentLibraryProvider).value;
     if (repository == null || library == null || library.source != repository.source) return;
+    if (library.isPodcast) return refreshPodcastHome(ref, library, force: force);
     await repository.refreshShelves(library.id, force: force);
     await repository.syncLibrary(library.id, force: force);
   }
@@ -106,6 +108,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RefreshingState {
               const SliverToBoxAdapter(child: _HomeSkeleton())
             else if (welcome)
               const SliverFillRemaining(hasScrollBody: false, child: _Welcome())
+            else if (library.isPodcast && library.source is AbsSource)
+              PodcastHome(key: ValueKey(library.id), library: library)
             else ...[
               if (continuing.isNotEmpty) ...[
                 SliverToBoxAdapter(

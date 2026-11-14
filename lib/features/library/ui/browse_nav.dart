@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../app/router.dart';
 import '../../../core/library/browse_models.dart';
+import '../../../core/library/models.dart';
 import '../../../core/library/source_id.dart';
 
 /// Opens browse screens inside the tab the user is in, so the tab bar and
@@ -29,6 +30,15 @@ abstract final class BrowseNav {
   /// detail header.
   static void book(BuildContext context, ItemRef ref, {Object? heroTag}) =>
       context.push(AppRoutes.book(ref, base: base(context)), extra: heroTag);
+
+  /// A podcast show (the item without an episode).
+  static void show(BuildContext context, ItemRef show, {Object? heroTag}) =>
+      context.push(AppRoutes.show(show, base: base(context)), extra: heroTag);
+
+  /// A book, or the show screen when [book] is a podcast.
+  static void open(BuildContext context, BookSummary book, {Object? heroTag}) => book.isPodcast
+      ? show(context, ItemRef(book.ref.source, book.ref.itemId), heroTag: heroTag)
+      : BrowseNav.book(context, book.ref, heroTag: heroTag);
 
   static void series(BuildContext context, SourceId source, String id) =>
       context.push(AppRoutes.series(source, id, base: base(context)));

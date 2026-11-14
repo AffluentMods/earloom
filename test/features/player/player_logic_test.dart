@@ -52,7 +52,9 @@ void main() {
         ref: _ref,
         title: 'One',
         sink: RecordingSink(),
-        tracks: [PlayableTrack(uri: Uri.parse('file:///a.m4b'), start: Duration.zero, duration: const Duration(hours: 2))],
+        tracks: [
+          PlayableTrack(uri: Uri.parse('file:///a.m4b'), start: Duration.zero, duration: const Duration(hours: 2)),
+        ],
       );
       final whole = effectiveChapters(single, titleForTrack: name, wholeBookTitle: 'Whole');
       expect(whole.single.title, 'Whole');
@@ -63,7 +65,9 @@ void main() {
         ref: _ref,
         title: 'One',
         sink: RecordingSink(),
-        tracks: [PlayableTrack(uri: Uri.parse('file:///a.m4b'), start: Duration.zero, duration: const Duration(hours: 1))],
+        tracks: [
+          PlayableTrack(uri: Uri.parse('file:///a.m4b'), start: Duration.zero, duration: const Duration(hours: 1)),
+        ],
         chapters: const [
           Chapter(index: 1, title: 'Two', start: Duration(minutes: 30), end: Duration(minutes: 59)),
           Chapter(index: 0, title: '', start: Duration.zero, end: Duration(minutes: 30)),
@@ -122,7 +126,11 @@ void main() {
   });
 
   test('prefs survive a round trip and broken values fall back', () {
-    const prefs = PlayerPrefs(skipBack: Duration(seconds: 10), defaultSpeed: 1.35, remoteButtons: RemoteButtons.chapters);
+    const prefs = PlayerPrefs(
+      skipBack: Duration(seconds: 10),
+      defaultSpeed: 1.35,
+      remoteButtons: RemoteButtons.chapters,
+    );
     final back = PlayerPrefs.fromJson(prefs.toJson());
     expect((back.skipBack, back.defaultSpeed, back.remoteButtons), (prefs.skipBack, 1.35, RemoteButtons.chapters));
     final broken = PlayerPrefs.fromJson({'defaultSpeed': 'fast', 'remoteButtons': 'banana', 'boostDecibels': 99});

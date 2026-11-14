@@ -16,7 +16,7 @@ import 'fake_backend.dart';
 
 const _local = ItemRef(LocalSource(), 'b1');
 const _other = ItemRef(LocalSource(), 'b2');
-final _server = ItemRef(const AbsSource('acct'), 'li1');
+const _server = ItemRef(AbsSource('acct'), 'li1');
 
 /// Runs [body] in fake time with a fresh engine.
 void engineTest(
@@ -47,11 +47,14 @@ void engineTest(
         () async {
           await engine.restore();
           await body(async, engine, backend, sinks);
-        }().then((_) => done = true, onError: (Object e, StackTrace s) {
-          error = e;
-          trace = s;
-          done = true;
-        }),
+        }().then(
+          (_) => done = true,
+          onError: (Object e, StackTrace s) {
+            error = e;
+            trace = s;
+            done = true;
+          },
+        ),
       );
       for (var i = 0; i < 1000000 && !done; i++) {
         async.elapse(const Duration(milliseconds: 200));

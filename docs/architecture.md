@@ -77,8 +77,10 @@ From `docs/abs-api.md` section 18, which overrides the original plan:
 ## 8. Local library
 
 - **Import, not link:** the user picks audio files or a folder (system picker); files are copied into `<support>/local/<bookId>/`. This works the same on iOS and Android and survives the original files moving. (Linking a folder in place with Android's storage framework is a later option for very large libraries.)
-- Grouping: one folder or one multi-file selection = one book, files ordered by track number, then disc, then natural filename order. A single M4B/M4A file is one book with embedded chapters.
-- Metadata from tags (`audio_metadata_reader`): title, author, narrator, album, year, embedded cover, chapters. The user can edit everything afterwards.
+- Grouping: one multi-file selection = one book; a picked folder = one book of the audio directly in it plus any "CD 1" / "Disc 2" / "Part 3" sub-folders, and every other sub-folder with audio is a book of its own. Files are ordered by disc (the tag, else the part folder's number), then track number, then natural filename order ("2" before "10"). A single M4B/M4A file is one book with embedded chapters.
+- Metadata from tags (`audio_metadata_reader`, plus our own readers in `features/local_library/data/tags/` for what it misses: MP4 album artist, composer, description and QuickTime chapter tracks, ID3 `CHAP` chapters, MP3 and raw AAC durations): title (album, then folder, then file name), author (album artist, then artist), narrator (narrator tag, then composer), year, cover (embedded, else cover.jpg/folder.jpg/a single image), chapters (embedded, else one per file). The user can edit everything afterwards.
+- On disk every name is our own (`track_000.mp3`, `cover_<time>.jpg`), never one from tags or the picked files. A book is copied into a staging folder and only moved into place, with its rows written in one transaction, once complete; a cancel or failure removes it.
+- Folder picking: Android reads the Storage Access Framework tree through the app's own channel (`SafChannel.kt`), with no storage permission; iOS keeps the security-scoped folder open while importing (`FolderAccessPlugin.swift`).
 - Durations from the tags, verified by the player on first play.
 
 ## 9. Screens

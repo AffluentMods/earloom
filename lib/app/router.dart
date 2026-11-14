@@ -10,6 +10,7 @@ import '../features/accounts/ui/add_server_screen.dart';
 import '../features/home/ui/home_screen.dart';
 import '../features/item_detail/ui/item_detail_screen.dart';
 import '../features/library/ui/library_screen.dart';
+import '../features/local_library/ui/import_books_screen.dart';
 import '../features/onboarding/ui/onboarding_screen.dart';
 import '../features/player/ui/now_playing_screen.dart';
 import '../features/search/ui/search_screen.dart';
@@ -104,6 +105,7 @@ GoRouter buildRouter({String initialLocation = AppRoutes.home, ValueListenable<b
         path: '/accounts/:id/signin',
         builder: (_, state) => AddServerScreen(reauthAccountId: state.pathParameters['id']),
       ),
+      GoRoute(path: AppRoutes.importFiles, builder: (_, _) => const ImportBooksScreen()),
       // Developer screens exist in debug builds only.
       if (kDebugMode) ...debugRoutes,
     ],

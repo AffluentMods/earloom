@@ -41,6 +41,9 @@ dependencies:
   device_info_plus: ^13.3.0
   package_info_plus: ^10.2.2
   url_launcher: ^6.3.3
+  audio_metadata_reader: ^1.8.1
+  file_picker: ^13.3.3
+  android_file_picker: ^2.1.6
 
 dev_dependencies:
   flutter_test:

@@ -438,8 +438,7 @@ class PlayerEngine {
     if (target != null) await seek(target);
   }
 
-  Future<void> previousChapter() =>
-      seek(previousChapterTarget(_value.now?.chapters ?? const [], _value.position));
+  Future<void> previousChapter() => seek(previousChapterTarget(_value.now?.chapters ?? const [], _value.position));
 
   Future<void> setSpeed(double speed) async {
     final s = ((speed.clamp(PlayerPrefs.minSpeed, PlayerPrefs.maxSpeed) * 20).round() / 20);
@@ -498,11 +497,19 @@ class PlayerEngine {
     switch (sleep) {
       case SleepAfter(:final original, :final remaining):
         by = original;
-        _emit(_value.copyWith(sleep: SleepAfter(original: original, remaining: remaining + original)));
+        _emit(
+          _value.copyWith(
+            sleep: SleepAfter(original: original, remaining: remaining + original),
+          ),
+        );
       case SleepAtChapterEnd() || SleepAtBookEnd():
         by = _prefs.sleepLast;
         final left = _value.sleepRemaining ?? Duration.zero;
-        _emit(_value.copyWith(sleep: SleepAfter(original: by, remaining: left + by)));
+        _emit(
+          _value.copyWith(
+            sleep: SleepAfter(original: by, remaining: left + by),
+          ),
+        );
       case SleepOff():
         return;
     }

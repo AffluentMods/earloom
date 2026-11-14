@@ -1838,5 +1838,54 @@
   "iosLocalNetworkUsage": "Earloom connects to your Audiobookshelf server when it is on your home network.",
   "@iosLocalNetworkUsage": {
     "description": "iOS local network permission text. Mirrored in ios/Runner/Info.plist NSLocalNetworkUsageDescription."
+  },
+  "itemYourListening": "Your listening",
+  "@itemYourListening": {
+    "description": "Heading on a book page."
+  },
+  "itemTimeSpent": "{time} listened",
+  "@itemTimeSpent": {
+    "description": "Time spent on this book.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "itemSessions": "{count, plural, =1{1 listening session} other{{count} listening sessions}}",
+  "@itemSessions": {
+    "description": "Session count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "itemStartedOn": "Started {date}",
+  "@itemStartedOn": {
+    "description": "Date first played.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "itemFinishedOn": "Finished {date}",
+  "@itemFinishedOn": {
+    "description": "Date finished.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "itemAvgSpeed": "Usually at {speed}",
+  "@itemAvgSpeed": {
+    "description": "Average speed, like 1.3x.",
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
   }
 }

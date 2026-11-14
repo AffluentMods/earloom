@@ -5,11 +5,14 @@ import 'package:drift/drift.dart';
 
 import 'catalog_dao.dart';
 import 'db_location.dart';
+import 'podcast_dao.dart';
 import 'tables/cover_colors.dart';
 import 'tables/library_cache.dart';
+import 'tables/podcast_tables.dart';
 import 'tables/local_books.dart' show StringListConverter;
 
 export 'catalog_dao.dart';
+export 'podcast_dao.dart';
 
 part 'account_db.g.dart';
 
@@ -33,8 +36,10 @@ part 'account_db.g.dart';
     Shelves,
     FilterData,
     SyncMeta,
+    Episodes,
+    PodcastPrefs,
   ],
-  daos: [CoverColorsDao, CatalogDao],
+  daos: [CoverColorsDao, CatalogDao, PodcastDao],
 )
 class AccountDb extends _$AccountDb {
   AccountDb(super.executor);
@@ -47,9 +52,10 @@ class AccountDb extends _$AccountDb {
   /// drift_schemas/account/drift_schema_vN.json` and extend the migration
   /// test.
   ///
-  /// 1: cover colors (Phase 0). 2: the browsing cache (Phase 2).
+  /// 1: cover colors (Phase 0). 2: the browsing cache (Phase 2). 3: podcast
+  /// episodes, per-show settings and the episode count of shows (Phase 5).
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -79,6 +85,14 @@ class AccountDb extends _$AccountDb {
         for (final index in [itemsLibraryTitle, itemsLibraryAdded, progressLastUpdate, seriesItemsSeries]) {
           await m.createIndex(index);
         }
+      }
+      if (from < 3) {
+        // A version 2 database got its items table from version 2's
+        // definition, without the episode count: add it.
+        if (from == 2) await m.addColumn(items, items.numEpisodes);
+        await m.createTable(episodes);
+        await m.createTable(podcastPrefs);
+        await m.createIndex(episodesItemDate);
       }
     },
   );

@@ -85,6 +85,22 @@ void main() {
     expect((body['deviceInfo']! as Map)['clientName'], 'Earloom');
   });
 
+  test('an episode plays with its own title and the show as the artist', () async {
+    final session = _fixture('session_play_episode');
+    final api = FakeApi(session);
+    final ref = ItemRef(
+      const AbsSource('a1'),
+      session['libraryItemId']! as String,
+      episodeId: session['episodeId']! as String,
+    );
+    final (book, _) = await AbsSessionStarter(api: api, device: _device).start(ref);
+    expect(book.ref, ref);
+    expect(book.title, 'Episode 1 - Pilot');
+    expect(book.author, 'Shelf Talk');
+    expect(book.seriesLine, isNull);
+    expect(book.duration, const Duration(minutes: 5));
+  });
+
   test('a transcode session plays its HLS playlist', () async {
     final session = _fixture('session_play_book_transcode_hls');
     final api = FakeApi(session);

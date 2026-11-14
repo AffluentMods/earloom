@@ -28,6 +28,7 @@ import '../../library/ui/widgets/progress_badge.dart';
 import '../../downloads/ui/download_button.dart';
 import '../../local_library/ui/edit_book_sheet.dart';
 import '../../player/player_controller.dart';
+import '../../podcasts/ui/show_screen.dart';
 import '../../stats/ui/book_listening_card.dart';
 import 'book_bookmarks.dart';
 
@@ -91,6 +92,8 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> with Refres
       ),
       data: (book) {
         if (book == null) return const _NotFound();
+        // A podcast (from a link or a notification) is a show.
+        if (book.summary.isPodcast) return ShowScreen(show: item, heroTag: widget.heroTag);
         return BookCoverTheme(
           book: book.summary,
           child: _DetailBody(

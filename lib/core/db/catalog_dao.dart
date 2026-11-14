@@ -620,6 +620,9 @@ class CatalogDao extends DatabaseAccessor<AccountDb> with _$CatalogDaoMixin {
   Future<String?> meta(String key) async =>
       (await (select(syncMeta)..where((t) => t.key.equals(key))).getSingleOrNull())?.value;
 
+  Stream<String?> watchMeta(String key) =>
+      (select(syncMeta)..where((t) => t.key.equals(key))).watchSingleOrNull().map((r) => r?.value);
+
   Future<void> setMeta(String key, String value) =>
       into(syncMeta).insertOnConflictUpdate(SyncMetaCompanion.insert(key: key, value: value));
 }

@@ -17,6 +17,7 @@ import '../../library/data/library_providers.dart';
 import '../../library/ui/browse_nav.dart';
 import '../../library/ui/widgets/book_cards.dart';
 import '../../library/ui/widgets/browse_layout.dart';
+import '../../podcasts/ui/episode_sheet.dart';
 import '../data/search_repository.dart';
 
 /// The Search tab: as the user types (after a 300 ms pause) it searches the
@@ -272,6 +273,15 @@ class _Results extends ConsumerWidget {
           if (results.books.isNotEmpty) ...[
             SectionHeader(title: l10n.searchGroupBooks),
             for (final b in results.books) BookListRow(book: b, place: 'search'),
+          ],
+          if (results.podcasts.isNotEmpty) ...[
+            SectionHeader(title: l10n.searchGroupPodcasts),
+            for (final b in results.podcasts) BookListRow(book: b, place: 'search-podcast'),
+          ],
+          if (results.episodes.isNotEmpty) ...[
+            SectionHeader(title: l10n.searchGroupEpisodes),
+            for (final b in results.episodes)
+              BookListRow(book: b, place: 'search-episode', onTap: () => showEpisodeSheet(context, b.ref)),
           ],
           if (results.series.isNotEmpty)
             Shelf(

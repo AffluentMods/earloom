@@ -190,10 +190,19 @@ final class SearchResults {
     this.genres = const [],
     this.tags = const [],
     this.localBooks = const [],
+    this.podcasts = const [],
+    this.episodes = const [],
     this.offline = false,
   });
 
   final String query;
+
+  /// Podcast shows (a podcast library was searched).
+  final List<BookSummary> podcasts;
+
+  /// Podcast episodes: each ref carries its episode id, the title is the
+  /// episode's and the author line is the show.
+  final List<BookSummary> episodes;
 
   /// Server books (or cached server books when [offline]).
   final List<BookSummary> books;
@@ -217,5 +226,7 @@ final class SearchResults {
       narrators.isEmpty &&
       genres.isEmpty &&
       tags.isEmpty &&
+      podcasts.isEmpty &&
+      episodes.isEmpty &&
       localBooks.isEmpty;
 }

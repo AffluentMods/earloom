@@ -15,6 +15,7 @@ import '../../../core/net/abs_client.dart';
 import '../../../core/net/abs_errors.dart';
 import '../../../core/socket/abs_socket.dart';
 import '../../../core/util/search_fold.dart';
+import '../../podcasts/data/podcast_json.dart';
 import 'abs_json.dart';
 
 /// How long cached lists count as fresh before a screen refetches them on
@@ -86,6 +87,7 @@ class AbsLibraryRepository {
   Future<void> refreshProgress() async {
     final user = await client.get<Map<String, Object?>>('/api/me');
     await _writeUserProgress(user);
+    await _writeAccess(user);
     final inProgress = await client.get<Map<String, Object?>>('/api/me/items-in-progress', query: {'limit': 25});
     await _dao.upsertItems([
       for (final i in AbsJson.maps(inProgress['libraryItems']))
@@ -99,6 +101,23 @@ class AbsLibraryRepository {
         if (AbsJson.str(p['libraryItemId']) != null) AbsJson.progress(p),
     ]);
   }
+
+  /// Settings key of the user's type and permissions, from `/api/me`.
+  static const accessKey = 'me.access';
+
+  /// Keeps what the user may do (type and permissions), so admin actions
+  /// show only to those allowed, also offline.
+  Future<void> _writeAccess(Map<String, Object?> user) async {
+    if (user['type'] is! String) return;
+    await _dao.setMeta(
+      accessKey,
+      jsonEncode({'type': user['type'], 'permissions': AbsJson.map(user['permissions'])}),
+    );
+  }
+
+  /// The user's type and permissions as last heard from the server, as
+  /// JSON (null before the first refresh).
+  Stream<String?> watchAccessJson() => _dao.watchMeta(accessKey);
 
   Stream<List<BookSummary>> watchContinueListening({int limit = 20}) => _dao
       .watchContinueListening(limit: limit)
@@ -578,7 +597,8 @@ class AbsLibraryRepository {
     final books = <ItemsCompanion>[];
     for (final shelf in AbsJson.maps(json)) {
       final type = shelf['type'];
-      if (type == 'book' || type == 'podcast') {
+      // Episode shelves hold podcast items too (each with one episode).
+      if (type == 'book' || type == 'podcast' || type == 'episode') {
         books.addAll([
           for (final e in AbsJson.maps(shelf['entities']))
             if (AbsJson.str(e['id']) != null) AbsJson.item(e),
@@ -615,19 +635,49 @@ class AbsLibraryRepository {
       cancelToken: cancel,
     );
     final books = <BookSummary>[];
+    final podcasts = <BookSummary>[];
     final rows = <ItemsCompanion>[];
     for (final hit in [...AbsJson.maps(json['book']), ...AbsJson.maps(json['podcast'])]) {
       final item = AbsJson.map(hit['libraryItem']);
       final id = AbsJson.str(item['id']);
       if (id == null) continue;
       rows.add(AbsJson.item(item));
-      books.add(AbsJson.summaryFromJson(source, item, await _dao.progressOf(id)));
+      final summary = AbsJson.summaryFromJson(source, item, await _dao.progressOf(id));
+      (summary.isPodcast ? podcasts : books).add(summary);
+    }
+    // An episode hit is its show with the episode as `recentEpisode`.
+    final episodes = <BookSummary>[];
+    final episodeRows = <EpisodesCompanion>[];
+    for (final hit in AbsJson.maps(json['episodes'])) {
+      final item = AbsJson.map(hit['libraryItem']);
+      final id = AbsJson.str(item['id']);
+      final episode = AbsJson.map(item['recentEpisode']);
+      final row = episode.isEmpty || id == null ? null : PodcastJson.episode(episode, itemId: id);
+      if (row == null || id == null) continue;
+      rows.add(AbsJson.item(item));
+      episodeRows.add(row);
+      final show = AbsJson.summaryFromJson(source, item, null);
+      final progress = await _dao.progressOf(id, episodeId: row.id.value);
+      episodes.add(
+        BookSummary(
+          ref: ItemRef(source, id, episodeId: row.id.value),
+          title: row.title.value,
+          authors: [show.title],
+          duration: Duration(milliseconds: (row.durationSec.value * 1000).round()),
+          coverKey: show.coverKey,
+          progress: progress == null ? null : AbsJson.listening(progress, fallbackDuration: row.durationSec.value),
+          isPodcast: true,
+        ),
+      );
     }
     // Search hits are full items: keep them for offline use.
     await _dao.upsertItems(rows);
+    await db.podcastDao.mergeEpisodes(episodeRows);
     return SearchResults(
       query: query,
       books: books,
+      podcasts: podcasts,
+      episodes: episodes,
       series: [
         for (final s in AbsJson.maps(json['series']))
           if (AbsJson.str(AbsJson.map(s['series'])['id']) != null)
@@ -689,10 +739,30 @@ class AbsLibraryRepository {
         if (_folds(t).contains(folded)) tags[t] = (tags[t] ?? 0) + 1;
       }
     }
+    final summaries = [for (final b in books) AbsJson.summary(source, b.item, b.progress)];
+    final episodes = <BookSummary>[];
+    for (final e in await db.podcastDao.searchEpisodes(pattern)) {
+      final show = await _dao.watchItem(e.itemId).first;
+      if (show == null || (libraryId != null && show.item.libraryId != libraryId)) continue;
+      final progress = await _dao.progressOf(e.itemId, episodeId: e.id);
+      episodes.add(
+        BookSummary(
+          ref: ItemRef(source, e.itemId, episodeId: e.id),
+          title: e.title,
+          authors: [show.item.title],
+          duration: Duration(milliseconds: (e.durationSec * 1000).round()),
+          coverKey: show.item.hasCover ? '${show.item.updatedAt}' : null,
+          progress: progress == null ? null : AbsJson.listening(progress, fallbackDuration: e.durationSec),
+          isPodcast: true,
+        ),
+      );
+    }
     return SearchResults(
       query: query,
       offline: true,
-      books: [for (final b in books) AbsJson.summary(source, b.item, b.progress)],
+      books: summaries.where((b) => !b.isPodcast).toList(),
+      podcasts: summaries.where((b) => b.isPodcast).toList(),
+      episodes: episodes,
       series: [for (final s in series) SeriesSummary(source: source, id: s.id, name: s.name)],
       authors: [for (final a in authors) authorSummary(a)],
       narrators: [for (final e in narrators.entries) NamedCount(e.key, e.value)],
@@ -720,8 +790,11 @@ class AbsLibraryRepository {
         if (AbsJson.str(progress['libraryItemId']) != null) await _dao.upsertProgress(AbsJson.progress(progress));
       case UserUpdated(:final user):
         if (user['mediaProgress'] is List) await _writeUserProgress(user);
+        await _writeAccess(user);
       case ItemsChanged(:final items):
         for (final item in items) {
+          // Podcasts (with their episodes) are the podcast repository's.
+          if (item['mediaType'] == 'podcast') continue;
           await _writeExpanded(item);
         }
       case ItemRemoved(:final itemId):

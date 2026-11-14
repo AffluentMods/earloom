@@ -85,7 +85,8 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
           // Lock screens show the title biggest: the chapter changes while
           // listening, the book title sits under it.
           title: multiChapter && chapter != null ? chapter.title : now.title,
-          album: now.title,
+          // An episode's album is its show.
+          album: now.ref.episodeId != null ? now.author ?? now.title : now.title,
           artist: now.author,
           duration: chapterScope ? chapter.duration : now.duration,
           artUri: now.artworkUri,

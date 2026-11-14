@@ -70,6 +70,10 @@ class Items extends Table {
   /// for offline search.
   TextColumn get searchText => text()();
 
+  /// Podcasts: how many episodes the server has (Phase 5). Lists that leave
+  /// the count out (shelves, search) never overwrite it.
+  IntColumn get numEpisodes => integer().withDefault(const Constant(0))();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }

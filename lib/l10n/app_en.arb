@@ -1814,5 +1814,13 @@
   "autoDownloaded": "Downloaded",
   "@autoDownloaded": {
     "description": "Car and Android Auto folder for downloaded server books."
+  },
+  "playerSettingsLockScreenChapter": "Lock screen shows the chapter",
+  "@playerSettingsLockScreenChapter": {
+    "description": "Setting."
+  },
+  "playerSettingsLockScreenChapterBody": "Otherwise its progress bar covers the whole book.",
+  "@playerSettingsLockScreenChapterBody": {
+    "description": "Setting description."
   }
 }

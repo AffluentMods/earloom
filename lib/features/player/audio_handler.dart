@@ -53,6 +53,7 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
   bool? _buffering;
   double? _speed;
   bool? _loaded;
+  Duration? _publishedScope;
   Duration _publishedPosition = Duration.zero;
   DateTime _publishedAt = DateTime.fromMillisecondsSinceEpoch(0);
 
@@ -72,7 +73,9 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
     // Whole minutes, so the notification changes once a minute, not 4 times
     // a second.
     final sleepMinutes = sleepLeft == null ? null : (sleepLeft.inSeconds / 60).ceil();
-    final key = '${now.ref.key}|${chapter?.index}|${now.duration.inSeconds}|${now.coverKey}|$sleepMinutes';
+    final chapterScope = _engine.prefs.lockScreenChapter && multiChapter && chapter != null;
+    final key =
+        '${now.ref.key}|${chapter?.index}|${now.duration.inSeconds}|${now.coverKey}|$sleepMinutes|$chapterScope';
     if (key != _itemKey) {
       _itemKey = key;
       final cover = now.cover;
@@ -84,7 +87,7 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
           title: multiChapter && chapter != null ? chapter.title : now.title,
           album: now.title,
           artist: now.author,
-          duration: now.duration,
+          duration: chapterScope ? chapter.duration : now.duration,
           artUri: now.artworkUri,
           artHeaders: cover is NetworkCover && cover.headers.isNotEmpty ? cover.headers : null,
           displayTitle: multiChapter && chapter != null ? chapter.title : now.title,
@@ -96,13 +99,16 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
     final elapsed = DateTime.now().difference(_publishedAt);
     final expected = _publishedPosition + (_playing ?? false ? elapsed * (_speed ?? 1) : Duration.zero);
     final drift = (s.position - expected).abs();
-    if (s.playing == _playing &&
+    final scopeStart = _scopeStart(s);
+    if (scopeStart == _publishedScope &&
+        s.playing == _playing &&
         s.buffering == _buffering &&
         s.speed == _speed &&
         s.loaded == _loaded &&
         drift < const Duration(seconds: 2)) {
       return;
     }
+    _publishedScope = scopeStart;
     _playing = s.playing;
     _buffering = s.buffering;
     _speed = s.speed;
@@ -142,8 +148,8 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
             ? AudioProcessingState.buffering
             : (s.loaded ? AudioProcessingState.ready : AudioProcessingState.idle),
         playing: s.playing,
-        updatePosition: s.position,
-        bufferedPosition: s.position,
+        updatePosition: s.position - _scopeStart(s),
+        bufferedPosition: s.position - _scopeStart(s),
         speed: s.speed,
       ),
     );
@@ -162,7 +168,15 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
   }
 
   @override
-  Future<void> seek(Duration position) => _engine.seek(position);
+  Future<void> seek(Duration position) => _engine.seek(position + _scopeStart(_engine.value));
+
+  /// Where the lock screen's bar starts: the chapter start when it shows
+  /// chapter progress, else the start of the book.
+  Duration _scopeStart(PlayerSnapshot s) {
+    final chapter = s.chapter;
+    final many = (s.now?.chapters.length ?? 0) > 1;
+    return _engine.prefs.lockScreenChapter && many && chapter != null ? chapter.start : Duration.zero;
+  }
 
   @override
   Future<void> fastForward() => _engine.skipForward();

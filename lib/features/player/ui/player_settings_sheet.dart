@@ -207,6 +207,13 @@ class PlayerSettingsList extends ConsumerWidget {
         ),
         SwitchListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
+          title: Text(l10n.playerSettingsLockScreenChapter),
+          subtitle: Text(l10n.playerSettingsLockScreenChapterBody),
+          value: prefs.lockScreenChapter,
+          onChanged: (v) => set((p) => p.copyWith(lockScreenChapter: v)),
+        ),
+        SwitchListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
           title: Text(l10n.playerSettingsScrubber),
           value: prefs.chapterScrubber,
           onChanged: (v) => set((p) => p.copyWith(chapterScrubber: v)),

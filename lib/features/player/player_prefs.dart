@@ -33,6 +33,7 @@ final class PlayerPrefs {
     this.autoSleep = false,
     this.autoSleepFrom = 22 * 60,
     this.autoSleepUntil = 6 * 60,
+    this.lockScreenChapter = false,
   });
 
   static const skipChoices = [5, 10, 15, 30, 45, 60, 90];
@@ -63,6 +64,10 @@ final class PlayerPrefs {
   final int autoSleepFrom;
   final int autoSleepUntil;
 
+  /// The lock screen and notification show the chapter (true) or the
+  /// whole book (false) as their progress bar.
+  final bool lockScreenChapter;
+
   /// Whether [time] falls inside the auto sleep window.
   bool inAutoSleepWindow(DateTime time) {
     final m = time.hour * 60 + time.minute;
@@ -89,6 +94,7 @@ final class PlayerPrefs {
     bool? autoSleep,
     int? autoSleepFrom,
     int? autoSleepUntil,
+    bool? lockScreenChapter,
   }) => PlayerPrefs(
     skipBack: skipBack ?? this.skipBack,
     skipForward: skipForward ?? this.skipForward,
@@ -106,6 +112,7 @@ final class PlayerPrefs {
     autoSleep: autoSleep ?? this.autoSleep,
     autoSleepFrom: autoSleepFrom ?? this.autoSleepFrom,
     autoSleepUntil: autoSleepUntil ?? this.autoSleepUntil,
+    lockScreenChapter: lockScreenChapter ?? this.lockScreenChapter,
   );
 
   Map<String, Object?> toJson() => {
@@ -125,6 +132,7 @@ final class PlayerPrefs {
     'autoSleep': autoSleep,
     'autoSleepFrom': autoSleepFrom,
     'autoSleepUntil': autoSleepUntil,
+    'lockScreenChapter': lockScreenChapter,
   };
 
   /// Unknown or broken values fall back to the defaults one by one.
@@ -153,6 +161,7 @@ final class PlayerPrefs {
       autoSleep: flag('autoSleep', d.autoSleep),
       autoSleepFrom: number('autoSleepFrom', d.autoSleepFrom.toDouble()).round().clamp(0, 1439),
       autoSleepUntil: number('autoSleepUntil', d.autoSleepUntil.toDouble()).round().clamp(0, 1439),
+      lockScreenChapter: flag('lockScreenChapter', d.lockScreenChapter),
     );
   }
 }

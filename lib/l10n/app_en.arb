@@ -2749,5 +2749,97 @@
   "browseNotFound": "This page is not available.",
   "@browseNotFound": {
     "description": "Shown when a link to a book, series or author is broken."
+  },
+  "yearReviewTitle": "Your {year} in listening",
+  "@yearReviewTitle": {
+    "description": "Title of the year in review.",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewOpen": "See your year",
+  "@yearReviewOpen": {
+    "description": "Button on the stats screen."
+  },
+  "yearReviewBannerBody": "Your listening year, in a few cards you can share.",
+  "@yearReviewBannerBody": {
+    "description": "Stats screen banner text."
+  },
+  "yearReviewHoursLead": "This year you listened for",
+  "@yearReviewHoursLead": {
+    "description": "Card lead-in before the total time."
+  },
+  "yearReviewBooksLead": "You finished",
+  "@yearReviewBooksLead": {
+    "description": "Card lead-in before the number of books."
+  },
+  "yearReviewBooks": "{count, plural, =0{no books yet} =1{1 book} other{{count} books}}",
+  "@yearReviewBooks": {
+    "description": "Number of finished books.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewTopAuthorLead": "Your most listened author",
+  "@yearReviewTopAuthorLead": {
+    "description": "Card lead-in."
+  },
+  "yearReviewTopNarratorLead": "The voice you heard most",
+  "@yearReviewTopNarratorLead": {
+    "description": "Card lead-in."
+  },
+  "yearReviewStreakLead": "Your longest streak",
+  "@yearReviewStreakLead": {
+    "description": "Card lead-in."
+  },
+  "yearReviewBusiestMonthLead": "Your busiest month",
+  "@yearReviewBusiestMonthLead": {
+    "description": "Card lead-in."
+  },
+  "yearReviewFavoriteHourLead": "Your favorite time to listen",
+  "@yearReviewFavoriteHourLead": {
+    "description": "Card lead-in."
+  },
+  "yearReviewSpeedLead": "Thanks to your speed, you heard",
+  "@yearReviewSpeedLead": {
+    "description": "Card lead-in before the book time."
+  },
+  "yearReviewSpeedTail": "of books in {time}",
+  "@yearReviewSpeedTail": {
+    "description": "Card text after the book time.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "yearReviewShare": "Share this card",
+  "@yearReviewShare": {
+    "description": "Button."
+  },
+  "yearReviewEmpty": "No listening in {year} yet.",
+  "@yearReviewEmpty": {
+    "description": "Empty year in review.",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "yearReviewCardOf": "Card {current} of {total}",
+  "@yearReviewCardOf": {
+    "description": "Screen reader position in the cards.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
   }
 }

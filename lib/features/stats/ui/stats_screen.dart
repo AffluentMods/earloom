@@ -4,6 +4,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -13,7 +14,9 @@ import '../../../core/ui/cover_image.dart';
 import '../../../core/ui/states.dart';
 import '../../../core/util/duration_format.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../app/router.dart';
 import '../data/stats_repository.dart';
+import '../data/year_review.dart';
 
 /// You > Listening stats.
 class StatsScreen extends ConsumerWidget {
@@ -29,7 +32,17 @@ class StatsScreen extends ConsumerWidget {
         onRefresh: () => ref.refresh(serverStatsProvider.future),
         child: CustomScrollView(
           slivers: [
-            SliverAppBar.large(title: Text(l10n.statsTitle)),
+            SliverAppBar.large(
+              title: Text(l10n.statsTitle),
+              actions: [
+                IconButton(
+                  tooltip: l10n.yearReviewOpen,
+                  icon: const Icon(Icons.auto_awesome_outlined),
+                  onPressed: () =>
+                      context.push(AppRoutes.yearReview(reviewYearInSeason(DateTime.now()) ?? DateTime.now().year)),
+                ),
+              ],
+            ),
             switch (stats) {
               AsyncData(:final value) when value.isEmpty => SliverFillRemaining(
                 hasScrollBody: false,
@@ -45,6 +58,10 @@ class StatsScreen extends ConsumerWidget {
                   children: [
                     if (serverFailed) ...[
                       InlineNotice(icon: Icons.cloud_off_rounded, message: l10n.statsServerFailed),
+                      const SizedBox(height: Space.lg),
+                    ],
+                    if (reviewYearInSeason(DateTime.now()) case final year?) ...[
+                      _YearReviewBanner(year: year),
                       const SizedBox(height: Space.lg),
                     ],
                     _TodayCard(stats: value),
@@ -85,6 +102,52 @@ class StatsScreen extends ConsumerWidget {
               _ => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
             },
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _YearReviewBanner extends StatelessWidget {
+  const _YearReviewBanner({required this.year});
+  final int year;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Card.filled(
+      margin: EdgeInsets.zero,
+      color: scheme.tertiaryContainer,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.card)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(Radii.card),
+        onTap: () => context.push(AppRoutes.yearReview(year)),
+        child: Padding(
+          padding: const EdgeInsets.all(Space.lg),
+          child: Row(
+            children: [
+              Icon(Icons.auto_awesome_rounded, color: scheme.onTertiaryContainer),
+              const SizedBox(width: Space.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.yearReviewTitle(year),
+                      style: theme.textTheme.titleMedium?.copyWith(color: scheme.onTertiaryContainer),
+                    ),
+                    Text(
+                      l10n.yearReviewBannerBody,
+                      style: theme.textTheme.bodyMedium?.copyWith(color: scheme.onTertiaryContainer),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: scheme.onTertiaryContainer),
+            ],
+          ),
         ),
       ),
     );

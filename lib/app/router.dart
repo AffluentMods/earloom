@@ -27,6 +27,7 @@ import '../features/player/ui/now_playing_screen.dart';
 import '../features/search/ui/search_screen.dart';
 import '../features/settings/ui/settings_screen.dart';
 import '../features/stats/ui/stats_screen.dart';
+import '../features/stats/ui/year_review_screen.dart';
 import '../features/you/ui/you_screen.dart';
 import 'app_scaffold.dart';
 import 'debug/debug_routes.dart';
@@ -44,6 +45,7 @@ abstract final class AppRoutes {
   static const addServer = '/accounts/add';
   static const accounts = '/you/accounts';
   static const stats = '/you/stats';
+  static String yearReview(int year) => '/you/stats/year/$year';
   static const settings = '/you/settings';
   static const settingsPlayback = '/you/settings/playback';
   static const settingsAppearance = '/you/settings/appearance';
@@ -199,7 +201,18 @@ GoRouter buildRouter({
                 builder: (_, _) => const YouScreen(),
                 routes: [
                   GoRoute(path: 'accounts', builder: (_, _) => const AccountsScreen()),
-                  GoRoute(path: 'stats', builder: (_, _) => const StatsScreen()),
+                  GoRoute(
+                    path: 'stats',
+                    builder: (_, _) => const StatsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'year/:year',
+                        builder: (_, state) => YearReviewScreen(
+                          year: int.tryParse(state.pathParameters['year'] ?? '') ?? DateTime.now().year,
+                        ),
+                      ),
+                    ],
+                  ),
                   GoRoute(
                     path: 'settings',
                     builder: (_, _) => const SettingsScreen(),

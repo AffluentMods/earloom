@@ -123,6 +123,17 @@ void main() {
     expect(find.byType(NowPlayingScreen), findsOneWidget);
   });
 
+  testWidgets('the Resume shortcut opens Now Playing and plays', (tester) async {
+    await _pumpWithBook(tester);
+    final engine = await _engineOf(tester);
+    await openLink(tester, 'earloom://player?action=resume');
+    await settle(tester);
+    expect(find.byType(NowPlayingScreen), findsOneWidget);
+    expect(engine.value.playing, isTrue);
+    await tester.runAsync(engine.pause);
+    await settle(tester);
+  });
+
   testWidgets('Now Playing fits a 320 point wide phone', (tester) async {
     await _pumpWithBook(tester, size: const Size(320, 568));
     await tester.tap(find.text("The Clockmaker's Tide"));

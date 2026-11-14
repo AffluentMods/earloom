@@ -73,6 +73,17 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> with Single
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Opened by the Resume shortcut: start playing as well.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final resume = GoRouterState.of(context).uri.queryParameters['resume'] == '1';
+      if (resume && !ref.read(playerProvider).playing) unawaited(ref.read(playerEngineProvider).play());
+    });
+  }
+
+  @override
   void dispose() {
     _drift.dispose();
     super.dispose();

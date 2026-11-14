@@ -53,7 +53,11 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="earloom" android:host="item"/>
                 <data android:scheme="earloom" android:host="player"/>
+                <data android:scheme="earloom" android:host="downloads"/>
+                <data android:scheme="earloom" android:host="search"/>
             </intent-filter>
+            <!-- Long-press shortcuts on the app icon: Resume, Downloads, Search. -->
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts"/>
         </activity>
         <!-- Single sign-on comes back here (earloom://oauth). Only the
              oauth host, so item and player links still open MainActivity. -->

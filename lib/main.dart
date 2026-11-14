@@ -84,6 +84,9 @@ Future<void> _startOffline(ProviderContainer container, GlobalDb globalDb, Offli
 Future<void> _startPlayer(ProviderContainer container) async {
   final l10n = deviceL10n();
   final engine = container.read(playerEngineProvider);
+  // The last book must be known before the first route: the Resume
+  // shortcut and earloom://player depend on it.
+  await engine.restore();
   final prefs = await container.read(playerStoreProvider).loadPrefs();
   Future<void> bookmarkFromNotification() async {
     final s = engine.value;

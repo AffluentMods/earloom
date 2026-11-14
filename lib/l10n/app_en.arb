@@ -1822,5 +1822,17 @@
   "playerSettingsLockScreenChapterBody": "Otherwise its progress bar covers the whole book.",
   "@playerSettingsLockScreenChapterBody": {
     "description": "Setting description."
+  },
+  "shortcutResume": "Resume",
+  "@shortcutResume": {
+    "description": "App icon shortcut label. Mirrored in android/app/src/main/res/values/strings.xml."
+  },
+  "shortcutDownloads": "Downloads",
+  "@shortcutDownloads": {
+    "description": "App icon shortcut label. Mirrored in android/app/src/main/res/values/strings.xml."
+  },
+  "shortcutSearch": "Search",
+  "@shortcutSearch": {
+    "description": "App icon shortcut label. Mirrored in android/app/src/main/res/values/strings.xml."
   }
 }

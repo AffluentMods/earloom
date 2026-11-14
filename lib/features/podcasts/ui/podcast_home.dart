@@ -106,13 +106,13 @@ class _PodcastHomeState extends ConsumerState<PodcastHome> {
             child: shelf.episodes.isNotEmpty
                 ? Shelf(
                     title: podcastShelfTitle(l10n, shelf),
-                    height: 136 + 72,
+                    height: cardShelfHeight(context, 136),
                     itemCount: shelf.episodes.length,
                     itemBuilder: (_, i) => EpisodeCard(episode: shelf.episodes[i], width: 136),
                   )
                 : Shelf(
                     title: podcastShelfTitle(l10n, shelf),
-                    height: 136 + 72,
+                    height: cardShelfHeight(context, 136),
                     itemCount: shelf.shows.length,
                     itemBuilder: (_, i) => BookGridCard(book: shelf.shows[i], width: 136, place: 'home-${shelf.id}'),
                   ),

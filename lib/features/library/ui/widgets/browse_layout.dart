@@ -39,6 +39,32 @@ class SectionHeader extends StatelessWidget {
   }
 }
 
+/// Height of a card under a cover [coverWidth] wide: the cover, two title
+/// lines and one line under them, at the current text size. Shelves use it
+/// so titles never clip, whatever the text size.
+double cardTextBlock(BuildContext context) {
+  final theme = Theme.of(context).textTheme;
+  final scaler = MediaQuery.textScalerOf(context);
+  final direction = Directionality.of(context);
+  double measure(TextStyle? style, String text) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textScaler: scaler,
+      textDirection: direction,
+    )..layout();
+    final height = painter.height;
+    painter.dispose();
+    return height;
+  }
+
+  // The same styles the cards use (BookGridCard, EpisodeCard).
+  final title = measure(theme.titleSmall?.copyWith(height: 1.25), 'Ag\nAg');
+  final line = measure(theme.bodySmall, 'Ag');
+  return Space.sm + title + 2 + line + Space.xs;
+}
+
+double cardShelfHeight(BuildContext context, double coverWidth) => coverWidth + cardTextBlock(context);
+
 /// A titled horizontal row of cards.
 class Shelf extends StatelessWidget {
   const Shelf({
@@ -213,11 +239,11 @@ class SliverGridSkeleton extends StatelessWidget {
 /// Each cell is the square cover plus room for two title lines and an
 /// author line at the current text size, so rows sit close together and
 /// large text never clips.
-SliverGridDelegate bookGridDelegate(BuildContext context) => _BookGridDelegate(MediaQuery.textScalerOf(context));
+SliverGridDelegate bookGridDelegate(BuildContext context) => _BookGridDelegate(cardTextBlock(context));
 
 class _BookGridDelegate extends SliverGridDelegate {
-  const _BookGridDelegate(this.textScaler);
-  final TextScaler textScaler;
+  const _BookGridDelegate(this.textBlock);
+  final double textBlock;
 
   static const _maxExtent = 180.0;
 
@@ -226,9 +252,7 @@ class _BookGridDelegate extends SliverGridDelegate {
     final width = constraints.crossAxisExtent;
     final columns = ((width + Space.lg) / (_maxExtent + Space.lg)).ceil().clamp(2, 12);
     final tile = (width - Space.lg * (columns - 1)) / columns;
-    // Title: two lines of 14 at height 1.25; author: one line of 12 at 1.33.
-    final text = textScaler.scale(14) * 1.25 * 2 + textScaler.scale(12) * 1.34 + 2;
-    final extent = tile + Space.sm + text + Space.xs;
+    final extent = tile + textBlock;
     return SliverGridRegularTileLayout(
       crossAxisCount: columns,
       mainAxisStride: extent + Space.xl,
@@ -240,7 +264,7 @@ class _BookGridDelegate extends SliverGridDelegate {
   }
 
   @override
-  bool shouldRelayout(_BookGridDelegate old) => old.textScaler != textScaler;
+  bool shouldRelayout(_BookGridDelegate old) => old.textBlock != textBlock;
 }
 
 /// Shown above cached content when refreshing failed: offline, or another

@@ -474,7 +474,10 @@ class EpisodeCard extends ConsumerWidget {
             children: [
               BookCover(book: e.coverBook, size: width),
               const SizedBox(height: Space.sm),
+              // Two title lines need more room than the one line under them:
+              // equal shares cut the title in half.
               Flexible(
+                flex: 3,
                 child: Text(
                   e.title,
                   maxLines: 2,

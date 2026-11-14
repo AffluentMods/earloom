@@ -843,7 +843,7 @@ class _MoreInSeries extends ConsumerWidget {
     const width = 128.0;
     return Shelf(
       title: l10n.itemMoreInSeries,
-      height: width + 72,
+      height: cardShelfHeight(context, width),
       itemCount: others.length,
       action: TextButton(
         onPressed: () => BrowseNav.series(context, source, seriesId),

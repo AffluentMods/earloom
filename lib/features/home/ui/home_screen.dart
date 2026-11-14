@@ -225,7 +225,7 @@ class _ServerShelves extends ConsumerWidget {
           ),
           ShelfKind.series => Shelf(
             title: title,
-            height: 136 + 72,
+            height: cardShelfHeight(context, 136),
             itemCount: shelf.series.length,
             itemBuilder: (_, j) => SeriesCard(series: shelf.series[j], width: 136),
           ),
@@ -284,7 +284,7 @@ class _BookShelf extends StatelessWidget {
     return Shelf(
       title: title,
       action: action,
-      height: width + 72,
+      height: cardShelfHeight(context, width),
       itemCount: books.length,
       itemBuilder: (_, i) {
         final b = books[i];

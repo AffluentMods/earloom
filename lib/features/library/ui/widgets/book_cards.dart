@@ -62,7 +62,10 @@ class BookGridCard extends ConsumerWidget {
               const SizedBox(height: Space.sm),
               // Flexible: with large text the lines give way, never the
               // cover.
+              // Two title lines need more room than the one line under them:
+              // equal shares cut the title in half.
               Flexible(
+                flex: 3,
                 child: Text(
                   book.title,
                   maxLines: 2,

@@ -286,7 +286,7 @@ class _Results extends ConsumerWidget {
           if (results.series.isNotEmpty)
             Shelf(
               title: l10n.searchGroupSeries,
-              height: 120 + 72,
+              height: cardShelfHeight(context, 120),
               itemCount: results.series.length,
               itemBuilder: (_, i) => SeriesCard(series: results.series[i], width: 120),
             ),

@@ -141,3 +141,11 @@ Future<void> openLink(WidgetTester tester, String link) async {
   await tester.binding.defaultBinaryMessenger.handlePlatformMessage('flutter/navigation', message, (_) {});
   await tester.pumpAndSettle();
 }
+
+/// A phone-sized window (the default test window is 800 wide, which the
+/// app treats as a tablet).
+void usePhoneSize(WidgetTester tester, {Size size = const Size(390, 844)}) {
+  tester.view.physicalSize = size * 2;
+  tester.view.devicePixelRatio = 2;
+  addTearDown(tester.view.reset);
+}

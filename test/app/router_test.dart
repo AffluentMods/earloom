@@ -15,6 +15,7 @@ import '../support/test_app.dart';
 
 void main() {
   testWidgets('four tabs with localized labels, starting on Home', (tester) async {
+    usePhoneSize(tester);
     await pumpEarloom(tester);
     final l10n = await loadL10n();
 
@@ -38,6 +39,7 @@ void main() {
   });
 
   testWidgets('each tab keeps its own navigator alive while another tab shows', (tester) async {
+    usePhoneSize(tester);
     await pumpEarloom(tester);
     final l10n = await loadL10n();
     final bar = find.byType(NavigationBar);
@@ -62,6 +64,19 @@ void main() {
     await tester.tap(find.descendant(of: bar, matching: find.text(l10n.tabHome)));
     await tester.pumpAndSettle();
     expect(tester.element(find.byType(HomeScreen)), same(homeBefore));
+  });
+
+  testWidgets('tablets get a side rail instead of the bottom bar', (tester) async {
+    tester.view.physicalSize = const Size(1024, 768) * 2;
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final l10n = await loadL10n();
+    await pumpEarloom(tester);
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    await tester.tap(find.text(l10n.tabYou));
+    await tester.pumpAndSettle();
+    expect(find.byType(YouScreen), findsOneWidget);
   });
 
   testWidgets('with nothing loaded the mini player takes no height', (tester) async {

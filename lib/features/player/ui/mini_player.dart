@@ -66,55 +66,59 @@ class _Bar extends ConsumerWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: () => context.push(AppRoutes.player),
-            child: SizedBox(
-              height: MiniPlayer.height,
+            // Grows with large text instead of clipping it.
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: MiniPlayer.height),
               child: Stack(
                 children: [
-                  Row(
-                    children: [
-                      const SizedBox(width: Space.sm),
-                      CoverImage(
-                        source: now.cover,
-                        title: now.title,
-                        size: 52,
-                        radius: 10,
-                        heroTag: nowPlayingCoverTag,
-                      ),
-                      const SizedBox(width: Space.md),
-                      Expanded(
-                        child: Semantics(
-                          button: true,
-                          label: l10n.playerOpen,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                now.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.titleSmall?.copyWith(color: scheme.onSecondaryContainer),
-                              ),
-                              if (subtitle != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: Space.sm),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: Space.sm),
+                        CoverImage(
+                          source: now.cover,
+                          title: now.title,
+                          size: 52,
+                          radius: 10,
+                          heroTag: nowPlayingCoverTag,
+                        ),
+                        const SizedBox(width: Space.md),
+                        Expanded(
+                          child: Semantics(
+                            button: true,
+                            label: l10n.playerOpen,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  subtitle,
+                                  now.title,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: scheme.onSecondaryContainer.withValues(alpha: 0.8),
-                                  ),
+                                  style: theme.textTheme.titleSmall?.copyWith(color: scheme.onSecondaryContainer),
                                 ),
-                            ],
+                                if (subtitle != null)
+                                  Text(
+                                    subtitle,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: scheme.onSecondaryContainer.withValues(alpha: 0.8),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      IconTheme(
-                        data: IconThemeData(color: scheme.onSecondaryContainer),
-                        child: SkipButton(seconds: skipBack, forward: false, size: 30, onPressed: engine.skipBack),
-                      ),
-                      const PlayPauseButton(size: 52, filled: false),
-                      const SizedBox(width: Space.xs),
-                    ],
+                        IconTheme(
+                          data: IconThemeData(color: scheme.onSecondaryContainer),
+                          child: SkipButton(seconds: skipBack, forward: false, size: 30, onPressed: engine.skipBack),
+                        ),
+                        const PlayPauseButton(size: 52, filled: false),
+                        const SizedBox(width: Space.xs),
+                      ],
+                    ),
                   ),
                   const Positioned(left: 0, right: 0, bottom: 0, child: _ProgressLine()),
                 ],

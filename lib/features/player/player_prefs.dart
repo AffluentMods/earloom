@@ -30,6 +30,9 @@ final class PlayerPrefs {
     this.sleepLast = const Duration(minutes: 30),
     this.shakeToExtend = true,
     this.chapterScrubber = true,
+    this.autoSleep = false,
+    this.autoSleepFrom = 22 * 60,
+    this.autoSleepUntil = 6 * 60,
   });
 
   static const skipChoices = [5, 10, 15, 30, 45, 60, 90];
@@ -54,6 +57,21 @@ final class PlayerPrefs {
   /// The Now Playing scrubber shows the chapter (true) or the whole book.
   final bool chapterScrubber;
 
+  /// Start the sleep timer by itself when playback starts inside the
+  /// window, given in minutes after midnight (it may wrap past midnight).
+  final bool autoSleep;
+  final int autoSleepFrom;
+  final int autoSleepUntil;
+
+  /// Whether [time] falls inside the auto sleep window.
+  bool inAutoSleepWindow(DateTime time) {
+    final m = time.hour * 60 + time.minute;
+    if (autoSleepFrom == autoSleepUntil) return false;
+    return autoSleepFrom < autoSleepUntil
+        ? m >= autoSleepFrom && m < autoSleepUntil
+        : m >= autoSleepFrom || m < autoSleepUntil;
+  }
+
   PlayerPrefs copyWith({
     Duration? skipBack,
     Duration? skipForward,
@@ -68,6 +86,9 @@ final class PlayerPrefs {
     Duration? sleepLast,
     bool? shakeToExtend,
     bool? chapterScrubber,
+    bool? autoSleep,
+    int? autoSleepFrom,
+    int? autoSleepUntil,
   }) => PlayerPrefs(
     skipBack: skipBack ?? this.skipBack,
     skipForward: skipForward ?? this.skipForward,
@@ -82,6 +103,9 @@ final class PlayerPrefs {
     sleepLast: sleepLast ?? this.sleepLast,
     shakeToExtend: shakeToExtend ?? this.shakeToExtend,
     chapterScrubber: chapterScrubber ?? this.chapterScrubber,
+    autoSleep: autoSleep ?? this.autoSleep,
+    autoSleepFrom: autoSleepFrom ?? this.autoSleepFrom,
+    autoSleepUntil: autoSleepUntil ?? this.autoSleepUntil,
   );
 
   Map<String, Object?> toJson() => {
@@ -98,6 +122,9 @@ final class PlayerPrefs {
     'sleepLast': sleepLast.inSeconds,
     'shakeToExtend': shakeToExtend,
     'chapterScrubber': chapterScrubber,
+    'autoSleep': autoSleep,
+    'autoSleepFrom': autoSleepFrom,
+    'autoSleepUntil': autoSleepUntil,
   };
 
   /// Unknown or broken values fall back to the defaults one by one.
@@ -123,6 +150,9 @@ final class PlayerPrefs {
       sleepLast: secs('sleepLast', d.sleepLast),
       shakeToExtend: flag('shakeToExtend', d.shakeToExtend),
       chapterScrubber: flag('chapterScrubber', d.chapterScrubber),
+      autoSleep: flag('autoSleep', d.autoSleep),
+      autoSleepFrom: number('autoSleepFrom', d.autoSleepFrom.toDouble()).round().clamp(0, 1439),
+      autoSleepUntil: number('autoSleepUntil', d.autoSleepUntil.toDouble()).round().clamp(0, 1439),
     );
   }
 }

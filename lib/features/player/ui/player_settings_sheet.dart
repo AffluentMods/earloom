@@ -39,6 +39,18 @@ class PlayerSettingsList extends ConsumerWidget {
     final notifier = ref.read(playerPrefsProvider.notifier);
     void set(PlayerPrefs Function(PlayerPrefs) change) => notifier.update(change);
     final android = Platform.isAndroid;
+    final localizations = MaterialLocalizations.of(context);
+    String clock(int minutes) => localizations.formatTimeOfDay(
+      TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60),
+      alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
+    );
+    Future<int?> pickTime(int minutes) async {
+      final t = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60),
+      );
+      return t == null ? null : t.hour * 60 + t.minute;
+    }
 
     Widget heading(String text) => Padding(
       padding: const EdgeInsets.fromLTRB(Space.xl, Space.lg, Space.xl, Space.xs),
@@ -159,6 +171,33 @@ class PlayerSettingsList extends ConsumerWidget {
             onChanged: (v) => set((p) => p.copyWith(sleepFade: Duration(seconds: v.round()))),
           ),
         ),
+        SwitchListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
+          title: Text(l10n.sleepAuto),
+          subtitle: Text(l10n.sleepAutoWindow(clock(prefs.autoSleepFrom), clock(prefs.autoSleepUntil))),
+          value: prefs.autoSleep,
+          onChanged: (v) => set((p) => p.copyWith(autoSleep: v)),
+        ),
+        if (prefs.autoSleep) ...[
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
+            title: Text(l10n.sleepAutoFrom),
+            trailing: Text(clock(prefs.autoSleepFrom), style: theme.textTheme.labelLarge),
+            onTap: () async {
+              final m = await pickTime(prefs.autoSleepFrom);
+              if (m != null) set((p) => p.copyWith(autoSleepFrom: m));
+            },
+          ),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
+            title: Text(l10n.sleepAutoUntil),
+            trailing: Text(clock(prefs.autoSleepUntil), style: theme.textTheme.labelLarge),
+            onTap: () async {
+              final m = await pickTime(prefs.autoSleepUntil);
+              if (m != null) set((p) => p.copyWith(autoSleepUntil: m));
+            },
+          ),
+        ],
         SwitchListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
           title: Text(l10n.sleepShakeToExtend),

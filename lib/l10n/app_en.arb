@@ -1786,5 +1786,29 @@
         "type": "String"
       }
     }
+  },
+  "sleepAuto": "Start the sleep timer at bedtime",
+  "@sleepAuto": {
+    "description": "Setting."
+  },
+  "sleepAutoWindow": "When you press play between {start} and {end}",
+  "@sleepAutoWindow": {
+    "description": "Setting description.",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepAutoFrom": "From",
+  "@sleepAutoFrom": {
+    "description": "Time picker row label."
+  },
+  "sleepAutoUntil": "Until",
+  "@sleepAutoUntil": {
+    "description": "Time picker row label."
   }
 }

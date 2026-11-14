@@ -140,6 +140,17 @@ void main() {
     expect(engine.value.position.inSeconds, closeTo(300 - 30, 2));
   });
 
+  engineTest(
+    'pressing play at bedtime starts the sleep timer by itself',
+    (async, engine, backend, sinks) async {
+      // The test clock starts at 21:00; the window here starts at 20:00.
+      await engine.playItem(_local);
+      expect(engine.value.sleep, isA<SleepAfter>());
+      expect((engine.value.sleep as SleepAfter).original, const Duration(minutes: 30));
+    },
+    prefs: const PlayerPrefs(autoSleep: true, autoSleepFrom: 20 * 60),
+  );
+
   engineTest('the sleep countdown stops while paused', (async, engine, backend, sinks) async {
     await engine.playItem(_local);
     engine.setSleepTimer(const SleepAfter(original: Duration(minutes: 5), remaining: Duration(minutes: 5)));

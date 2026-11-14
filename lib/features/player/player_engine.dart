@@ -410,6 +410,9 @@ class PlayerEngine {
     }
     _pausedAt = null;
     _interruptedAt = null;
+    if (_prefs.autoSleep && _value.sleep is SleepOff && _prefs.inAutoSleepWindow(_now())) {
+      setSleepTimer(SleepAfter(original: _prefs.sleepLast, remaining: _prefs.sleepLast));
+    }
     _lastTick = _now();
     _backend.play();
     _emit(_value.copyWith(playing: true));

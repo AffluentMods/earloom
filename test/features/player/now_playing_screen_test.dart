@@ -112,6 +112,17 @@ void main() {
     expect(engine.value.position, const Duration(minutes: 30));
   });
 
+  testWidgets('Now Playing and the mini player work at 200% text size', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pumpWithBook(tester);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text("The Clockmaker's Tide"));
+    await settle(tester);
+    expect(tester.takeException(), isNull);
+    expect(find.byType(NowPlayingScreen), findsOneWidget);
+  });
+
   testWidgets('Now Playing fits a 320 point wide phone', (tester) async {
     await _pumpWithBook(tester, size: const Size(320, 568));
     await tester.tap(find.text("The Clockmaker's Tide"));

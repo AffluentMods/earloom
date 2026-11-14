@@ -66,6 +66,8 @@ Future<void> _startPlayer(ProviderContainer container) async {
         engine,
         onBookmark: bookmarkFromNotification,
         bookmarkLabel: l10n.playerBookmark,
+        speedLabel: l10n.playerSpeed,
+        sleepLabel: (m) => l10n.playerSleepRemaining(l10n.durationMinutes(m)),
         browser: container.read(mediaBrowserProvider),
       ),
       config: AudioServiceConfig(

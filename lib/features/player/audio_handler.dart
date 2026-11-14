@@ -13,7 +13,14 @@ import 'player_prefs.dart';
 /// Bridges the engine to the lock screen, notification, headset, Bluetooth,
 /// watch and car controls. It never plays anything itself.
 class AppAudioHandler extends BaseAudioHandler with SeekHandler {
-  AppAudioHandler(this._engine, {this.onBookmark, this.bookmarkLabel = '', this.browser}) {
+  AppAudioHandler(
+    this._engine, {
+    this.onBookmark,
+    this.bookmarkLabel = '',
+    this.speedLabel = '',
+    this.sleepLabel,
+    this.browser,
+  }) {
     _sub = _engine.snapshots.listen(_publish);
     _publish(_engine.value);
   }
@@ -28,6 +35,15 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
 
   /// Spoken by screen readers for that button (from l10n).
   final String bookmarkLabel;
+
+  /// The speed button's label (from l10n).
+  final String speedLabel;
+
+  /// "Sleep in 12 min" for the notification subtitle (from l10n).
+  final String Function(int minutes)? sleepLabel;
+
+  static const speedAction = 'speed';
+  static const speedCycle = [1.0, 1.25, 1.5, 2.0];
   late final StreamSubscription<PlayerSnapshot> _sub;
 
   static const bookmarkAction = 'bookmark';
@@ -52,7 +68,11 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
     }
     final chapter = s.chapter;
     final multiChapter = now.chapters.length > 1;
-    final key = '${now.ref.key}|${chapter?.index}|${now.duration.inSeconds}|${now.coverKey}';
+    final sleepLeft = s.sleepRemaining;
+    // Whole minutes, so the notification changes once a minute, not 4 times
+    // a second.
+    final sleepMinutes = sleepLeft == null ? null : (sleepLeft.inSeconds / 60).ceil();
+    final key = '${now.ref.key}|${chapter?.index}|${now.duration.inSeconds}|${now.coverKey}|$sleepMinutes';
     if (key != _itemKey) {
       _itemKey = key;
       final cover = now.cover;
@@ -68,7 +88,7 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
           artUri: now.artworkUri,
           artHeaders: cover is NetworkCover && cover.headers.isNotEmpty ? cover.headers : null,
           displayTitle: multiChapter && chapter != null ? chapter.title : now.title,
-          displaySubtitle: now.title,
+          displaySubtitle: sleepMinutes == null ? now.title : sleepLabel?.call(sleepMinutes) ?? now.title,
           displayDescription: now.author,
         ),
       );
@@ -102,6 +122,12 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
               action: MediaAction.custom,
               customAction: const CustomMediaAction(name: bookmarkAction),
             ),
+          MediaControl(
+            androidIcon: 'drawable/ic_speed',
+            label: speedLabel,
+            action: MediaAction.custom,
+            customAction: const CustomMediaAction(name: speedAction),
+          ),
         ],
         androidCompactActionIndices: const [0, 1, 2],
         systemActions: const {
@@ -158,6 +184,11 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
   @override
   Future<dynamic> customAction(String name, [Map<String, dynamic>? extras]) async {
     if (name == bookmarkAction) await onBookmark?.call();
+    if (name == speedAction) {
+      final current = _engine.value.speed;
+      final next = speedCycle.firstWhere((v) => v > current + 0.001, orElse: () => speedCycle.first);
+      await _engine.setSpeed(next);
+    }
   }
 
   @override

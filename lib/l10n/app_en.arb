@@ -1325,5 +1325,21 @@
   "aboutMadeBy": "Made by Affluent Labs",
   "@aboutMadeBy": {
     "description": "About footer."
+  },
+  "autoContinueListening": "Continue listening",
+  "@autoContinueListening": {
+    "description": "Car and Android Auto folder."
+  },
+  "autoRecentlyAdded": "Recently added",
+  "@autoRecentlyAdded": {
+    "description": "Car and Android Auto folder."
+  },
+  "autoOnThisDevice": "On this phone",
+  "@autoOnThisDevice": {
+    "description": "Car and Android Auto folder for imported books."
+  },
+  "autoSignInOnPhone": "Open Earloom on your phone to sign in again.",
+  "@autoSignInOnPhone": {
+    "description": "Car message when the account is signed out."
   }
 }

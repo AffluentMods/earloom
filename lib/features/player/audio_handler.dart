@@ -6,18 +6,22 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 
 import '../../core/ui/cover_image.dart';
+import 'media_browser.dart';
 import 'player_engine.dart';
 import 'player_prefs.dart';
 
 /// Bridges the engine to the lock screen, notification, headset, Bluetooth,
 /// watch and car controls. It never plays anything itself.
 class AppAudioHandler extends BaseAudioHandler with SeekHandler {
-  AppAudioHandler(this._engine, {this.onBookmark, this.bookmarkLabel = ''}) {
+  AppAudioHandler(this._engine, {this.onBookmark, this.bookmarkLabel = '', this.browser}) {
     _sub = _engine.snapshots.listen(_publish);
     _publish(_engine.value);
   }
 
   final PlayerEngine _engine;
+
+  /// Android Auto and other media browsers.
+  final MediaBrowser? browser;
 
   /// The Android notification's bookmark button.
   final Future<void> Function()? onBookmark;
@@ -155,6 +159,32 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
   Future<dynamic> customAction(String name, [Map<String, dynamic>? extras]) async {
     if (name == bookmarkAction) await onBookmark?.call();
   }
+
+  @override
+  Future<List<MediaItem>> getChildren(String parentMediaId, [Map<String, dynamic>? options]) async =>
+      await browser?.children(parentMediaId) ?? const [];
+
+  @override
+  Future<List<MediaItem>> search(String query, [Map<String, dynamic>? extras]) async =>
+      await browser?.search(query) ?? const [];
+
+  @override
+  Future<void> playFromMediaId(String mediaId, [Map<String, dynamic>? extras]) async {
+    final ref = MediaBrowser.refOf(mediaId);
+    if (ref != null) await _engine.playItem(ref);
+  }
+
+  @override
+  Future<void> playFromSearch(String query, [Map<String, dynamic>? extras]) async {
+    // "Play" with no title: resume what was playing.
+    if (query.trim().isEmpty) return _engine.play();
+    final hits = await browser?.search(query) ?? const [];
+    final ref = hits.isEmpty ? null : MediaBrowser.refOf(hits.first.id);
+    if (ref != null) await _engine.playItem(ref);
+  }
+
+  @override
+  Future<void> prepare() async {}
 
   @override
   Future<void> onTaskRemoved() async {

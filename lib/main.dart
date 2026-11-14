@@ -18,6 +18,7 @@ import 'features/local_library/data/local_storage.dart';
 import 'features/local_library/data/providers.dart';
 import 'features/player/audio_handler.dart';
 import 'features/player/bookmarks.dart';
+import 'features/player/media_browser.dart';
 import 'features/player/player_controller.dart';
 import 'features/player/ui/player_widgets.dart';
 
@@ -61,13 +62,19 @@ Future<void> _startPlayer(ProviderContainer container) async {
 
   try {
     await AudioService.init(
-      builder: () => AppAudioHandler(engine, onBookmark: bookmarkFromNotification, bookmarkLabel: l10n.playerBookmark),
+      builder: () => AppAudioHandler(
+        engine,
+        onBookmark: bookmarkFromNotification,
+        bookmarkLabel: l10n.playerBookmark,
+        browser: container.read(mediaBrowserProvider),
+      ),
       config: AudioServiceConfig(
         androidNotificationChannelId: 'com.affluentlabs.earloom.playback',
         androidNotificationChannelName: l10n.playerNotificationChannel,
         androidNotificationIcon: 'drawable/ic_stat_earloom',
         fastForwardInterval: prefs.skipForward,
         rewindInterval: prefs.skipBack,
+        androidBrowsableRootExtras: MediaBrowser.rootExtras,
       ),
     );
   } on Object catch (e) {

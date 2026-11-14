@@ -36,6 +36,11 @@ dependencies:
   intl: ^0.20.3
   flutter_localizations:
     sdk: flutter
+  crypto: ^3.0.8
+  uuid: ^4.6.0
+  device_info_plus: ^13.3.0
+  package_info_plus: ^10.2.2
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:

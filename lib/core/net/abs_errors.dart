@@ -18,6 +18,7 @@ sealed class AbsFailure implements Exception {
   static AbsFailure from(Object error) {
     if (error is AbsFailure) return error;
     if (error is DioException) {
+      if (error.type == DioExceptionType.cancel) return const AbsCancelled();
       final response = error.response;
       if (response == null) return AbsUnreachable(_describe(error));
       final status = response.statusCode ?? 0;
@@ -77,6 +78,12 @@ final class AbsHttpError extends AbsFailure {
   const AbsHttpError(this.status, String details) : super(details);
 
   final int status;
+}
+
+/// The app cancelled the request itself because the answer was no longer
+/// wanted. Never shown to the user.
+final class AbsCancelled extends AbsFailure {
+  const AbsCancelled() : super('cancelled');
 }
 
 final class AbsUnexpected extends AbsFailure {

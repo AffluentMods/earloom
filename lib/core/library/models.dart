@@ -115,6 +115,8 @@ final class BookDetail {
     this.series = const [],
     this.sizeBytes,
     this.fileFormat,
+    this.bitRate,
+    this.authorIds = const {},
   });
 
   final BookSummary summary;
@@ -133,6 +135,13 @@ final class BookDetail {
   final List<SeriesMembership> series;
   final int? sizeBytes;
   final String? fileFormat;
+
+  /// Highest audio bit rate in bits per second, when the source knows it.
+  final int? bitRate;
+
+  /// Author name to server author id, for author links. Empty for local
+  /// books, whose authors are names only.
+  final Map<String, String> authorIds;
 }
 
 final class SeriesMembership {

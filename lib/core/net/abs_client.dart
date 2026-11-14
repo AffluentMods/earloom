@@ -51,7 +51,10 @@ class AbsClient {
     queryParameters: query?.map((k, v) => MapEntry(k, v?.toString())),
   );
 
-  Future<T> get<T>(String path, {Map<String, Object?>? query}) => _wrap(() => dio.getUri<T>(url(path, query)));
+  /// [cancelToken] drops a request whose answer is no longer wanted (a
+  /// stale search); it then fails with [AbsCancelled].
+  Future<T> get<T>(String path, {Map<String, Object?>? query, CancelToken? cancelToken}) =>
+      _wrap(() => dio.getUri<T>(url(path, query), cancelToken: cancelToken));
 
   Future<T> post<T>(String path, {Object? body, Map<String, Object?>? query}) =>
       _wrap(() => dio.postUri<T>(url(path, query), data: body));

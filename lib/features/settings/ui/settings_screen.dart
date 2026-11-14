@@ -202,6 +202,7 @@ class AboutScreen extends ConsumerWidget {
   const AboutScreen({super.key});
 
   static final _source = Uri.parse('https://github.com/AffluentMods/earloom');
+  static const _contact = 'contact@affluentlabs.dev';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -234,6 +235,17 @@ class AboutScreen extends ConsumerWidget {
             subtitle: Text(l10n.aboutSourceBody),
             trailing: const Icon(Icons.open_in_new_rounded),
             onTap: () => launchUrl(_source, mode: LaunchMode.externalApplication),
+          ),
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
+            leading: const Icon(Icons.mail_outline_rounded),
+            title: Text(l10n.aboutContact),
+            subtitle: Text(l10n.aboutContactBody(_contact)),
+            trailing: const Icon(Icons.open_in_new_rounded),
+            onTap: () => launchUrl(
+              Uri(scheme: 'mailto', path: _contact),
+              mode: LaunchMode.externalApplication,
+            ),
           ),
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),

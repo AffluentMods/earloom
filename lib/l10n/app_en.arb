@@ -3344,5 +3344,18 @@
         "type": "String"
       }
     }
+  },
+  "aboutContact": "Contact",
+  "@aboutContact": {
+    "description": "About row that opens an email to the developer."
+  },
+  "aboutContactBody": "Questions, ideas and problems: {email}",
+  "@aboutContactBody": {
+    "description": "About row description.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
   }
 }

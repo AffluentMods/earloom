@@ -64,6 +64,7 @@ void main() {
     await _open(tester, l10n.settingsAbout);
     expect(find.text(l10n.aboutDisclaimer), findsOneWidget);
     expect(find.text(l10n.aboutVersion('0.1.0 (1)')), findsOneWidget);
+    expect(find.text(l10n.aboutContactBody('contact@affluentlabs.dev')), findsOneWidget);
   });
 
   testWidgets('Playback holds the player settings', (tester) async {

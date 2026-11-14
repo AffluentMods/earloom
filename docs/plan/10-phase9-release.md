@@ -28,6 +28,8 @@ Branch: `phase-9-release`
 
 ## 9.2 Store listings
 
+Store name (decided by the owner, 2026-11-14): **Earloom: Audiobook Player** on the App Store, where "Earloom" alone is taken. The app's name on the home screen stays "Earloom". Contact for listings, About and the code of conduct: contact@affluentlabs.dev.
+
 Name and copy rules (ABS third-party rules plus store policy):
 - Name must not contain "ABS" or "Audiobookshelf". Subtitle may say "for Audiobookshelf".
 - Description states it is an independent third-party client and requires the user's own Audiobookshelf server.

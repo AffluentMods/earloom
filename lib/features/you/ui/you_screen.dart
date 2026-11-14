@@ -39,6 +39,13 @@ class YouScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.only(bottom: Space.xxl),
         children: [
+          _SectionHeader(label: l10n.youListening),
+          ListTile(
+            leading: const Icon(Icons.insights_rounded),
+            title: Text(l10n.statsTitle),
+            subtitle: Text(l10n.statsYouRowBody),
+            onTap: () => context.push(AppRoutes.stats),
+          ),
           _SectionHeader(label: l10n.youServers),
           if (account != null)
             ListTile(

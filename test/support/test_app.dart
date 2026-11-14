@@ -8,6 +8,7 @@ import 'package:drift/native.dart';
 import 'package:earloom/app/app.dart';
 import 'package:earloom/app/providers.dart';
 import 'package:earloom/app/theme/app_theme.dart';
+import 'package:earloom/core/db/account_db.dart';
 import 'package:earloom/core/db/global_db.dart';
 import 'package:earloom/core/storage/secure_store.dart';
 import 'package:earloom/features/accounts/data/account_session.dart';
@@ -96,6 +97,10 @@ Future<GlobalDb> pumpEarloom(
         globalDbProvider.overrideWithValue(db),
         audioBackendProvider.overrideWithValue(FakeBackend()),
         accelerometerProvider.overrideWithValue(Stream.empty),
+        // Account caches live in memory: no files, no path_provider.
+        accountDbOpenerProvider.overrideWithValue(
+          (_) => AccountDb(DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true)),
+        ),
         initialThemeModeProvider.overrideWithValue(themeMode),
         initialOnboardedProvider.overrideWithValue(onboarded),
         secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),

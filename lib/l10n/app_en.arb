@@ -947,5 +947,258 @@
   "playerSettingsScrubber": "Scrubber shows the chapter",
   "@playerSettingsScrubber": {
     "description": "Setting."
+  },
+  "statsTitle": "Listening stats",
+  "@statsTitle": {
+    "description": "Screen title and You tab row."
+  },
+  "statsYouRowBody": "Today, this week, streaks and favorites",
+  "@statsYouRowBody": {
+    "description": "You tab row subtitle."
+  },
+  "statsToday": "{time} today",
+  "@statsToday": {
+    "description": "Big line on the Today card.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "statsGoalLeft": "{time} to reach your daily goal",
+  "@statsGoalLeft": {
+    "description": "Under the Today line.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "statsGoalReached": "Daily goal reached",
+  "@statsGoalReached": {
+    "description": "Under the Today line once the goal is met."
+  },
+  "statsStreak": "{days, plural, =0{No streak yet} =1{1 day streak} other{{days} day streak}}",
+  "@statsStreak": {
+    "description": "Streak chip.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "statsThisWeek": "This week",
+  "@statsThisWeek": {
+    "description": "Section heading."
+  },
+  "statsAvgPerDay": "{time} a day on average",
+  "@statsAvgPerDay": {
+    "description": "Under the week chart.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "statsVsLastWeekUp": "{percent}% more than last week",
+  "@statsVsLastWeekUp": {
+    "description": "Under the week chart.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "statsVsLastWeekDown": "{percent}% less than last week",
+  "@statsVsLastWeekDown": {
+    "description": "Under the week chart.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "statsVsLastWeekSame": "About the same as last week",
+  "@statsVsLastWeekSame": {
+    "description": "Under the week chart."
+  },
+  "statsCalendar": "Calendar",
+  "@statsCalendar": {
+    "description": "Section heading."
+  },
+  "statsPreviousMonth": "Previous month",
+  "@statsPreviousMonth": {
+    "description": "Button."
+  },
+  "statsNextMonth": "Next month",
+  "@statsNextMonth": {
+    "description": "Button."
+  },
+  "statsDayTotal": "{date}: {time}",
+  "@statsDayTotal": {
+    "description": "The selected calendar day.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "statsDayNothing": "{date}: no listening",
+  "@statsDayNothing": {
+    "description": "The selected calendar day with nothing.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "statsTotals": "All time",
+  "@statsTotals": {
+    "description": "Section heading."
+  },
+  "statsTotalTime": "Time listened",
+  "@statsTotalTime": {
+    "description": "Tile label."
+  },
+  "statsBooksFinished": "Books finished",
+  "@statsBooksFinished": {
+    "description": "Tile label."
+  },
+  "statsLongestSession": "Longest session",
+  "@statsLongestSession": {
+    "description": "Tile label."
+  },
+  "statsLongestStreak": "Longest streak",
+  "@statsLongestStreak": {
+    "description": "Tile label."
+  },
+  "statsDays": "{days, plural, =1{1 day} other{{days} days}}",
+  "@statsDays": {
+    "description": "A number of days.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "statsSpeedDividend": "You heard {bookTime} of books in {realTime}.",
+  "@statsSpeedDividend": {
+    "description": "Speed dividend sentence.",
+    "placeholders": {
+      "bookTime": {
+        "type": "String"
+      },
+      "realTime": {
+        "type": "String"
+      }
+    }
+  },
+  "statsTopBooks": "Most listened books",
+  "@statsTopBooks": {
+    "description": "Section heading."
+  },
+  "statsTopAuthors": "Most listened authors",
+  "@statsTopAuthors": {
+    "description": "Section heading."
+  },
+  "statsTopNarrators": "Most listened narrators",
+  "@statsTopNarrators": {
+    "description": "Section heading."
+  },
+  "statsWhenYouListen": "When you listen",
+  "@statsWhenYouListen": {
+    "description": "Section heading."
+  },
+  "statsByHour": "By hour of day",
+  "@statsByHour": {
+    "description": "Chart caption."
+  },
+  "statsByWeekday": "By day of week",
+  "@statsByWeekday": {
+    "description": "Chart caption."
+  },
+  "statsChartEntry": "{label}: {time}",
+  "@statsChartEntry": {
+    "description": "Screen reader text for one chart bar.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "statsHour": "{hour}:00",
+  "@statsHour": {
+    "description": "An hour of the day on the chart.",
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "statsFinishedIn": "Finished in {year}",
+  "@statsFinishedIn": {
+    "description": "Section heading.",
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "statsEmptyTitle": "No listening yet",
+  "@statsEmptyTitle": {
+    "description": "Empty stats."
+  },
+  "statsEmptyBody": "Your stats fill in as you listen: on this phone, and with a server, on your other devices too.",
+  "@statsEmptyBody": {
+    "description": "Empty stats."
+  },
+  "statsServerFailed": "Listening on your other devices could not be loaded, so these numbers are from this phone only.",
+  "@statsServerFailed": {
+    "description": "Notice when the server part failed."
+  },
+  "statsGoalTitle": "Daily goal",
+  "@statsGoalTitle": {
+    "description": "Sheet title."
+  },
+  "statsGoalEdit": "Change daily goal",
+  "@statsGoalEdit": {
+    "description": "Button."
+  },
+  "statsGoalMinutes": "{minutes} min a day",
+  "@statsGoalMinutes": {
+    "description": "Goal choice.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "statsStreakRule": "A day counts toward your streak after {minutes} min",
+  "@statsStreakRule": {
+    "description": "Setting.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "youListening": "Listening",
+  "@youListening": {
+    "description": "Section heading on the You tab."
+  },
+  "statsGoalPercent": "{percent}% of your daily goal",
+  "@statsGoalPercent": {
+    "description": "Screen reader text for the goal ring.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
   }
 }

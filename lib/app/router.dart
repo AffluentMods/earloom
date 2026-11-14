@@ -15,6 +15,7 @@ import '../features/onboarding/ui/onboarding_screen.dart';
 import '../features/player/player_controller.dart';
 import '../features/player/ui/now_playing_screen.dart';
 import '../features/search/ui/search_screen.dart';
+import '../features/stats/ui/stats_screen.dart';
 import '../features/you/ui/you_screen.dart';
 import 'app_scaffold.dart';
 import 'debug/debug_routes.dart';
@@ -31,6 +32,7 @@ abstract final class AppRoutes {
   static const onboarding = '/onboarding';
   static const addServer = '/accounts/add';
   static const accounts = '/you/accounts';
+  static const stats = '/you/stats';
   static const importFiles = '/local/import';
   static String item(String id) => '/item/${Uri.encodeComponent(id)}';
 }
@@ -90,7 +92,10 @@ GoRouter buildRouter({
               GoRoute(
                 path: AppRoutes.you,
                 builder: (_, _) => const YouScreen(),
-                routes: [GoRoute(path: 'accounts', builder: (_, _) => const AccountsScreen())],
+                routes: [
+                  GoRoute(path: 'accounts', builder: (_, _) => const AccountsScreen()),
+                  GoRoute(path: 'stats', builder: (_, _) => const StatsScreen()),
+                ],
               ),
             ],
           ),

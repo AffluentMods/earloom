@@ -10,7 +10,9 @@ import '../../core/library/models.dart';
 import '../../core/library/source_id.dart';
 import '../../core/net/abs_client.dart';
 import '../../l10n/gen/app_localizations.dart';
+import '../../app/providers.dart';
 import '../accounts/data/account_session.dart';
+import '../downloads/data/abs_download_manager.dart' show DownloadStatus;
 import '../local_library/data/local_library_repository.dart';
 import '../local_library/data/providers.dart';
 import 'player_controller.dart';
@@ -33,6 +35,9 @@ abstract interface class BrowseCatalog {
   Future<List<BrowseEntry>> continueListening();
   Future<List<BrowseEntry>> recentlyAdded();
   Future<List<BrowseEntry>> onThisDevice();
+
+  /// Server books downloaded to this phone: playable with no network.
+  Future<List<BrowseEntry>> downloaded();
   Future<List<BrowseEntry>> search(String query);
 }
 
@@ -43,7 +48,7 @@ class MediaBrowser {
   final BrowseCatalog _catalog;
   final AppLocalizations _l10n;
 
-  static const continueId = 'continue', recentId = 'added', deviceId = 'device';
+  static const continueId = 'continue', recentId = 'added', deviceId = 'device', downloadedId = 'downloaded';
   static const _itemPrefix = 'item:';
 
   // Content style hints Android Auto reads from the root extras.
@@ -66,6 +71,7 @@ class MediaBrowser {
         return [
           _folder(continueId, _l10n.autoContinueListening),
           _folder(recentId, _l10n.autoRecentlyAdded),
+          _folder(downloadedId, _l10n.autoDownloaded),
           _folder(deviceId, _l10n.autoOnThisDevice),
         ];
       case AudioService.recentRootId:
@@ -75,6 +81,8 @@ class MediaBrowser {
         return _items(await _safe(_catalog.recentlyAdded));
       case deviceId:
         return _items(await _safe(_catalog.onThisDevice));
+      case downloadedId:
+        return _items(await _safe(_catalog.downloaded));
     }
     return const [];
   }
@@ -208,6 +216,21 @@ class AppBrowseCatalog implements BrowseCatalog {
 
   @override
   Future<List<BrowseEntry>> onThisDevice() => _localBooks(LocalBookSort.title);
+
+  @override
+  Future<List<BrowseEntry>> downloaded() async {
+    final rows = await _ref.read(offlineDbProvider).allDownloads();
+    return [
+      for (final d in rows)
+        if (d.status == DownloadStatus.complete)
+          BrowseEntry(
+            ref: ItemRef(AbsSource(d.accountId), d.itemId, episodeId: d.episodeId),
+            title: d.title,
+            author: d.author,
+            art: d.coverPath == null ? null : Uri.file(d.coverPath!),
+          ),
+    ];
+  }
 
   @override
   Future<List<BrowseEntry>> search(String query) async {

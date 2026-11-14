@@ -1810,5 +1810,9 @@
   "sleepAutoUntil": "Until",
   "@sleepAutoUntil": {
     "description": "Time picker row label."
+  },
+  "autoDownloaded": "Downloaded",
+  "@autoDownloaded": {
+    "description": "Car and Android Auto folder for downloaded server books."
   }
 }

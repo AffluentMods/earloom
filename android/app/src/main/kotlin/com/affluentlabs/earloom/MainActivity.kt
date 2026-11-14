@@ -15,5 +15,7 @@ class MainActivity : AudioServiceActivity() {
         SafChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
         // Free space for the Downloads screen (lib/features/downloads).
         StorageChannel(flutterEngine.dartExecutor.binaryMessenger)
+        // The audio output picker on Now Playing.
+        OutputChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
     }
 }

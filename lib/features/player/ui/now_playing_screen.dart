@@ -20,6 +20,7 @@ import '../player_controller.dart';
 import '../sleep_timer.dart';
 import 'bookmarks_sheet.dart';
 import 'chapters_sheet.dart';
+import 'output_button.dart';
 import 'player_settings_sheet.dart';
 import 'player_widgets.dart';
 import 'queue_sheet.dart';
@@ -541,6 +542,8 @@ class _ScrubberState extends ConsumerState<_Scrubber> {
 class _ActionRow extends ConsumerWidget {
   const _ActionRow();
 
+  static const _actionsWidth = 344.0;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
@@ -550,57 +553,68 @@ class _ActionRow extends ConsumerWidget {
       playerProvider.select((s) => (s.speed, s.sleep, s.sleepRemaining, s.queue.length)),
     );
     final sleeping = sleep is! SleepOff;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        TextButton(
-          onPressed: () => showSpeedSheet(context),
-          style: TextButton.styleFrom(foregroundColor: scheme.onSurface, minimumSize: const Size(56, 48)),
-          child: Text(
-            formatSpeed(l10n, speed),
-            semanticsLabel: '${l10n.playerSpeed}, ${formatSpeed(l10n, speed)}',
-            style: theme.textTheme.labelLarge?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+    // Six buttons need about 340 points; narrower phones scale the row
+    // down instead of overflowing.
+    return LayoutBuilder(
+      builder: (context, box) => FittedBox(
+        fit: BoxFit.scaleDown,
+        child: SizedBox(
+          width: box.maxWidth < _actionsWidth ? _actionsWidth : box.maxWidth,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                onPressed: () => showSpeedSheet(context),
+                style: TextButton.styleFrom(foregroundColor: scheme.onSurface, minimumSize: const Size(56, 48)),
+                child: Text(
+                  formatSpeed(l10n, speed),
+                  semanticsLabel: '${l10n.playerSpeed}, ${formatSpeed(l10n, speed)}',
+                  style: theme.textTheme.labelLarge?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+                ),
+              ),
+              if (sleeping)
+                TextButton.icon(
+                  onPressed: () => showSleepSheet(context),
+                  style: TextButton.styleFrom(foregroundColor: scheme.primary, minimumSize: const Size(48, 48)),
+                  icon: const Icon(Icons.bedtime_rounded),
+                  label: Text(
+                    sleep is SleepAtChapterEnd || sleepLeft == null ? '' : formatClock(sleepLeft),
+                    semanticsLabel: sleep is SleepAtChapterEnd || sleepLeft == null
+                        ? l10n.playerSleepAtChapterEnd
+                        : l10n.playerSleepRemaining(formatClock(sleepLeft)),
+                    style: theme.textTheme.labelLarge?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+                  ),
+                )
+              else
+                IconButton(
+                  icon: const Icon(Icons.bedtime_outlined),
+                  tooltip: l10n.playerSleepTimer,
+                  onPressed: () => showSleepSheet(context),
+                ),
+              IconButton(
+                icon: const Icon(Icons.bookmark_add_outlined),
+                tooltip: l10n.playerBookmark,
+                onPressed: () => addBookmarkHere(context, ref),
+              ),
+              IconButton(
+                icon: const Icon(Icons.format_list_bulleted_rounded),
+                tooltip: l10n.playerChapters,
+                onPressed: () => showChaptersSheet(context),
+              ),
+              IconButton(
+                icon: Badge(
+                  isLabelVisible: queueLength > 0,
+                  label: Text(queueLength.toString()),
+                  child: const Icon(Icons.queue_music_rounded),
+                ),
+                tooltip: l10n.playerQueue,
+                onPressed: () => showQueueSheet(context),
+              ),
+              const OutputButton(),
+            ],
           ),
         ),
-        if (sleeping)
-          TextButton.icon(
-            onPressed: () => showSleepSheet(context),
-            style: TextButton.styleFrom(foregroundColor: scheme.primary, minimumSize: const Size(48, 48)),
-            icon: const Icon(Icons.bedtime_rounded),
-            label: Text(
-              sleep is SleepAtChapterEnd || sleepLeft == null ? '' : formatClock(sleepLeft),
-              semanticsLabel: sleep is SleepAtChapterEnd || sleepLeft == null
-                  ? l10n.playerSleepAtChapterEnd
-                  : l10n.playerSleepRemaining(formatClock(sleepLeft)),
-              style: theme.textTheme.labelLarge?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-            ),
-          )
-        else
-          IconButton(
-            icon: const Icon(Icons.bedtime_outlined),
-            tooltip: l10n.playerSleepTimer,
-            onPressed: () => showSleepSheet(context),
-          ),
-        IconButton(
-          icon: const Icon(Icons.bookmark_add_outlined),
-          tooltip: l10n.playerBookmark,
-          onPressed: () => addBookmarkHere(context, ref),
-        ),
-        IconButton(
-          icon: const Icon(Icons.format_list_bulleted_rounded),
-          tooltip: l10n.playerChapters,
-          onPressed: () => showChaptersSheet(context),
-        ),
-        IconButton(
-          icon: Badge(
-            isLabelVisible: queueLength > 0,
-            label: Text(queueLength.toString()),
-            child: const Icon(Icons.queue_music_rounded),
-          ),
-          tooltip: l10n.playerQueue,
-          onPressed: () => showQueueSheet(context),
-        ),
-      ],
+      ),
     );
   }
 }

@@ -46,7 +46,7 @@ final class NetworkCover extends CoverSource {
 }
 
 /// A book cover: never stretched, rounded, square-ish covers letterboxed on
-/// a palette background, a generated placeholder (initials on a gradient
+/// a soft, blurred copy of themselves, a generated placeholder (initials on a gradient
 /// from the theme) when there is no cover or it fails to load.
 class CoverImage extends StatelessWidget {
   const CoverImage({
@@ -86,23 +86,56 @@ class CoverImage extends StatelessWidget {
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
     final placeholder = _Placeholder(title: title, size: size);
     final Widget image = switch (source) {
-      FileCover(:final path) => Image.file(
-        File(path),
-        fit: BoxFit.contain,
-        cacheWidth: (size * pixelRatio).round(),
-        errorBuilder: (_, _, _) => placeholder,
+      FileCover(:final path) => Stack(
+        fit: StackFit.expand,
+        children: [
+          _Backdrop(
+            image: Image.file(
+              File(path),
+              fit: BoxFit.cover,
+              cacheWidth: _Backdrop.pixels,
+              filterQuality: FilterQuality.medium,
+              errorBuilder: (_, _, _) => const SizedBox.shrink(),
+            ),
+          ),
+          Image.file(
+            File(path),
+            fit: BoxFit.contain,
+            cacheWidth: (size * pixelRatio).round(),
+            errorBuilder: (_, _, _) => placeholder,
+          ),
+        ],
       ),
       NetworkCover(:final itemCoverUrl, :final cacheKey, :final headers) => () {
         final width = bucketFor(size, pixelRatio);
-        return CachedNetworkImage(
-          imageUrl: itemCoverUrl.replace(queryParameters: {'width': '$width', 'format': 'webp'}).toString(),
-          cacheKey: '$cacheKey-$width',
-          cacheManager: CoverCache.manager,
-          httpHeaders: headers,
-          fit: BoxFit.contain,
-          fadeInDuration: Motion.fast,
-          placeholder: (_, _) => ColoredBox(color: scheme.surfaceContainerHigh),
-          errorWidget: (_, _, _) => placeholder,
+        final url = itemCoverUrl.replace(queryParameters: {'width': '$width', 'format': 'webp'}).toString();
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            _Backdrop(
+              image: CachedNetworkImage(
+                imageUrl: url,
+                cacheKey: '$cacheKey-$width',
+                cacheManager: CoverCache.manager,
+                httpHeaders: headers,
+                memCacheWidth: _Backdrop.pixels,
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.medium,
+                fadeInDuration: Motion.fast,
+                errorWidget: (_, _, _) => const SizedBox.shrink(),
+              ),
+            ),
+            CachedNetworkImage(
+              imageUrl: url,
+              cacheKey: '$cacheKey-$width',
+              cacheManager: CoverCache.manager,
+              httpHeaders: headers,
+              fit: BoxFit.contain,
+              fadeInDuration: Motion.fast,
+              placeholder: (_, _) => ColoredBox(color: scheme.surfaceContainerHigh),
+              errorWidget: (_, _, _) => placeholder,
+            ),
+          ],
         );
       }(),
       null => placeholder,
@@ -132,6 +165,32 @@ class CoverImage extends StatelessWidget {
     );
     if (heroTag != null) cover = Hero(tag: heroTag!, child: cover);
     return cover;
+  }
+}
+
+/// What shows beside a cover that is not square: the same cover decoded a
+/// few pixels wide and stretched, which blurs it for free, under a light
+/// scrim so the real cover keeps its edges. Square covers hide it.
+class _Backdrop extends StatelessWidget {
+  const _Backdrop({required this.image});
+
+  final Widget image;
+
+  /// Width the backdrop is decoded at. Tiny on purpose.
+  static const pixels = 12;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return ExcludeSemantics(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          image,
+          ColoredBox(color: scheme.scrim.withValues(alpha: 0.22)),
+        ],
+      ),
+    );
   }
 }
 

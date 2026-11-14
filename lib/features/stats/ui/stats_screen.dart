@@ -10,6 +10,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../app/providers.dart';
 import '../../../app/theme/tokens.dart';
+import '../../../app/theme/typography.dart';
 import '../../../core/ui/cover_image.dart';
 import '../../../core/ui/states.dart';
 import '../../../core/util/duration_format.dart';
@@ -164,7 +165,12 @@ class _Heading extends StatelessWidget {
     padding: const EdgeInsets.only(bottom: Space.md),
     child: Row(
       children: [
-        Expanded(child: Text(text, style: Theme.of(context).textTheme.titleLarge)),
+        Expanded(
+          child: Semantics(
+            header: true,
+            child: Text(text, style: Theme.of(context).textTheme.sectionTitle),
+          ),
+        ),
         ?trailing,
       ],
     ),
@@ -237,13 +243,26 @@ class _TodayCard extends ConsumerWidget {
                     runSpacing: Space.sm,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Chip(
-                        avatar: Icon(Icons.local_fire_department_rounded, color: scheme.primary),
-                        label: Text(l10n.statsStreak(stats.streak)),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: Space.xs,
+                        children: [
+                          Icon(Icons.local_fire_department_rounded, color: scheme.primary, size: 20),
+                          Text(
+                            l10n.statsStreak(stats.streak),
+                            style: theme.textTheme.labelLarge?.copyWith(color: scheme.onPrimaryContainer),
+                          ),
+                        ],
                       ),
                       TextButton(
                         onPressed: () => showStatsGoalSheet(context),
-                        style: TextButton.styleFrom(foregroundColor: scheme.onPrimaryContainer),
+                        // Flush with the text above it; still 48 tall.
+                        style: TextButton.styleFrom(
+                          foregroundColor: scheme.onPrimaryContainer,
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(0, 48),
+                          alignment: Alignment.centerLeft,
+                        ),
                         child: Text(l10n.statsGoalEdit),
                       ),
                     ],

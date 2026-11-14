@@ -1963,6 +1963,10 @@
     }
   },
   "homeContinueListening": "Continue listening",
+  "homeShelfAlsoInProgress": "Also in progress",
+  "@homeShelfAlsoInProgress": {
+    "description": "Home shelf under the big Continue listening card: the other books the user has started."
+  },
   "@homeContinueListening": {
     "description": "Home shelf and hero label: books the user is in the middle of."
   },

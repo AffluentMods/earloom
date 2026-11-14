@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../app/theme/tokens.dart';
+import '../../../app/theme/typography.dart';
 import '../../../core/library/source_id.dart';
 import '../../../core/util/duration_format.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -39,7 +40,7 @@ class BookListeningCard extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.itemYourListening, style: theme.textTheme.titleLarge),
+        Text(l10n.itemYourListening, style: theme.textTheme.sectionTitle),
         const SizedBox(height: Space.sm),
         for (final (icon, text) in rows)
           Padding(

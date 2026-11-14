@@ -121,7 +121,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RefreshingState {
                 if (continuing.length > 1)
                   SliverToBoxAdapter(
                     child: _BookShelf(
-                      title: l10n.homeContinueListening,
+                      title: l10n.homeShelfAlsoInProgress,
                       books: continuing.skip(1).toList(),
                       place: 'home-continue',
                     ),

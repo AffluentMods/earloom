@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../app/theme/tokens.dart';
+import '../../../app/theme/typography.dart';
 import '../../../core/library/models.dart';
 import '../../../core/library/source_id.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -35,7 +36,7 @@ class BookBookmarks extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.playerBookmarks, style: theme.textTheme.titleLarge),
+          Text(l10n.playerBookmarks, style: theme.textTheme.sectionTitle),
           const SizedBox(height: Space.xs),
           for (final b in list.take(_shown))
             ListTile(

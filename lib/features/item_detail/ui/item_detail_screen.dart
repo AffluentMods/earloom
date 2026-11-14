@@ -336,22 +336,15 @@ class _Header extends StatelessWidget {
         ],
         if (book.narrators.isNotEmpty) ...[
           const SizedBox(height: 2),
-          Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(
-                '${l10n.itemNarratorsLabel} ',
-                style: text.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
-              ),
-              _NameLinks(
-                names: book.narrators,
-                style: text.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
-                onTap: libraryId == null
-                    ? null
-                    : (name) => BrowseNav.filtered(context, source, libraryId!, FilterKind.narrator, name),
-              ),
-            ],
+          // One line: "Narrated by" sits in the same wrap as the names, so
+          // it only breaks when the names do not fit beside it.
+          _NameLinks(
+            leading: l10n.itemNarratorsLabel,
+            names: book.narrators,
+            style: text.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+            onTap: libraryId == null
+                ? null
+                : (name) => BrowseNav.filtered(context, source, libraryId!, FilterKind.narrator, name),
           ),
         ],
         for (final s in series) ...[
@@ -369,8 +362,10 @@ class _Header extends StatelessWidget {
 
 /// Names separated by commas, each one a link.
 class _NameLinks extends StatelessWidget {
-  const _NameLinks({required this.names, required this.style, required this.onTap});
+  const _NameLinks({required this.names, required this.style, required this.onTap, this.leading});
 
+  /// Plain text before the names ("Narrated by").
+  final String? leading;
   final List<String> names;
   final TextStyle? style;
   final void Function(String name)? onTap;
@@ -379,7 +374,13 @@ class _NameLinks extends StatelessWidget {
   Widget build(BuildContext context) {
     return Wrap(
       alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
+        if (leading != null)
+          Padding(
+            padding: const EdgeInsets.only(right: Space.xs),
+            child: Text(leading!, style: style),
+          ),
         for (final (i, name) in names.indexed)
           Semantics(
             button: onTap != null,
@@ -388,11 +389,16 @@ class _NameLinks extends StatelessWidget {
               borderRadius: BorderRadius.circular(Space.sm),
               // Centered in the tap area, so the names line up with the
               // "Narrated by" label next to them.
+              // Align, not Container.alignment: inside a Wrap that would
+              // stretch each name to a full line of its own.
               child: Container(
                 constraints: const BoxConstraints(minHeight: 32),
-                alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 2, vertical: Space.xs),
-                child: Text(i < names.length - 1 ? '$name,' : name, style: style),
+                child: Align(
+                  widthFactor: 1,
+                  heightFactor: 1,
+                  child: Text(i < names.length - 1 ? '$name,' : name, style: style),
+                ),
               ),
             ),
           ),
@@ -418,11 +424,8 @@ class _PlayButton extends ConsumerWidget {
     final (IconData icon, String label, Duration? startAt) = switch (progress) {
       _ when playing => (Icons.pause_rounded, l10n.itemPause, null),
       final p? when p.isFinished && !current => (Icons.replay_rounded, l10n.itemListenAgain, Duration.zero),
-      final p? when p.isStarted => (
-        Icons.play_arrow_rounded,
-        l10n.itemActionWithDetail(l10n.itemResume, formatTimeLeft(l10n, p.remaining)),
-        null,
-      ),
+      // Time left is right below, on the progress line.
+      final p? when p.isStarted => (Icons.play_arrow_rounded, l10n.itemResume, null),
       _ => (
         Icons.play_arrow_rounded,
         book.duration > Duration.zero
@@ -523,7 +526,7 @@ class _ActionRow extends ConsumerWidget {
         Expanded(
           child: _Action(
             icon: finished ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
-            label: l10n.itemFinishedShort,
+            label: finished ? l10n.itemFinishedShort : l10n.itemMarkFinished,
             semanticLabel: finished ? l10n.itemMarkUnfinished : l10n.itemMarkFinished,
             selected: finished,
             onTap: () => BookActions.setFinished(context, ref, book, !finished),
@@ -591,7 +594,7 @@ class _Action extends StatelessWidget {
                 Text(
                   label,
                   textAlign: TextAlign.center,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.labelMedium?.copyWith(color: color),
                 ),

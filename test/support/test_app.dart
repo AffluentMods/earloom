@@ -102,9 +102,11 @@ Future<GlobalDb> pumpEarloom(
   SecureStore? secureStore,
   LocalDb? localDb,
   OfflineDb? offlineDb,
+  Directory? storageRoot,
+  GlobalDb? globalDb,
 }) async {
   useOfflineCoverCache();
-  final db = await openTestGlobalDb(tester);
+  final db = globalDb ?? await openTestGlobalDb(tester);
   final offline = offlineDb ?? await openTestOfflineDb(tester);
   onDb?.call(db);
   addTearDown(db.close);
@@ -129,7 +131,7 @@ Future<GlobalDb> pumpEarloom(
         initialOnboardedProvider.overrideWithValue(onboarded),
         secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),
         localDbProvider.overrideWithValue(local),
-        localStorageProvider.overrideWithValue(LocalStorage(Directory('${storage.path}/local'))),
+        localStorageProvider.overrideWithValue(LocalStorage(storageRoot ?? Directory('${storage.path}/local'))),
         ...offlineTestOverrides(offline),
         ...overrides,
       ],

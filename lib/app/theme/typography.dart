@@ -43,6 +43,13 @@ TextTheme buildTextTheme(ColorScheme scheme) {
   );
 }
 
+/// Section headings inside a screen ("Recently added", "This week"): the
+/// sans, a step above list titles. Screen titles and book titles keep the
+/// serif, so the serif always means "a name", never "a section".
+extension SectionTitle on TextTheme {
+  TextStyle? get sectionTitle => titleMedium?.copyWith(fontSize: 19, height: 1.2);
+}
+
 /// Variable fonts need the weight on the `wght` axis as well as in
 /// [TextStyle.fontWeight], otherwise every weight renders as regular.
 TextStyle _withFamily(TextStyle? style, String family, int weight) {

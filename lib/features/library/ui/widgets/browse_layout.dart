@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../app/theme/tokens.dart';
+import '../../../../app/theme/typography.dart';
 import '../../../../core/net/abs_errors.dart';
 import '../../../../core/ui/states.dart';
 import '../../../../l10n/gen/app_localizations.dart';
@@ -29,7 +30,7 @@ class SectionHeader extends StatelessWidget {
           Expanded(
             child: Semantics(
               header: true,
-              child: Text(title, style: text.titleMedium?.copyWith(fontSize: 19, height: 1.2)),
+              child: Text(title, style: text.sectionTitle),
             ),
           ),
           ?action,

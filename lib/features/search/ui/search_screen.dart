@@ -202,7 +202,7 @@ class _Recent extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final recent = ref.watch(recentSearchesProvider).value ?? const [];
     if (recent.isEmpty) {
-      return EmptyState(icon: Icons.travel_explore_rounded, title: l10n.searchStartTitle, body: l10n.searchStartBody);
+      return EmptyState(icon: Icons.manage_search_rounded, title: l10n.searchStartTitle, body: l10n.searchStartBody);
     }
     return ListView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

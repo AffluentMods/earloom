@@ -66,27 +66,33 @@ class CoverSchemeService {
   /// WCAG AA for normal text.
   static const minContrast = 4.5;
 
+  /// For text on tinted containers (the mini player, Resume buttons, chips).
+  /// Material puts it right at 4.5:1, which reads washed out on a colored
+  /// fill; 7:1 keeps the fill and makes the text crisp.
+  static const containerContrast = 7.0;
+
   /// Returns [scheme] with every on-role readable on its background.
   static ColorScheme ensureReadable(ColorScheme scheme) {
-    Color on(Color foreground, List<Color> backgrounds) {
+    Color on(Color foreground, List<Color> backgrounds, {double target = minContrast}) {
       var result = foreground;
       for (final background in backgrounds) {
-        result = _readableOn(result, background);
+        result = _readableOn(result, background, target);
       }
       return result;
     }
 
+    const crisp = containerContrast;
     return scheme.copyWith(
       onSurface: on(scheme.onSurface, [scheme.surface, scheme.surfaceContainerHighest]),
       onSurfaceVariant: on(scheme.onSurfaceVariant, [scheme.surface, scheme.surfaceContainerHigh]),
       onPrimary: on(scheme.onPrimary, [scheme.primary]),
-      onPrimaryContainer: on(scheme.onPrimaryContainer, [scheme.primaryContainer]),
+      onPrimaryContainer: on(scheme.onPrimaryContainer, [scheme.primaryContainer], target: crisp),
       onSecondary: on(scheme.onSecondary, [scheme.secondary]),
-      onSecondaryContainer: on(scheme.onSecondaryContainer, [scheme.secondaryContainer]),
+      onSecondaryContainer: on(scheme.onSecondaryContainer, [scheme.secondaryContainer], target: crisp),
       onTertiary: on(scheme.onTertiary, [scheme.tertiary]),
-      onTertiaryContainer: on(scheme.onTertiaryContainer, [scheme.tertiaryContainer]),
+      onTertiaryContainer: on(scheme.onTertiaryContainer, [scheme.tertiaryContainer], target: crisp),
       onError: on(scheme.onError, [scheme.error]),
-      onErrorContainer: on(scheme.onErrorContainer, [scheme.errorContainer]),
+      onErrorContainer: on(scheme.onErrorContainer, [scheme.errorContainer], target: crisp),
       onInverseSurface: on(scheme.onInverseSurface, [scheme.inverseSurface]),
     );
   }
@@ -97,16 +103,16 @@ class CoverSchemeService {
     return la > lb ? (la + 0.05) / (lb + 0.05) : (lb + 0.05) / (la + 0.05);
   }
 
-  /// Moves [foreground] lighter or darker, keeping its hue, until it reads on
-  /// [background]. Colors that already pass come back unchanged.
-  static Color _readableOn(Color foreground, Color background) {
-    if (contrastRatio(foreground, background) >= minContrast) return foreground;
+  /// Moves [foreground] lighter or darker, keeping its hue, until it reaches
+  /// [target] on [background]. Colors that already pass come back unchanged.
+  static Color _readableOn(Color foreground, Color background, double target) {
+    if (contrastRatio(foreground, background) >= target) return foreground;
     final hct = Hct.fromInt(foreground.toARGB32());
     final lighten = hct.tone >= Hct.fromInt(background.toARGB32()).tone;
     var candidate = foreground;
     for (var tone = hct.tone; tone >= 0 && tone <= 100; tone += lighten ? 1 : -1) {
       candidate = Color(Hct.from(hct.hue, hct.chroma, tone).toInt());
-      if (contrastRatio(candidate, background) >= minContrast) return candidate;
+      if (contrastRatio(candidate, background) >= target) return candidate;
     }
     // Ran out of room in that direction: black or white always has the most.
     return contrastRatio(Colors.white, background) >= contrastRatio(Colors.black, background)

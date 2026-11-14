@@ -1200,5 +1200,130 @@
         "type": "int"
       }
     }
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Screen title and You tab row."
+  },
+  "settingsYouRowBody": "Playback, appearance, privacy and more",
+  "@settingsYouRowBody": {
+    "description": "You tab row subtitle."
+  },
+  "settingsPlayback": "Playback",
+  "@settingsPlayback": {
+    "description": "Settings section."
+  },
+  "settingsPlaybackBody": "Skip times, speed, sleep timer, headphone buttons",
+  "@settingsPlaybackBody": {
+    "description": "Settings row description."
+  },
+  "settingsAppearance": "Appearance",
+  "@settingsAppearance": {
+    "description": "Settings section."
+  },
+  "settingsAppearanceBody": "Light, dark or black, and cover colors",
+  "@settingsAppearanceBody": {
+    "description": "Settings row description."
+  },
+  "settingsTheme": "Theme",
+  "@settingsTheme": {
+    "description": "Setting."
+  },
+  "settingsThemeSystem": "Same as the phone",
+  "@settingsThemeSystem": {
+    "description": "Theme choice."
+  },
+  "settingsThemeLight": "Light",
+  "@settingsThemeLight": {
+    "description": "Theme choice."
+  },
+  "settingsThemeDark": "Dark",
+  "@settingsThemeDark": {
+    "description": "Theme choice."
+  },
+  "settingsThemeAmoled": "Black, for OLED screens",
+  "@settingsThemeAmoled": {
+    "description": "Theme choice."
+  },
+  "settingsStats": "Listening goal",
+  "@settingsStats": {
+    "description": "Settings section."
+  },
+  "settingsStatsBody": "Daily goal and what counts toward a streak",
+  "@settingsStatsBody": {
+    "description": "Settings row description."
+  },
+  "settingsAccounts": "Servers and accounts",
+  "@settingsAccounts": {
+    "description": "Settings section."
+  },
+  "settingsAccountsBody": "Add a server, switch accounts, sign out",
+  "@settingsAccountsBody": {
+    "description": "Settings row description."
+  },
+  "settingsPrivacy": "Privacy",
+  "@settingsPrivacy": {
+    "description": "Settings section."
+  },
+  "settingsPrivacyBody": "What Earloom keeps, and clearing it",
+  "@settingsPrivacyBody": {
+    "description": "Settings row description."
+  },
+  "privacyStatement": "No tracking, no ads, no analytics. Your listening and your library go only between this phone and your own server.",
+  "@privacyStatement": {
+    "description": "Privacy statement."
+  },
+  "privacyClearImageCache": "Clear saved cover images",
+  "@privacyClearImageCache": {
+    "description": "Button."
+  },
+  "privacyClearImageCacheBody": "Covers download again when you next see them.",
+  "@privacyClearImageCacheBody": {
+    "description": "Button description."
+  },
+  "privacyImageCacheCleared": "Saved cover images cleared",
+  "@privacyImageCacheCleared": {
+    "description": "Snackbar."
+  },
+  "settingsAbout": "About",
+  "@settingsAbout": {
+    "description": "Settings section."
+  },
+  "settingsAboutBody": "Version, licenses and the source code",
+  "@settingsAboutBody": {
+    "description": "Settings row description."
+  },
+  "aboutVersion": "Version {version}",
+  "@aboutVersion": {
+    "description": "About row.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutLicenses": "Open source licenses",
+  "@aboutLicenses": {
+    "description": "About row."
+  },
+  "aboutLicensesBody": "The libraries Earloom is built on",
+  "@aboutLicensesBody": {
+    "description": "About row description."
+  },
+  "aboutSource": "Source code",
+  "@aboutSource": {
+    "description": "About row."
+  },
+  "aboutSourceBody": "Earloom is free software under the GPL.",
+  "@aboutSourceBody": {
+    "description": "About row description."
+  },
+  "aboutDisclaimer": "Earloom is an independent app for Audiobookshelf servers. It is not affiliated with or endorsed by the Audiobookshelf project.",
+  "@aboutDisclaimer": {
+    "description": "Third-party disclaimer."
+  },
+  "aboutMadeBy": "Made by Affluent Labs",
+  "@aboutMadeBy": {
+    "description": "About footer."
   }
 }

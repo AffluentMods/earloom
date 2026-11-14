@@ -179,7 +179,7 @@ class _TodayCard extends ConsumerWidget {
                         label: Text(l10n.statsStreak(stats.streak)),
                       ),
                       TextButton(
-                        onPressed: () => _editGoal(context, ref),
+                        onPressed: () => showStatsGoalSheet(context),
                         style: TextButton.styleFrom(foregroundColor: scheme.onPrimaryContainer),
                         child: Text(l10n.statsGoalEdit),
                       ),
@@ -193,14 +193,15 @@ class _TodayCard extends ConsumerWidget {
       ),
     );
   }
-
-  Future<void> _editGoal(BuildContext context, WidgetRef ref) => showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    useSafeArea: true,
-    builder: (context) => const _GoalSheet(),
-  );
 }
+
+/// Daily goal and streak threshold. Also opened from Settings.
+Future<void> showStatsGoalSheet(BuildContext context) => showModalBottomSheet<void>(
+  context: context,
+  showDragHandle: true,
+  useSafeArea: true,
+  builder: (context) => const _GoalSheet(),
+);
 
 class _GoalSheet extends ConsumerWidget {
   const _GoalSheet();

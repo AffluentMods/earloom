@@ -15,6 +15,7 @@ import '../features/onboarding/ui/onboarding_screen.dart';
 import '../features/player/player_controller.dart';
 import '../features/player/ui/now_playing_screen.dart';
 import '../features/search/ui/search_screen.dart';
+import '../features/settings/ui/settings_screen.dart';
 import '../features/stats/ui/stats_screen.dart';
 import '../features/you/ui/you_screen.dart';
 import 'app_scaffold.dart';
@@ -33,6 +34,11 @@ abstract final class AppRoutes {
   static const addServer = '/accounts/add';
   static const accounts = '/you/accounts';
   static const stats = '/you/stats';
+  static const settings = '/you/settings';
+  static const settingsPlayback = '/you/settings/playback';
+  static const settingsAppearance = '/you/settings/appearance';
+  static const settingsPrivacy = '/you/settings/privacy';
+  static const settingsAbout = '/you/settings/about';
   static const importFiles = '/local/import';
   static String item(String id) => '/item/${Uri.encodeComponent(id)}';
 }
@@ -95,6 +101,16 @@ GoRouter buildRouter({
                 routes: [
                   GoRoute(path: 'accounts', builder: (_, _) => const AccountsScreen()),
                   GoRoute(path: 'stats', builder: (_, _) => const StatsScreen()),
+                  GoRoute(
+                    path: 'settings',
+                    builder: (_, _) => const SettingsScreen(),
+                    routes: [
+                      GoRoute(path: 'playback', builder: (_, _) => const PlaybackSettingsScreen()),
+                      GoRoute(path: 'appearance', builder: (_, _) => const AppearanceSettingsScreen()),
+                      GoRoute(path: 'privacy', builder: (_, _) => const PrivacySettingsScreen()),
+                      GoRoute(path: 'about', builder: (_, _) => const AboutScreen()),
+                    ],
+                  ),
                 ],
               ),
             ],

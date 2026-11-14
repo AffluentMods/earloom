@@ -8,6 +8,7 @@ import 'package:earloom/app/debug/demo_books.dart';
 import 'package:earloom/app/debug/design_item_preview.dart';
 import 'package:earloom/app/debug/design_player_preview.dart';
 import 'package:earloom/features/you/ui/you_screen.dart';
+import 'package:earloom/app/debug/states_catalog_screen.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -52,6 +53,7 @@ void main() {
     }
 
     await open(DebugRoutes.hub, DebugHubScreen);
+    await open(DebugRoutes.states, StatesCatalogScreen);
     await open(DebugRoutes.colors, CoverColorsScreen);
     for (var i = 0; i < demoBooks.length; i++) {
       await open(DebugRoutes.designItem(i), DesignItemPreview);

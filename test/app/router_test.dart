@@ -15,6 +15,7 @@ import '../support/test_app.dart';
 
 void main() {
   testWidgets('four tabs with localized labels, starting on Home', (tester) async {
+    usePhoneSize(tester);
     await pumpEarloom(tester);
     final l10n = await loadL10n();
 
@@ -38,6 +39,7 @@ void main() {
   });
 
   testWidgets('each tab keeps its own navigator alive while another tab shows', (tester) async {
+    usePhoneSize(tester);
     await pumpEarloom(tester);
     final l10n = await loadL10n();
     final bar = find.byType(NavigationBar);
@@ -64,10 +66,23 @@ void main() {
     expect(tester.element(find.byType(HomeScreen)), same(homeBefore));
   });
 
-  testWidgets('the mini player slot is reserved and takes no space', (tester) async {
+  testWidgets('tablets get a side rail instead of the bottom bar', (tester) async {
+    tester.view.physicalSize = const Size(1024, 768) * 2;
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    final l10n = await loadL10n();
+    await pumpEarloom(tester);
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    await tester.tap(find.text(l10n.tabYou));
+    await tester.pumpAndSettle();
+    expect(find.byType(YouScreen), findsOneWidget);
+  });
+
+  testWidgets('with nothing loaded the mini player takes no height', (tester) async {
     await pumpEarloom(tester);
     expect(find.byType(MiniPlayer), findsOneWidget);
-    expect(tester.getSize(find.byType(MiniPlayer)), Size.zero);
+    expect(tester.getSize(find.byType(MiniPlayer)).height, 0);
   });
 
   group('deep links', () {
@@ -89,10 +104,11 @@ void main() {
       expect(tester.widget<ItemDetailScreen>(find.byType(ItemDetailScreen)).itemId, 'home');
     });
 
-    testWidgets('earloom://player opens Now Playing', (tester) async {
+    testWidgets('earloom://player with nothing loaded lands on Home', (tester) async {
       await pumpEarloom(tester);
       await openLink(tester, 'earloom://player');
-      expect(find.byType(NowPlayingScreen), findsOneWidget);
+      expect(find.byType(NowPlayingScreen), findsNothing);
+      expect(find.byType(HomeScreen), findsOneWidget);
     });
 
     testWidgets('unknown links land on Home, never on an error page', (tester) async {

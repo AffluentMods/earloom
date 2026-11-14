@@ -1,13 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 Affluent Labs LLC
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../app/router.dart';
+import '../../../app/theme/tokens.dart';
 import '../../../core/library/browse_models.dart';
 import '../../../core/library/models.dart';
 import '../../../core/library/source_id.dart';
+import 'library_screen.dart' show libraryPaneProvider;
 
 /// Opens browse screens inside the tab the user is in, so the tab bar and
 /// the mini player stay. Outside a browsing tab they open full screen.
@@ -28,8 +31,18 @@ abstract final class BrowseNav {
 
   /// [heroTag] is the tag of the cover that was tapped, so it flies to the
   /// detail header.
-  static void book(BuildContext context, ItemRef ref, {Object? heroTag}) =>
-      context.push(AppRoutes.book(ref, base: base(context)), extra: heroTag);
+  static void book(BuildContext context, ItemRef ref, {Object? heroTag}) {
+    final where = base(context);
+    final path = GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
+    // On wide screens the Library tab shows the book next to the list.
+    if (where == AppRoutes.library &&
+        path == AppRoutes.library &&
+        MediaQuery.sizeOf(context).width >= Breakpoints.expanded) {
+      ProviderScope.containerOf(context).read(libraryPaneProvider.notifier).show(ref);
+      return;
+    }
+    context.push(AppRoutes.book(ref, base: where), extra: heroTag);
+  }
 
   /// A podcast show (the item without an episode).
   static void show(BuildContext context, ItemRef show, {Object? heroTag}) =>

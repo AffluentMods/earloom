@@ -386,12 +386,13 @@ class _NameLinks extends StatelessWidget {
             child: InkWell(
               onTap: onTap == null ? null : () => onTap!(name),
               borderRadius: BorderRadius.circular(Space.sm),
-              child: ConstrainedBox(
+              // Centered in the tap area, so the names line up with the
+              // "Narrated by" label next to them.
+              child: Container(
                 constraints: const BoxConstraints(minHeight: 32),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2, vertical: Space.xs),
-                  child: Text(i < names.length - 1 ? '$name,' : name, style: style),
-                ),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 2, vertical: Space.xs),
+                child: Text(i < names.length - 1 ? '$name,' : name, style: style),
               ),
             ),
           ),

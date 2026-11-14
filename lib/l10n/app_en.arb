@@ -3373,5 +3373,9 @@
   "shortcutSleepTimer": "Sleep timer",
   "@shortcutSleepTimer": {
     "description": "Siri and Shortcuts action. Mirrored in ios/Runner/AppIntents.swift."
+  },
+  "libraryPickBook": "Choose a book to see it here",
+  "@libraryPickBook": {
+    "description": "Empty side pane of the Library on wide screens."
   }
 }

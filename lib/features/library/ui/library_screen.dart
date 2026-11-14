@@ -16,6 +16,7 @@ import '../../../core/library/models.dart';
 import '../../../core/library/source_id.dart';
 import '../../../core/ui/states.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../item_detail/ui/item_detail_screen.dart';
 import '../../podcasts/ui/podcast_library_screen.dart';
 import '../data/library_providers.dart';
 import '../data/library_repository.dart';
@@ -48,8 +49,36 @@ class LibraryScreen extends ConsumerWidget {
     if (value.isPodcast && value.source is AbsSource) {
       return PodcastLibraryScreen(key: ValueKey(selectionKey(value)), library: value);
     }
-    return _LibraryView(key: ValueKey(selectionKey(value)), library: value);
+    final view = _LibraryView(key: ValueKey(selectionKey(value)), library: value);
+    if (MediaQuery.sizeOf(context).width < Breakpoints.expanded) return view;
+    // Wide screens: the list on the left, the chosen book on the right.
+    final selected = ref.watch(libraryPaneProvider);
+    final l10n = AppLocalizations.of(context);
+    return Row(
+      children: [
+        Expanded(flex: 5, child: view),
+        const VerticalDivider(width: 1),
+        Expanded(
+          flex: 6,
+          child: selected == null
+              ? Scaffold(
+                  body: EmptyState(icon: Icons.menu_book_outlined, title: l10n.libraryPickBook),
+                )
+              : ItemDetailScreen(key: ValueKey(selected.key), itemId: selected.itemId, source: selected.source),
+        ),
+      ],
+    );
   }
+}
+
+/// The book open in the Library tab's side pane on wide screens.
+final libraryPaneProvider = NotifierProvider<LibraryPane, ItemRef?>(LibraryPane.new);
+
+class LibraryPane extends Notifier<ItemRef?> {
+  @override
+  ItemRef? build() => null;
+
+  void show(ItemRef? ref) => state = ref;
 }
 
 class _LibraryView extends ConsumerStatefulWidget {

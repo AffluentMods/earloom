@@ -38,6 +38,9 @@ abstract interface class BrowseCatalog {
 
   /// Server books downloaded to this phone: playable with no network.
   Future<List<BrowseEntry>> downloaded();
+
+  /// The newest podcast episodes of the current server, newest first.
+  Future<List<BrowseEntry>> latestEpisodes();
   Future<List<BrowseEntry>> search(String query);
 }
 
@@ -48,13 +51,19 @@ class MediaBrowser {
   final BrowseCatalog _catalog;
   final AppLocalizations _l10n;
 
-  static const continueId = 'continue', recentId = 'added', deviceId = 'device', downloadedId = 'downloaded';
+  static const continueId = 'continue',
+      recentId = 'added',
+      deviceId = 'device',
+      downloadedId = 'downloaded',
+      podcastsId = 'podcasts';
   static const _itemPrefix = 'item:';
 
   // Content style hints Android Auto reads from the root extras.
   static const _browsableHint = 'android.media.browse.CONTENT_STYLE_BROWSABLE_HINT';
   static const _playableHint = 'android.media.browse.CONTENT_STYLE_PLAYABLE_HINT';
   static const _grid = 2;
+  static const _listStyle = 1;
+  static const _singleItemHint = 'android.media.browse.CONTENT_STYLE_SINGLE_ITEM_HINT';
   static const _progressKey = 'android.media.extra.PLAYBACK_STATUS';
   static const _completion = 'androidx.media.MediaItem.Extras.COMPLETION_PERCENTAGE';
 
@@ -71,6 +80,7 @@ class MediaBrowser {
         return [
           _folder(continueId, _l10n.autoContinueListening),
           _folder(recentId, _l10n.autoRecentlyAdded),
+          _folder(podcastsId, _l10n.autoPodcasts),
           _folder(downloadedId, _l10n.autoDownloaded),
           _folder(deviceId, _l10n.autoOnThisDevice),
         ];
@@ -83,6 +93,8 @@ class MediaBrowser {
         return _items(await _safe(_catalog.onThisDevice));
       case downloadedId:
         return _items(await _safe(_catalog.downloaded));
+      case podcastsId:
+        return _items(await _safe(_catalog.latestEpisodes), list: true);
     }
     return const [];
   }
@@ -100,7 +112,7 @@ class MediaBrowser {
   MediaItem _folder(String id, String title) =>
       MediaItem(id: id, title: title, playable: false, extras: {_browsableHint: _grid, _playableHint: _grid});
 
-  List<MediaItem> _items(List<BrowseEntry> entries) => [
+  List<MediaItem> _items(List<BrowseEntry> entries, {bool list = false}) => [
     for (final e in entries)
       MediaItem(
         id: mediaIdOf(e.ref),
@@ -109,6 +121,8 @@ class MediaBrowser {
         artUri: e.art,
         playable: true,
         extras: {
+          // Episodes read better as a list than as a grid of one cover.
+          if (list) _singleItemHint: _listStyle,
           if (e.progress != null) ...{
             // 1 = partly played, 2 = fully played.
             _progressKey: e.progress! >= 0.999 ? 2 : 1,
@@ -216,6 +230,39 @@ class AppBrowseCatalog implements BrowseCatalog {
 
   @override
   Future<List<BrowseEntry>> onThisDevice() => _localBooks(LocalBookSort.title);
+
+  @override
+  Future<List<BrowseEntry>> latestEpisodes() async {
+    final client = _client;
+    final session = _ref.read(accountSessionProvider);
+    if (client == null || session == null) return const [];
+    final libraries = await client.get<Map<String, Object?>>('/api/libraries');
+    final podcastLibraries = [
+      for (final l in ((libraries['libraries'] as List?) ?? const []).cast<Map<String, Object?>>())
+        if (l['mediaType'] == 'podcast') l['id']! as String,
+    ];
+    final entries = <({BrowseEntry entry, num at})>[];
+    for (final id in podcastLibraries) {
+      final json = await client.get<Map<String, Object?>>('/api/libraries/$id/recent-episodes', query: {'limit': 20});
+      for (final e in ((json['episodes'] as List?) ?? const []).cast<Map<String, Object?>>()) {
+        final itemId = e['libraryItemId'];
+        final episodeId = e['id'];
+        if (itemId is! String || episodeId is! String) continue;
+        final show = (((e['podcast'] as Map?)?['metadata'] as Map?)?['title'] as String?) ?? '';
+        entries.add((
+          entry: BrowseEntry(
+            ref: ItemRef(AbsSource(session.accountId), itemId, episodeId: episodeId),
+            title: (e['title'] as String?) ?? '',
+            author: show,
+            art: client.url('/api/items/$itemId/cover', {'width': 400, 'format': 'jpeg'}),
+          ),
+          at: (e['publishedAt'] as num?) ?? 0,
+        ));
+      }
+    }
+    entries.sort((a, b) => b.at.compareTo(a.at));
+    return [for (final e in entries.take(30)) e.entry];
+  }
 
   @override
   Future<List<BrowseEntry>> downloaded() async {

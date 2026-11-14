@@ -3357,5 +3357,9 @@
         "type": "String"
       }
     }
+  },
+  "autoPodcasts": "Podcasts",
+  "@autoPodcasts": {
+    "description": "Car and Android Auto folder with the newest podcast episodes."
   }
 }

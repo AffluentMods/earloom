@@ -28,6 +28,15 @@ class FakeCatalog implements BrowseCatalog {
   ];
 
   @override
+  Future<List<BrowseEntry>> latestEpisodes() async => [
+    const BrowseEntry(
+      ref: ItemRef(AbsSource('a1'), 'p1', episodeId: 'e1'),
+      title: 'Episode 1 - Pilot',
+      author: 'Shelf Talk',
+    ),
+  ];
+
+  @override
   Future<List<BrowseEntry>> downloaded() async => [
     const BrowseEntry(ref: ItemRef(AbsSource('a1'), 'li3'), title: 'The Long Way to Morning'),
   ];
@@ -47,10 +56,14 @@ void main() {
     expect(root.map((m) => m.title), [
       l10n.autoContinueListening,
       l10n.autoRecentlyAdded,
+      l10n.autoPodcasts,
       l10n.autoDownloaded,
       l10n.autoOnThisDevice,
     ]);
     expect((await browser.children(MediaBrowser.downloadedId)).single.title, 'The Long Way to Morning');
+    final episode = (await browser.children(MediaBrowser.podcastsId)).single;
+    expect(MediaBrowser.refOf(episode.id), const ItemRef(AbsSource('a1'), 'p1', episodeId: 'e1'));
+    expect(episode.artist, 'Shelf Talk');
     expect(root.every((m) => m.playable == false), isTrue);
 
     final cont = await browser.children(MediaBrowser.continueId);

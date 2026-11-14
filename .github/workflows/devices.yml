@@ -48,6 +48,13 @@ jobs:
           target: default
           arch: x86_64
           disable-animations: true
+          # Render inside the emulator. Twice in a row on this PR the emulator
+          # process died (adb "device offline", no app error, 5 GB free) about
+          # 15 seconds into the walk-through, on the new onboarding screen's
+          # large blurred cover shadows. That is the host side GL translation
+          # of SwiftShader, the same component that crashed in Phase 0;
+          # guest rendering does not use it. Slower, but it stays up.
+          emulator-options: -no-window -gpu guest -no-snapshot -noaudio -no-boot-anim
           script: tool/ci/device_check_android.sh
         env:
           # The CI emulator has no GPU: it renders through SwiftShader, and

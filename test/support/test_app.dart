@@ -11,12 +11,16 @@ import 'package:earloom/app/theme/app_theme.dart';
 import 'package:earloom/core/db/global_db.dart';
 import 'package:earloom/core/storage/secure_store.dart';
 import 'package:earloom/features/accounts/data/account_session.dart';
+import 'package:earloom/features/player/player_controller.dart';
+import 'package:earloom/features/player/ui/player_side_effects.dart';
 import 'package:earloom/l10n/gen/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+
+import 'fake_player.dart';
 
 /// English strings for assertions, so tests never hardcode UI copy.
 Future<AppLocalizations> loadL10n() => AppLocalizations.delegate.load(const Locale('en'));
@@ -90,6 +94,8 @@ Future<GlobalDb> pumpEarloom(
     ProviderScope(
       overrides: [
         globalDbProvider.overrideWithValue(db),
+        audioBackendProvider.overrideWithValue(FakeBackend()),
+        accelerometerProvider.overrideWithValue(Stream.empty),
         initialThemeModeProvider.overrideWithValue(themeMode),
         initialOnboardedProvider.overrideWithValue(onboarded),
         secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),

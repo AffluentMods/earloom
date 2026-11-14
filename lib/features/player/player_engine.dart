@@ -73,7 +73,7 @@ final class PlayerSnapshot {
 
   /// Listening time left before the sleep timer pauses, when it is on.
   final Duration? sleepRemaining;
-  final List<ItemRef> queue;
+  final List<QueueEntry> queue;
 
   /// Technical details of the last failure, for "Copy details".
   final String? failure;
@@ -100,7 +100,7 @@ final class PlayerSnapshot {
     SleepTimer? sleep,
     Duration? sleepRemaining,
     bool clearSleepRemaining = false,
-    List<ItemRef>? queue,
+    List<QueueEntry>? queue,
     String? failure,
     bool clearFailure = false,
   }) => PlayerSnapshot(
@@ -571,9 +571,11 @@ class PlayerEngine {
 
   // Queue -------------------------------------------------------------------
 
-  Future<void> addToQueue(ItemRef ref) => _setQueue([..._value.queue.where((r) => r != ref), ref]);
-  Future<void> playNext(ItemRef ref) => _setQueue([ref, ..._value.queue.where((r) => r != ref)]);
-  Future<void> removeFromQueue(ItemRef ref) => _setQueue([..._value.queue.where((r) => r != ref)]);
+  Future<void> addToQueue(QueueEntry entry) => _setQueue([..._without(entry.ref), entry]);
+  Future<void> playNext(QueueEntry entry) => _setQueue([entry, ..._without(entry.ref)]);
+  Future<void> removeFromQueue(ItemRef ref) => _setQueue(_without(ref));
+
+  List<QueueEntry> _without(ItemRef ref) => [..._value.queue.where((e) => e.ref != ref)];
   Future<void> clearQueue() => _setQueue(const []);
 
   Future<void> moveInQueue(int from, int to) {
@@ -584,7 +586,7 @@ class PlayerEngine {
     return _setQueue(queue);
   }
 
-  Future<void> _setQueue(List<ItemRef> queue) async {
+  Future<void> _setQueue(List<QueueEntry> queue) async {
     _emit(_value.copyWith(queue: List.unmodifiable(queue)));
     await _store.saveQueue(queue);
   }
@@ -760,7 +762,7 @@ class PlayerEngine {
     if (!stopHere && _prefs.autoPlay == AutoPlay.queueThenStop && _value.queue.isNotEmpty) {
       final next = _value.queue.first;
       await _setQueue(_value.queue.skip(1).toList());
-      await playItem(next);
+      await playItem(next.ref);
       return;
     }
     unawaited(_saveLast());

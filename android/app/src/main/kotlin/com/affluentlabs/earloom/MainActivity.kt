@@ -3,10 +3,12 @@
 
 package com.affluentlabs.earloom
 
-import io.flutter.embedding.android.FlutterActivity
+import com.ryanheise.audioservice.AudioServiceActivity
 import io.flutter.embedding.engine.FlutterEngine
 
-class MainActivity : FlutterActivity() {
+// AudioServiceActivity shares one Flutter engine with the playback
+// service, so audio keeps going when the activity is gone.
+class MainActivity : AudioServiceActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         // Reads folders picked for import (lib/features/local_library).

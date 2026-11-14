@@ -95,8 +95,14 @@ final class JustAudioBackend implements AudioBackend {
   final _subs = <StreamSubscription<Object?>>[];
 
   Future<void> _configureSession() async {
-    final session = await AudioSession.instance;
-    await session.configure(const AudioSessionConfiguration.speech());
+    final AudioSession session;
+    try {
+      session = await AudioSession.instance;
+      await session.configure(const AudioSessionConfiguration.speech());
+    } on Object catch (e) {
+      _signals.add(BackendFailed('Audio session setup failed: $e'));
+      return;
+    }
     _subs.add(
       session.interruptionEventStream.listen((event) {
         if (event.begin) {

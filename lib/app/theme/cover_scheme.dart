@@ -20,7 +20,10 @@ import 'tokens.dart';
 class CoverSchemeService {
   CoverSchemeService(this._db);
 
-  final AccountDb _db;
+  /// The current account's cache. Null with no server account (only books
+  /// on this phone): seeds are then kept in memory for this run.
+  final AccountDb? _db;
+  final _memory = <String, int>{};
 
   /// Covers with less color than this are treated as gray and get the
   /// neutral shell seed: a tinted scheme from a gray cover looks muddy.
@@ -34,12 +37,15 @@ class CoverSchemeService {
     required Brightness brightness,
     bool amoled = false,
   }) async {
-    final cached = await _db.coverColorsDao.lookup(itemId, coverUpdatedAt);
+    final memoryKey = '$itemId|$coverUpdatedAt';
+    final cached = _memory[memoryKey] ?? (await _db?.coverColorsDao.lookup(itemId, coverUpdatedAt))?.seedArgb;
     if (cached != null) {
-      return schemeFromSeed(Color(cached.seedArgb), brightness, amoled: amoled);
+      _memory[memoryKey] = cached;
+      return schemeFromSeed(Color(cached), brightness, amoled: amoled);
     }
     final seed = await extractSeed(cover);
-    await _db.coverColorsDao.put(itemId, coverUpdatedAt, seed.toARGB32());
+    _memory[memoryKey] = seed.toARGB32();
+    await _db?.coverColorsDao.put(itemId, coverUpdatedAt, seed.toARGB32());
     return schemeFromSeed(seed, brightness, amoled: amoled);
   }
 

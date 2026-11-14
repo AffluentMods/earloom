@@ -486,5 +486,466 @@
   "bookNoCoverLabel": "No cover",
   "@bookNoCoverLabel": {
     "description": "Screen reader label for a book without a cover."
+  },
+  "playerNotificationChannel": "Playback",
+  "@playerNotificationChannel": {
+    "description": "Name of the Android notification channel for the playing book."
+  },
+  "playerChapterOf": "Chapter {current} of {total}",
+  "@playerChapterOf": {
+    "description": "Where in the book the current chapter is.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "playerChapterLeft": "{time} left in chapter",
+  "@playerChapterLeft": {
+    "description": "Time left in the current chapter at the current speed.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "playerBookLeft": "{time} left",
+  "@playerBookLeft": {
+    "description": "Time left in the book at the current speed.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "playerSkipBack": "Back {seconds} seconds",
+  "@playerSkipBack": {
+    "description": "Skip back button, for screen readers.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "playerSkipForward": "Forward {seconds} seconds",
+  "@playerSkipForward": {
+    "description": "Skip forward button, for screen readers.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "playerPreviousChapter": "Previous chapter",
+  "@playerPreviousChapter": {
+    "description": "Button."
+  },
+  "playerNextChapter": "Next chapter",
+  "@playerNextChapter": {
+    "description": "Button."
+  },
+  "playerPlay": "Play",
+  "@playerPlay": {
+    "description": "Button."
+  },
+  "playerPause": "Pause",
+  "@playerPause": {
+    "description": "Button."
+  },
+  "playerSpeed": "Playback speed",
+  "@playerSpeed": {
+    "description": "Button and sheet title."
+  },
+  "playerSpeedValue": "{speed}x",
+  "@playerSpeedValue": {
+    "description": "A playback speed such as 1.25x.",
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "playerSleepTimer": "Sleep timer",
+  "@playerSleepTimer": {
+    "description": "Button and sheet title."
+  },
+  "playerSleepRemaining": "Sleep in {time}",
+  "@playerSleepRemaining": {
+    "description": "Sleep timer button while a countdown runs.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "playerSleepAtChapterEnd": "Sleep at chapter end",
+  "@playerSleepAtChapterEnd": {
+    "description": "Sleep timer button when set to the end of the chapter."
+  },
+  "playerBookmark": "Add bookmark",
+  "@playerBookmark": {
+    "description": "Button."
+  },
+  "playerBookmarks": "Bookmarks",
+  "@playerBookmarks": {
+    "description": "Menu item and sheet title."
+  },
+  "playerChapters": "Chapters",
+  "@playerChapters": {
+    "description": "Button and sheet title."
+  },
+  "playerOutput": "Audio output",
+  "@playerOutput": {
+    "description": "Button that picks speakers or headphones."
+  },
+  "playerQueue": "Up next",
+  "@playerQueue": {
+    "description": "Button and sheet title for the play queue."
+  },
+  "playerClose": "Close player",
+  "@playerClose": {
+    "description": "Button that hides Now Playing."
+  },
+  "playerMore": "More options",
+  "@playerMore": {
+    "description": "Overflow menu button."
+  },
+  "playerOpen": "Open player",
+  "@playerOpen": {
+    "description": "Mini player tap target, for screen readers."
+  },
+  "playerStop": "Stop and close the player",
+  "@playerStop": {
+    "description": "Menu item."
+  },
+  "playerLoading": "Loading",
+  "@playerLoading": {
+    "description": "Shown while audio buffers."
+  },
+  "playerFailed": "This book could not be played.",
+  "@playerFailed": {
+    "description": "Error in Now Playing."
+  },
+  "playerFailedSnack": "Playback stopped: the audio could not be loaded.",
+  "@playerFailedSnack": {
+    "description": "Snackbar when playback fails."
+  },
+  "playerPosition": "Position in {scope}",
+  "@playerPosition": {
+    "description": "Scrubber label for screen readers.",
+    "placeholders": {
+      "scope": {
+        "type": "String"
+      }
+    }
+  },
+  "playerScopeChapter": "chapter",
+  "@playerScopeChapter": {
+    "description": "Scrubber scope word."
+  },
+  "playerScopeBook": "book",
+  "@playerScopeBook": {
+    "description": "Scrubber scope word."
+  },
+  "playerShowBookTime": "Show time for the whole book",
+  "@playerShowBookTime": {
+    "description": "Tap target that switches the scrubber."
+  },
+  "playerShowChapterTime": "Show time for this chapter",
+  "@playerShowChapterTime": {
+    "description": "Tap target that switches the scrubber."
+  },
+  "playerWholeBook": "Whole book",
+  "@playerWholeBook": {
+    "description": "Title of the only chapter of a book without chapters."
+  },
+  "playerPartNumber": "Part {number}",
+  "@playerPartNumber": {
+    "description": "Title of a chapter made from one audio file.",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "playerGoToBook": "Go to book",
+  "@playerGoToBook": {
+    "description": "Menu item that opens the book page."
+  },
+  "playerSettings": "Player settings",
+  "@playerSettings": {
+    "description": "Menu item."
+  },
+  "speedRememberPerBook": "Remember speed for each book",
+  "@speedRememberPerBook": {
+    "description": "Switch in the speed sheet."
+  },
+  "speedSlower": "Slower",
+  "@speedSlower": {
+    "description": "Button that lowers the speed by 0.05."
+  },
+  "speedFaster": "Faster",
+  "@speedFaster": {
+    "description": "Button that raises the speed by 0.05."
+  },
+  "speedPresets": "Presets",
+  "@speedPresets": {
+    "description": "Heading over preset speeds."
+  },
+  "sleepMinutes": "{minutes} min",
+  "@sleepMinutes": {
+    "description": "A sleep timer choice.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "sleepEndOfChapter": "End of chapter",
+  "@sleepEndOfChapter": {
+    "description": "A sleep timer choice."
+  },
+  "sleepEndOfBook": "End of book",
+  "@sleepEndOfBook": {
+    "description": "A sleep timer choice."
+  },
+  "sleepOff": "Turn off timer",
+  "@sleepOff": {
+    "description": "Button."
+  },
+  "sleepCustom": "Custom",
+  "@sleepCustom": {
+    "description": "A sleep timer choice that asks for minutes."
+  },
+  "sleepCustomTitle": "Pause after how many minutes?",
+  "@sleepCustomTitle": {
+    "description": "Dialog title."
+  },
+  "sleepCustomField": "Minutes",
+  "@sleepCustomField": {
+    "description": "Field label."
+  },
+  "sleepStart": "Start timer",
+  "@sleepStart": {
+    "description": "Dialog button."
+  },
+  "sleepActive": "Pauses in {time}",
+  "@sleepActive": {
+    "description": "Sleep sheet status while counting down.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "sleepActiveChapter": "Pauses when this chapter ends",
+  "@sleepActiveChapter": {
+    "description": "Sleep sheet status."
+  },
+  "sleepActiveBook": "Pauses when this book ends",
+  "@sleepActiveBook": {
+    "description": "Sleep sheet status."
+  },
+  "sleepAddTime": "Add {minutes} min",
+  "@sleepAddTime": {
+    "description": "Button that extends the running timer.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "sleepExtended": "Sleep timer extended by {minutes} min",
+  "@sleepExtended": {
+    "description": "Snackbar after a shake or the add time button.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "sleepShakeHint": "In the last minute, shake your phone to add more time.",
+  "@sleepShakeHint": {
+    "description": "Hint in the sleep sheet."
+  },
+  "sleepFadeOut": "Fade out over the last {seconds} seconds",
+  "@sleepFadeOut": {
+    "description": "Setting.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "sleepShakeToExtend": "Shake to add time",
+  "@sleepShakeToExtend": {
+    "description": "Setting."
+  },
+  "bookmarkAdded": "Bookmark added",
+  "@bookmarkAdded": {
+    "description": "Snackbar."
+  },
+  "bookmarkAddNote": "Add note",
+  "@bookmarkAddNote": {
+    "description": "Snackbar action that renames the new bookmark."
+  },
+  "bookmarkDefaultTitle": "{chapter}, {time}",
+  "@bookmarkDefaultTitle": {
+    "description": "Default bookmark title: chapter name and time into it.",
+    "placeholders": {
+      "chapter": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bookmarksEmpty": "No bookmarks yet. Tap the bookmark button while listening to save a spot.",
+  "@bookmarksEmpty": {
+    "description": "Empty bookmarks sheet."
+  },
+  "bookmarkEdit": "Edit bookmark",
+  "@bookmarkEdit": {
+    "description": "Dialog title and menu item."
+  },
+  "bookmarkDelete": "Delete bookmark",
+  "@bookmarkDelete": {
+    "description": "Menu item."
+  },
+  "bookmarkDeleted": "Bookmark deleted",
+  "@bookmarkDeleted": {
+    "description": "Snackbar."
+  },
+  "bookmarkTitleField": "Note",
+  "@bookmarkTitleField": {
+    "description": "Field label for a bookmark title."
+  },
+  "bookmarkFailed": "The bookmark could not be saved.",
+  "@bookmarkFailed": {
+    "description": "Error."
+  },
+  "queueEmpty": "Nothing up next. Add books from their page, and they play after this one.",
+  "@queueEmpty": {
+    "description": "Empty queue sheet."
+  },
+  "queueClear": "Clear Up next",
+  "@queueClear": {
+    "description": "Button."
+  },
+  "queuePlayNext": "Play next",
+  "@queuePlayNext": {
+    "description": "Book menu item."
+  },
+  "queueAdd": "Add to Up next",
+  "@queueAdd": {
+    "description": "Book menu item."
+  },
+  "queueRemove": "Remove from Up next",
+  "@queueRemove": {
+    "description": "Button."
+  },
+  "queueAdded": "Added to Up next",
+  "@queueAdded": {
+    "description": "Snackbar."
+  },
+  "progressSyncedFromOtherDevice": "Picked up where you left off on another device",
+  "@progressSyncedFromOtherDevice": {
+    "description": "Snackbar when starting at a newer server position."
+  },
+  "progressUndo": "Undo",
+  "@progressUndo": {
+    "description": "Snackbar action."
+  },
+  "progressJumpPrompt": "Another device is at {time} in this book.",
+  "@progressJumpPrompt": {
+    "description": "Snackbar while playing.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "progressJump": "Jump there",
+  "@progressJump": {
+    "description": "Snackbar action."
+  },
+  "finishedBook": "Finished {title}",
+  "@finishedBook": {
+    "description": "Snackbar when a book ends.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "playerSettingsSkipBack": "Skip back",
+  "@playerSettingsSkipBack": {
+    "description": "Setting."
+  },
+  "playerSettingsSkipForward": "Skip forward",
+  "@playerSettingsSkipForward": {
+    "description": "Setting."
+  },
+  "playerSettingsSeconds": "{seconds} seconds",
+  "@playerSettingsSeconds": {
+    "description": "A skip interval.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "playerSettingsSmartRewind": "Rewind a little after a pause",
+  "@playerSettingsSmartRewind": {
+    "description": "Setting."
+  },
+  "playerSettingsSmartRewindHint": "5 to 30 seconds, more after longer pauses.",
+  "@playerSettingsSmartRewindHint": {
+    "description": "Setting description."
+  },
+  "playerSettingsSkipSilence": "Skip silence",
+  "@playerSettingsSkipSilence": {
+    "description": "Setting, Android only."
+  },
+  "playerSettingsBoost": "Volume boost",
+  "@playerSettingsBoost": {
+    "description": "Setting, Android only."
+  },
+  "playerSettingsBoostValue": "+{decibels} dB",
+  "@playerSettingsBoostValue": {
+    "description": "Volume boost value.",
+    "placeholders": {
+      "decibels": {
+        "type": "int"
+      }
+    }
+  },
+  "playerSettingsBoostOff": "Off",
+  "@playerSettingsBoostOff": {
+    "description": "Volume boost value of zero."
+  },
+  "playerSettingsRemoteButtons": "Next and previous on headphones and in the car",
+  "@playerSettingsRemoteButtons": {
+    "description": "Setting heading."
+  },
+  "playerSettingsRemoteSkip": "Skip back and forward",
+  "@playerSettingsRemoteSkip": {
+    "description": "Choice."
+  },
+  "playerSettingsRemoteChapters": "Previous and next chapter",
+  "@playerSettingsRemoteChapters": {
+    "description": "Choice."
+  },
+  "playerSettingsAutoPlay": "Play Up next when a book ends",
+  "@playerSettingsAutoPlay": {
+    "description": "Setting."
+  },
+  "playerSettingsScrubber": "Scrubber shows the chapter",
+  "@playerSettingsScrubber": {
+    "description": "Setting."
   }
 }

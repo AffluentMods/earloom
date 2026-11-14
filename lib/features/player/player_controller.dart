@@ -2,7 +2,9 @@
 // Copyright (c) 2026 Affluent Labs LLC
 
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
+import 'package:flutter/widgets.dart' show basicLocaleListResolution;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -12,12 +14,18 @@ import '../../core/library/source_id.dart';
 import '../../core/net/abs_client.dart';
 import '../accounts/data/account_session.dart';
 import '../accounts/data/accounts_repository.dart' show AccountRowX;
+import '../../l10n/gen/app_localizations.dart';
 import '../local_library/data/providers.dart';
 import 'abs_playback.dart';
 import 'audio_backend.dart';
 import 'player_engine.dart';
 import 'player_prefs.dart';
 import 'progress_resolver.dart';
+
+/// Strings in the device language, for places with no widget context.
+AppLocalizations deviceL10n() => lookupAppLocalizations(
+  basicLocaleListResolution(PlatformDispatcher.instance.locales, AppLocalizations.supportedLocales),
+);
 
 /// The platform player. Tests override it with a fake.
 final audioBackendProvider = Provider<AudioBackend>((ref) => JustAudioBackend());
@@ -78,10 +86,12 @@ final bookResolverProvider = Provider<BookResolver>((ref) {
 
 /// The one player engine. Restores the last book (paused) on creation.
 final playerEngineProvider = Provider<PlayerEngine>((ref) {
+  final l10n = deviceL10n();
   final engine = PlayerEngine(
     backend: ref.watch(audioBackendProvider),
     store: ref.watch(playerStoreProvider),
     resolver: (item, {startAt}) => ref.read(bookResolverProvider)(item, startAt: startAt),
+    chapterNames: ChapterNames(forTrack: l10n.playerPartNumber, wholeBook: l10n.playerWholeBook),
   );
   unawaited(engine.restore());
   ref.onDispose(engine.dispose);

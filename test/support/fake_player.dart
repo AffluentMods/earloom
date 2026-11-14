@@ -8,9 +8,10 @@ import 'package:earloom/features/player/audio_backend.dart';
 import 'package:earloom/features/player/playable.dart';
 import 'package:earloom/features/player/progress_resolver.dart';
 
-/// A backend whose audio advances with (fake) time.
+/// A backend whose audio advances with (fake) time. Also the silent
+/// player every widget test gets (see `pumpEarloom`).
 class FakeBackend implements AudioBackend {
-  FakeBackend({required this.now});
+  FakeBackend({DateTime Function()? now}) : now = now ?? DateTime.now;
 
   final DateTime Function() now;
   final _signals = StreamController<BackendSignal>.broadcast();

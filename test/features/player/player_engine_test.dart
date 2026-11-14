@@ -12,7 +12,7 @@ import 'package:earloom/features/player/sleep_timer.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'fake_backend.dart';
+import '../../support/fake_player.dart';
 
 const _local = ItemRef(LocalSource(), 'b1');
 const _other = ItemRef(LocalSource(), 'b2');
@@ -193,7 +193,7 @@ void main() {
   });
 
   engineTest('a finished book is reported and the queue moves on', (async, engine, backend, sinks) async {
-    await engine.addToQueue(_other);
+    await engine.addToQueue(QueueEntry.of(_other, title: 'Salt and Starlight'));
     await engine.playItem(_local, startAt: const Duration(minutes: 59, seconds: 50));
     await wait(const Duration(seconds: 15));
     expect(sinks[_local.key]!.finishedAt, const Duration(hours: 1));
@@ -204,13 +204,13 @@ void main() {
   });
 
   engineTest('sleep at end of book stops even with a queue', (async, engine, backend, sinks) async {
-    await engine.addToQueue(_other);
+    await engine.addToQueue(QueueEntry.of(_other, title: 'Salt and Starlight'));
     await engine.playItem(_local, startAt: const Duration(minutes: 59, seconds: 50));
     engine.setSleepTimer(const SleepAtBookEnd());
     await wait(const Duration(seconds: 15));
     expect(engine.value.now?.ref, _local);
     expect(engine.value.playing, isFalse);
-    expect(engine.value.queue, [_other]);
+    expect(engine.value.queue.map((e) => e.ref), [_other]);
   });
 
   engineTest('switching books closes the first one', (async, engine, backend, sinks) async {

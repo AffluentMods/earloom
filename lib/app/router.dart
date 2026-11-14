@@ -12,6 +12,7 @@ import '../features/item_detail/ui/item_detail_screen.dart';
 import '../features/library/ui/library_screen.dart';
 import '../features/local_library/ui/import_books_screen.dart';
 import '../features/onboarding/ui/onboarding_screen.dart';
+import '../features/player/player_controller.dart';
 import '../features/player/ui/now_playing_screen.dart';
 import '../features/search/ui/search_screen.dart';
 import '../features/you/ui/you_screen.dart';
@@ -37,7 +38,7 @@ abstract final class AppRoutes {
 final routerProvider = Provider<GoRouter>((ref) {
   final onboarded = ValueNotifier<bool>(ref.read(onboardingProvider));
   ref.listen(onboardingProvider, (_, value) => onboarded.value = value);
-  final router = buildRouter(onboarded: onboarded);
+  final router = buildRouter(onboarded: onboarded, hasBook: () => ref.read(playerProvider).hasBook);
   ref.onDispose(router.dispose);
   ref.onDispose(onboarded.dispose);
   return router;
@@ -47,7 +48,11 @@ final routerProvider = Provider<GoRouter>((ref) {
 const _onboardingRoutes = ['/onboarding', '/accounts/add', '/local/import'];
 
 @visibleForTesting
-GoRouter buildRouter({String initialLocation = AppRoutes.home, ValueListenable<bool>? onboarded}) {
+GoRouter buildRouter({
+  String initialLocation = AppRoutes.home,
+  ValueListenable<bool>? onboarded,
+  bool Function()? hasBook,
+}) {
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: onboarded,
@@ -97,6 +102,8 @@ GoRouter buildRouter({String initialLocation = AppRoutes.home, ValueListenable<b
       ),
       GoRoute(
         path: AppRoutes.player,
+        // A link to the player with nothing loaded has nothing to show.
+        redirect: (_, _) => (hasBook?.call() ?? true) ? null : AppRoutes.home,
         pageBuilder: (_, state) => NowPlayingPage(key: state.pageKey),
       ),
       GoRoute(path: AppRoutes.onboarding, builder: (_, _) => const OnboardingScreen()),

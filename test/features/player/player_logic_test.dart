@@ -13,7 +13,7 @@ import 'package:earloom/features/player/sleep_timer.dart';
 import 'package:earloom/features/player/track_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'fake_backend.dart';
+import '../../support/fake_player.dart';
 
 const _ref = ItemRef(LocalSource(), 'b1');
 

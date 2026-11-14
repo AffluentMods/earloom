@@ -4,6 +4,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../features/player/ui/player_side_effects.dart';
 import '../l10n/gen/app_localizations.dart';
 import 'providers.dart';
 import 'router.dart';
@@ -25,6 +26,8 @@ class EarloomApp extends ConsumerWidget {
       themeMode: mode.materialMode,
       themeAnimationDuration: Motion.normal,
       routerConfig: ref.watch(routerProvider),
+      // Above every route, so player snackbars show on any screen.
+      builder: (context, child) => PlayerSideEffects(child: child ?? const SizedBox.shrink()),
     );
   }
 }

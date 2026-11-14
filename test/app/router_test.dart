@@ -64,10 +64,10 @@ void main() {
     expect(tester.element(find.byType(HomeScreen)), same(homeBefore));
   });
 
-  testWidgets('the mini player slot is reserved and takes no space', (tester) async {
+  testWidgets('with nothing loaded the mini player takes no height', (tester) async {
     await pumpEarloom(tester);
     expect(find.byType(MiniPlayer), findsOneWidget);
-    expect(tester.getSize(find.byType(MiniPlayer)), Size.zero);
+    expect(tester.getSize(find.byType(MiniPlayer)).height, 0);
   });
 
   group('deep links', () {
@@ -89,10 +89,11 @@ void main() {
       expect(tester.widget<ItemDetailScreen>(find.byType(ItemDetailScreen)).itemId, 'home');
     });
 
-    testWidgets('earloom://player opens Now Playing', (tester) async {
+    testWidgets('earloom://player with nothing loaded lands on Home', (tester) async {
       await pumpEarloom(tester);
       await openLink(tester, 'earloom://player');
-      expect(find.byType(NowPlayingScreen), findsOneWidget);
+      expect(find.byType(NowPlayingScreen), findsNothing);
+      expect(find.byType(HomeScreen), findsOneWidget);
     });
 
     testWidgets('unknown links land on Home, never on an error page', (tester) async {

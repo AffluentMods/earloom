@@ -194,6 +194,59 @@ final class LastPlayed {
   }
 }
 
+/// A book waiting in Up next, with what the queue sheet shows, so the
+/// queue reads well offline and before any library is loaded.
+final class QueueEntry {
+  const QueueEntry({required this.ref, required this.title, this.author, this.coverPath, this.coverUrl, this.coverKey});
+
+  final ItemRef ref;
+  final String title;
+  final String? author;
+  final String? coverPath;
+  final String? coverUrl;
+  final String? coverKey;
+
+  CoverSource? get cover {
+    if (coverPath != null) return FileCover(coverPath!);
+    if (coverUrl != null) return NetworkCover(itemCoverUrl: Uri.parse(coverUrl!), cacheKey: coverKey ?? coverUrl!);
+    return null;
+  }
+
+  factory QueueEntry.of(ItemRef ref, {required String title, String? author, CoverSource? cover}) => QueueEntry(
+    ref: ref,
+    title: title,
+    author: author,
+    coverPath: cover is FileCover ? cover.path : null,
+    coverUrl: cover is NetworkCover ? cover.itemCoverUrl.toString() : null,
+    coverKey: cover is NetworkCover ? cover.cacheKey : null,
+  );
+
+  Map<String, Object?> toJson() => {
+    'ref': ref.key,
+    'title': title,
+    'author': author,
+    'coverPath': coverPath,
+    'coverUrl': coverUrl,
+    'coverKey': coverKey,
+  };
+
+  static QueueEntry? fromJson(Object? json) {
+    if (json is! Map<String, Object?>) return null;
+    final ref = ItemRef.tryParseKey('${json['ref']}');
+    final title = json['title'];
+    if (ref == null || title is! String) return null;
+    String? text(String key) => json[key] is String ? json[key]! as String : null;
+    return QueueEntry(
+      ref: ref,
+      title: title,
+      author: text('author'),
+      coverPath: text('coverPath'),
+      coverUrl: text('coverUrl'),
+      coverKey: text('coverKey'),
+    );
+  }
+}
+
 /// Where the player keeps its settings and memory.
 abstract interface class PlayerStore {
   Future<PlayerPrefs> loadPrefs();
@@ -202,8 +255,8 @@ abstract interface class PlayerStore {
   Future<void> saveLast(LastPlayed? last);
   Future<double?> speedFor(ItemRef ref);
   Future<void> saveSpeed(ItemRef ref, double speed);
-  Future<List<ItemRef>> loadQueue();
-  Future<void> saveQueue(List<ItemRef> queue);
+  Future<List<QueueEntry>> loadQueue();
+  Future<void> saveQueue(List<QueueEntry> queue);
 }
 
 /// [PlayerStore] in the app settings table.
@@ -250,14 +303,15 @@ final class SettingsPlayerStore implements PlayerStore {
   Future<void> saveSpeed(ItemRef ref, double speed) => _db.writeSetting(_speed(ref), '$speed');
 
   @override
-  Future<List<ItemRef>> loadQueue() async {
+  Future<List<QueueEntry>> loadQueue() async {
     final json = await _json(_queue);
     if (json is! List) return const [];
-    return [for (final k in json) ?ItemRef.tryParseKey('$k')];
+    return [for (final e in json) ?QueueEntry.fromJson(e)];
   }
 
   @override
-  Future<void> saveQueue(List<ItemRef> queue) => _db.writeSetting(_queue, jsonEncode([for (final r in queue) r.key]));
+  Future<void> saveQueue(List<QueueEntry> queue) =>
+      _db.writeSetting(_queue, jsonEncode([for (final e in queue) e.toJson()]));
 }
 
 /// [PlayerStore] in memory, for tests.
@@ -265,7 +319,7 @@ final class MemoryPlayerStore implements PlayerStore {
   PlayerPrefs prefs = const PlayerPrefs();
   LastPlayed? last;
   final speeds = <String, double>{};
-  List<ItemRef> queue = [];
+  List<QueueEntry> queue = [];
 
   @override
   Future<PlayerPrefs> loadPrefs() async => prefs;
@@ -280,7 +334,7 @@ final class MemoryPlayerStore implements PlayerStore {
   @override
   Future<void> saveSpeed(ItemRef ref, double speed) async => speeds[ref.key] = speed;
   @override
-  Future<List<ItemRef>> loadQueue() async => queue;
+  Future<List<QueueEntry>> loadQueue() async => queue;
   @override
-  Future<void> saveQueue(List<ItemRef> value) async => queue = [...value];
+  Future<void> saveQueue(List<QueueEntry> value) async => queue = [...value];
 }

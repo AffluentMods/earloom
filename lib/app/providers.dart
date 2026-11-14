@@ -26,8 +26,8 @@ final accountDbProvider = Provider<AccountDb>((ref) {
 }, dependencies: [accountSessionProvider]);
 
 final coverSchemeServiceProvider = Provider<CoverSchemeService>(
-  (ref) => CoverSchemeService(ref.watch(accountDbProvider)),
-  dependencies: [accountDbProvider],
+  (ref) => CoverSchemeService(ref.watch(accountSessionProvider)?.db),
+  dependencies: [accountSessionProvider],
 );
 
 /// The theme mode read from disk before the first frame, so the app never

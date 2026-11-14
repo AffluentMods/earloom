@@ -201,7 +201,7 @@ final class AbsSessionStarter {
     }
     final chapters = [
       for (final (i, c) in ((session['chapters'] as List?) ?? const []).cast<Map<String, Object?>>().indexed)
-        Chapter(index: i, title: '${c['title'] ?? ''}', start: _seconds(c['start']), end: _seconds(c['end'])),
+        Chapter(index: i, title: (c['title'] ?? '').toString(), start: _seconds(c['start']), end: _seconds(c['end'])),
     ];
     final meta = (session['mediaMetadata'] as Map?)?.cast<String, Object?>() ?? const {};
     final item = (session['libraryItem'] as Map?)?.cast<String, Object?>() ?? const {};

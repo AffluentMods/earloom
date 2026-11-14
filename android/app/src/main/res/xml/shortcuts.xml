@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- App icon shortcuts. Labels are in res/values/strings.xml, mirrored from
+     lib/l10n/app_en.arb (shortcutResume, shortcutDownloads, shortcutSearch). -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="resume"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_resume"
+        android:shortcutShortLabel="@string/shortcut_resume">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="earloom://player?action=resume"
+            android:targetPackage="com.affluentlabs.earloom"
+            android:targetClass="com.affluentlabs.earloom.MainActivity"/>
+    </shortcut>
+    <shortcut
+        android:shortcutId="downloads"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_downloads"
+        android:shortcutShortLabel="@string/shortcut_downloads">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="earloom://downloads"
+            android:targetPackage="com.affluentlabs.earloom"
+            android:targetClass="com.affluentlabs.earloom.MainActivity"/>
+    </shortcut>
+    <shortcut
+        android:shortcutId="search"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_search"
+        android:shortcutShortLabel="@string/shortcut_search">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="earloom://search"
+            android:targetPackage="com.affluentlabs.earloom"
+            android:targetClass="com.affluentlabs.earloom.MainActivity"/>
+    </shortcut>
+</shortcuts>

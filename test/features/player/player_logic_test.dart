@@ -13,7 +13,7 @@ import 'package:earloom/features/player/sleep_timer.dart';
 import 'package:earloom/features/player/track_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'fake_backend.dart';
+import '../../support/fake_player.dart';
 
 const _ref = ItemRef(LocalSource(), 'b1');
 
@@ -116,6 +116,16 @@ void main() {
     final half = sleepFadeVolume(const Duration(seconds: 15), fade);
     expect(half, closeTo(0.5, 0.01));
     expect(sleepFadeVolume(const Duration(seconds: 5), Duration.zero), 1);
+  });
+
+  test('the auto sleep window wraps past midnight', () {
+    const prefs = PlayerPrefs(autoSleep: true);
+    expect(prefs.inAutoSleepWindow(DateTime(2026, 11, 14, 23, 30)), isTrue);
+    expect(prefs.inAutoSleepWindow(DateTime(2026, 11, 15, 5, 59)), isTrue);
+    expect(prefs.inAutoSleepWindow(DateTime(2026, 11, 15, 6)), isFalse);
+    expect(prefs.inAutoSleepWindow(DateTime(2026, 11, 15, 14)), isFalse);
+    const day = PlayerPrefs(autoSleepFrom: 13 * 60, autoSleepUntil: 15 * 60);
+    expect(day.inAutoSleepWindow(DateTime(2026, 11, 15, 14)), isTrue);
   });
 
   test('smart rewind steps', () {

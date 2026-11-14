@@ -15,7 +15,9 @@ import '../../../core/util/size_format.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../local_library/data/providers.dart';
 import '../../player/player_controller.dart';
+import '../../player/player_prefs.dart' show QueueEntry;
 import '../data/library_providers.dart';
+import 'widgets/book_cover.dart';
 import 'widgets/browse_layout.dart';
 
 /// What the browsing screens can do with a book, the same for both
@@ -38,14 +40,22 @@ abstract final class BookActions {
     return play(ref, book);
   }
 
+  /// The up next entry for [book], with what the queue sheet shows.
+  static QueueEntry _entry(WidgetRef ref, BookSummary book) => QueueEntry.of(
+    book.ref,
+    title: book.title,
+    author: book.authors.isEmpty ? null : book.authorLine,
+    cover: coverSourceFor(ref, book.ref, book.coverKey),
+  );
+
   static Future<void> playNext(BuildContext context, WidgetRef ref, BookSummary book) async {
-    await ref.read(playerEngineProvider).playNext(book.ref);
-    if (context.mounted) showMessage(context, AppLocalizations.of(context).itemAddedToUpNext);
+    await ref.read(playerEngineProvider).playNext(_entry(ref, book));
+    if (context.mounted) showMessage(context, AppLocalizations.of(context).queueAdded);
   }
 
   static Future<void> addToUpNext(BuildContext context, WidgetRef ref, BookSummary book) async {
-    await ref.read(playerEngineProvider).addToQueue(book.ref);
-    if (context.mounted) showMessage(context, AppLocalizations.of(context).itemAddedToUpNext);
+    await ref.read(playerEngineProvider).addToQueue(_entry(ref, book));
+    if (context.mounted) showMessage(context, AppLocalizations.of(context).queueAdded);
   }
 
   /// Marks finished or not. Server books change in the cache at once and
@@ -128,6 +138,7 @@ abstract final class BookActions {
     unawaitedRefresh(() => repository.refreshPlaylists(libraryId));
     final choice = await showModalBottomSheet<_PlaylistChoice>(
       context: context,
+      useRootNavigator: true,
       useSafeArea: true,
       isScrollControlled: true,
       builder: (_) => _PlaylistPicker(libraryKey: (source: book.ref.source, libraryId: libraryId), book: book),

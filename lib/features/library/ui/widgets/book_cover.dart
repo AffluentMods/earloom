@@ -13,6 +13,7 @@ import '../../../../core/library/browse_models.dart';
 import '../../../../core/library/models.dart';
 import '../../../../core/library/source_id.dart';
 import '../../../../core/ui/cover_image.dart';
+import '../../../downloads/ui/download_button.dart';
 import '../../../local_library/data/providers.dart';
 import '../../data/library_providers.dart';
 import 'progress_badge.dart';
@@ -79,20 +80,28 @@ class BookCover extends ConsumerWidget {
       shadow: shadow,
     );
     final progress = book.progress;
-    if (!showProgress || progress == null || !progress.isStarted) return cover;
+    final showRing = showProgress && progress != null && progress.isStarted;
+    // Only server books download; books on this phone are always here.
+    final showBadge = showProgress && book.ref.source is AbsSource;
+    if (!showRing && !showBadge) return cover;
     return SizedBox(
       width: size,
       height: size,
       child: Stack(
         children: [
           cover,
-          // Downloaded badge (Phase 4): the top left corner is kept free for
-          // the downloads feature's `DownloadedBadge`.
-          Positioned(
-            right: Space.sm,
-            bottom: Space.sm,
-            child: ProgressBadge(progress: progress, size: (size * 0.2).clamp(22.0, 32.0)),
-          ),
+          if (showBadge)
+            Positioned(
+              left: Space.sm,
+              bottom: Space.sm,
+              child: DownloadedBadge(itemRef: book.ref, size: (size * 0.15).clamp(18.0, 24.0)),
+            ),
+          if (showRing)
+            Positioned(
+              right: Space.sm,
+              bottom: Space.sm,
+              child: ProgressBadge(progress: progress, size: (size * 0.2).clamp(22.0, 32.0)),
+            ),
         ],
       ),
     );

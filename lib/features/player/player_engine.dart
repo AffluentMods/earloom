@@ -73,7 +73,7 @@ final class PlayerSnapshot {
 
   /// Listening time left before the sleep timer pauses, when it is on.
   final Duration? sleepRemaining;
-  final List<ItemRef> queue;
+  final List<QueueEntry> queue;
 
   /// Technical details of the last failure, for "Copy details".
   final String? failure;
@@ -100,7 +100,7 @@ final class PlayerSnapshot {
     SleepTimer? sleep,
     Duration? sleepRemaining,
     bool clearSleepRemaining = false,
-    List<ItemRef>? queue,
+    List<QueueEntry>? queue,
     String? failure,
     bool clearFailure = false,
   }) => PlayerSnapshot(
@@ -149,6 +149,30 @@ final class PlaybackFailed extends PlayerNotice {
   final String details;
 }
 
+/// Real listening time that just passed, for the stats log.
+final class ListeningSpan {
+  const ListeningSpan({
+    required this.book,
+    required this.sessionId,
+    required this.end,
+    required this.listened,
+    required this.speed,
+  });
+
+  final NowPlaying book;
+
+  /// One id per time a book is opened, so sessions can be counted.
+  final String sessionId;
+  final DateTime end;
+  final Duration listened;
+  final double speed;
+
+  DateTime get start => end.subtract(listened);
+
+  /// Book time covered: more than [listened] at speeds above 1x.
+  Duration get bookTime => listened * speed;
+}
+
 /// Turns an [ItemRef] into something playable, and decides where it starts.
 /// [startAt] wins over saved progress when given.
 typedef BookResolver = Future<(PlayableBook, StartDecision)> Function(ItemRef ref, {Duration? startAt});
@@ -181,6 +205,11 @@ class PlayerEngine {
   final BookResolver _resolver;
   final DateTime Function() _now;
   ChapterNames chapterNames;
+
+  /// Receives every stretch of real listening (stats), and finished books.
+  void Function(ListeningSpan span)? onListened;
+  void Function(NowPlaying book, DateTime at)? onFinishedBook;
+  String _sessionId = '';
 
   static const tick = Duration(milliseconds: 250);
   static const reportEvery = Duration(seconds: 15);
@@ -315,6 +344,7 @@ class PlayerEngine {
     _finishing = false;
     _listened = Duration.zero;
     _lastReportAt = _now();
+    _sessionId = '${book.ref.key}@${_now().millisecondsSinceEpoch}';
     _pausedAt = null;
     _lastChapter = chapterIndexAt(chapters, from);
     _emit(
@@ -380,6 +410,9 @@ class PlayerEngine {
     }
     _pausedAt = null;
     _interruptedAt = null;
+    if (_prefs.autoSleep && _value.sleep is SleepOff && _prefs.inAutoSleepWindow(_now())) {
+      setSleepTimer(SleepAfter(original: _prefs.sleepLast, remaining: _prefs.sleepLast));
+    }
     _lastTick = _now();
     _backend.play();
     _emit(_value.copyWith(playing: true));
@@ -471,6 +504,7 @@ class PlayerEngine {
   Future<void> _closeBook(PlayableBook book) async {
     _accumulate();
     final position = _readPosition();
+    _log(_listened);
     await _safe(() => book.sink.report(position: position, listened: _listened, isPlaying: false));
     _listened = Duration.zero;
     await _safe(() => book.sink.close(position: position));
@@ -571,9 +605,11 @@ class PlayerEngine {
 
   // Queue -------------------------------------------------------------------
 
-  Future<void> addToQueue(ItemRef ref) => _setQueue([..._value.queue.where((r) => r != ref), ref]);
-  Future<void> playNext(ItemRef ref) => _setQueue([ref, ..._value.queue.where((r) => r != ref)]);
-  Future<void> removeFromQueue(ItemRef ref) => _setQueue([..._value.queue.where((r) => r != ref)]);
+  Future<void> addToQueue(QueueEntry entry) => _setQueue([..._without(entry.ref), entry]);
+  Future<void> playNext(QueueEntry entry) => _setQueue([entry, ..._without(entry.ref)]);
+  Future<void> removeFromQueue(ItemRef ref) => _setQueue(_without(ref));
+
+  List<QueueEntry> _without(ItemRef ref) => [..._value.queue.where((e) => e.ref != ref)];
   Future<void> clearQueue() => _setQueue(const []);
 
   Future<void> moveInQueue(int from, int to) {
@@ -584,7 +620,7 @@ class PlayerEngine {
     return _setQueue(queue);
   }
 
-  Future<void> _setQueue(List<ItemRef> queue) async {
+  Future<void> _setQueue(List<QueueEntry> queue) async {
     _emit(_value.copyWith(queue: List.unmodifiable(queue)));
     await _store.saveQueue(queue);
   }
@@ -660,6 +696,7 @@ class PlayerEngine {
     _accumulate();
     final listened = _listened;
     _listened = Duration.zero;
+    _log(listened);
     _lastReportAt = _now();
     final position = _readPosition();
     await _safe(() => book.sink.report(position: position, listened: listened, isPlaying: _value.playing));
@@ -751,19 +788,29 @@ class PlayerEngine {
     final end = _value.duration;
     _stopTicker();
     _emit(_value.copyWith(playing: false, position: end));
+    _log(_listened);
     await _safe(() => book.sink.report(position: end, listened: _listened, isPlaying: false));
     _listened = Duration.zero;
     await _safe(() => book.sink.finished(position: end));
+    final now = _value.now;
+    if (now != null) onFinishedBook?.call(now, _now());
     _notice(BookFinished(book.title));
     final stopHere = _value.sleep is SleepAtBookEnd;
     if (stopHere) setSleepTimer(const SleepOff());
     if (!stopHere && _prefs.autoPlay == AutoPlay.queueThenStop && _value.queue.isNotEmpty) {
       final next = _value.queue.first;
       await _setQueue(_value.queue.skip(1).toList());
-      await playItem(next);
+      await playItem(next.ref);
       return;
     }
     unawaited(_saveLast());
+  }
+
+  void _log(Duration listened) {
+    final now = _value.now;
+    final log = onListened;
+    if (now == null || log == null || listened <= Duration.zero) return;
+    log(ListeningSpan(book: now, sessionId: _sessionId, end: _now(), listened: listened, speed: _value.speed));
   }
 
   static Future<void> _safe(Future<void> Function() call) async {

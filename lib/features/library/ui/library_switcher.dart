@@ -70,6 +70,7 @@ class LibrarySwitcherButton extends ConsumerWidget {
 Future<void> showLibrarySwitcher(BuildContext context, WidgetRef ref) {
   return showModalBottomSheet<void>(
     context: context,
+    useRootNavigator: true,
     useSafeArea: true,
     isScrollControlled: true,
     builder: (_) => const _SwitcherSheet(),

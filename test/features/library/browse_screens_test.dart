@@ -22,7 +22,6 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../support/test_app.dart';
-import '../player/fake_backend.dart';
 import 'abs_support.dart';
 
 const clockmaker = '695b9eb3-1a88-4320-b033-95089797f205';
@@ -38,7 +37,6 @@ class PlayRecorder {
 }
 
 List<Override> playerOverrides(PlayRecorder recorder) => [
-  audioBackendProvider.overrideWithValue(FakeBackend(now: DateTime.now)),
   bookResolverProvider.overrideWithValue(recorder.resolve),
 ];
 
@@ -117,13 +115,6 @@ Future<void> addLocalBook(
   });
 }
 
-/// A phone sized window, like the screens are designed for.
-void phoneWindow(WidgetTester tester) {
-  tester.view.physicalSize = const Size(1170, 2532);
-  tester.view.devicePixelRatio = 3;
-  addTearDown(tester.view.reset);
-}
-
 /// The vertical scroll view of a screen (shelves inside it scroll sideways).
 Finder mainScroll(Type screen) => find
     .descendant(
@@ -152,7 +143,7 @@ void main() {
     WidgetTester tester, {
     List<Override> extra = const [],
   }) async {
-    phoneWindow(tester);
+    usePhoneSize(tester);
     final local = await openTestLocalDb(tester);
     final player = PlayRecorder();
     return (local: local, player: player);
@@ -270,7 +261,7 @@ void main() {
       void Function(FakeAbsServer server)? configure,
       bool withLocal = false,
     }) async {
-      phoneWindow(tester);
+      usePhoneSize(tester);
       final server = FakeAbsServer();
       configure?.call(server);
       final db = await openTestAccountDb(tester);
@@ -342,6 +333,8 @@ void main() {
         200,
         scrollable: find.descendant(of: find.byType(BottomSheet), matching: find.byType(Scrollable)).first,
       );
+      await tester.ensureVisible(chip);
+      await tester.pumpAndSettle();
       await tester.tap(chip);
       await tester.pump();
       await tester.tap(find.text(l10n.filterShowBooks));

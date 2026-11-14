@@ -27,6 +27,7 @@ dependencies:
   audio_service: ^0.18.19
   audio_session: ^0.2.4
   background_downloader: ^9.6.6
+  connectivity_plus: ^7.3.2
   cached_network_image: ^4.0.7
   flutter_cache_manager: ^3.5.0
   material_color_utilities: ^0.13.0
@@ -45,6 +46,7 @@ dependencies:
   audio_metadata_reader: ^1.8.1
   file_picker: ^13.3.3
   android_file_picker: ^2.1.6
+  sensors_plus: ^7.1.1
 
 dev_dependencies:
   flutter_test:

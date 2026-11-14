@@ -12,6 +12,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../accounts/data/account_session.dart';
 import '../../accounts/data/accounts_repository.dart';
+import '../../downloads/ui/downloads_screen.dart' show DownloadsEntryTile;
 
 /// The You tab: servers, files on this phone, and (in later phases)
 /// downloads, stats and settings.
@@ -39,6 +40,19 @@ class YouScreen extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.only(bottom: Space.xxl),
         children: [
+          _SectionHeader(label: l10n.youListening),
+          ListTile(
+            leading: const Icon(Icons.insights_rounded),
+            title: Text(l10n.statsTitle),
+            subtitle: Text(l10n.statsYouRowBody),
+            onTap: () => context.push(AppRoutes.stats),
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings_outlined),
+            title: Text(l10n.settingsTitle),
+            subtitle: Text(l10n.settingsYouRowBody),
+            onTap: () => context.push(AppRoutes.settings),
+          ),
           _SectionHeader(label: l10n.youServers),
           if (account != null)
             ListTile(
@@ -70,6 +84,7 @@ class YouScreen extends ConsumerWidget {
               onTap: () => context.push(AppRoutes.addServer),
             ),
           _SectionHeader(label: l10n.youOnThisDevice),
+          if (accounts.isNotEmpty) const DownloadsEntryTile(),
           ListTile(
             leading: const Icon(Icons.library_add_outlined),
             title: Text(l10n.youImportFiles),

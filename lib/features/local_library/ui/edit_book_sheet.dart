@@ -19,6 +19,8 @@ import 'local_cover.dart';
 Future<bool?> showEditBookSheet(BuildContext context, String bookId) {
   return showModalBottomSheet<bool>(
     context: context,
+    // Above the tab bar and mini player, wherever it is opened from.
+    useRootNavigator: true,
     isScrollControlled: true,
     useSafeArea: true,
     builder: (_) => EditBookSheet(bookId: bookId),

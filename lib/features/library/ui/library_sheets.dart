@@ -14,6 +14,7 @@ import '../data/library_providers.dart';
 Future<LibraryQuery?> showSortSheet(BuildContext context, LibraryQuery query, {required bool local}) {
   return showModalBottomSheet<LibraryQuery>(
     context: context,
+    useRootNavigator: true,
     useSafeArea: true,
     builder: (_) => _SortSheet(query: query, local: local),
   );
@@ -96,6 +97,7 @@ class _SortSheetState extends State<_SortSheet> {
 Future<LibraryQuery?> showFilterSheet(BuildContext context, LibraryKey key, LibraryQuery query) {
   return showModalBottomSheet<LibraryQuery>(
     context: context,
+    useRootNavigator: true,
     useSafeArea: true,
     isScrollControlled: true,
     builder: (_) => DraggableScrollableSheet(

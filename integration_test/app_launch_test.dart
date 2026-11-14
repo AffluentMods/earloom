@@ -119,8 +119,10 @@ void main() {
     expect(tester.widget<ItemDetailScreen>(find.byType(ItemDetailScreen)).itemId, 'test');
     await shot('07_deep_link_item');
 
+    // Nothing is loaded on a fresh install: the player link lands on Home.
     await openLink(tester, 'earloom://player');
-    expect(find.byType(NowPlayingScreen), findsOneWidget);
+    expect(find.byType(NowPlayingScreen), findsNothing);
+    expect(find.byType(HomeScreen), findsOneWidget);
 
     await openLink(tester, 'earloom://settings/delete-everything');
     expect(find.byType(HomeScreen), findsOneWidget);

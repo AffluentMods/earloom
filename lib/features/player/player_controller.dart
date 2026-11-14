@@ -2,7 +2,9 @@
 // Copyright (c) 2026 Affluent Labs LLC
 
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
+import 'package:flutter/widgets.dart' show basicLocaleListResolution;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -10,14 +12,22 @@ import '../../app/providers.dart';
 import '../../core/db/global_db.dart';
 import '../../core/library/source_id.dart';
 import '../../core/net/abs_client.dart';
+import '../../core/socket/abs_socket.dart';
 import '../accounts/data/account_session.dart';
 import '../accounts/data/accounts_repository.dart' show AccountRowX;
+import '../downloads/data/offline_providers.dart';
+import '../../l10n/gen/app_localizations.dart';
 import '../local_library/data/providers.dart';
 import 'abs_playback.dart';
 import 'audio_backend.dart';
 import 'player_engine.dart';
 import 'player_prefs.dart';
 import 'progress_resolver.dart';
+
+/// Strings in the device language, for places with no widget context.
+AppLocalizations deviceL10n() => lookupAppLocalizations(
+  basicLocaleListResolution(PlatformDispatcher.instance.locales, AppLocalizations.supportedLocales),
+);
 
 /// The platform player. Tests override it with a fake.
 final audioBackendProvider = Provider<AudioBackend>((ref) => JustAudioBackend());
@@ -35,7 +45,8 @@ final deviceIdProvider = FutureProvider<String>((ref) async {
 });
 
 /// Turns any [ItemRef] into a playable book: local books from the On this
-/// device library, server books through a new playback session.
+/// device library, downloaded server books from their files, other server
+/// books through a new playback session.
 final bookResolverProvider = Provider<BookResolver>((ref) {
   return (ItemRef item, {Duration? startAt}) async {
     switch (item.source) {
@@ -43,6 +54,9 @@ final bookResolverProvider = Provider<BookResolver>((ref) {
         final book = await ref.read(localLibraryRepositoryProvider).playable(item.itemId);
         return (book, StartDecision(startAt ?? book.startPosition));
       case AbsSource(:final accountId):
+        // A downloaded book plays from the phone and never asks the server.
+        final downloaded = ref.read(downloadedPlaybackProvider);
+        if (await downloaded.isPlayable(item)) return downloaded.open(item, startAt: startAt);
         final db = ref.read(globalDbProvider);
         final account = await db.accountById(accountId);
         if (account == null) throw StateError('The server account for this book was removed');
@@ -61,6 +75,7 @@ final bookResolverProvider = Provider<BookResolver>((ref) {
         final starter = AbsSessionStarter(
           api: ClientPlaybackApi(client, headers),
           device: device,
+          offline: ref.read(offlineHooksProvider),
           localPosition: (r) async {
             final last = await playerStore.loadLast();
             return last != null && last.ref == r ? PositionStamp(last.position, last.savedAt) : null;
@@ -78,10 +93,12 @@ final bookResolverProvider = Provider<BookResolver>((ref) {
 
 /// The one player engine. Restores the last book (paused) on creation.
 final playerEngineProvider = Provider<PlayerEngine>((ref) {
+  final l10n = deviceL10n();
   final engine = PlayerEngine(
     backend: ref.watch(audioBackendProvider),
     store: ref.watch(playerStoreProvider),
     resolver: (item, {startAt}) => ref.read(bookResolverProvider)(item, startAt: startAt),
+    chapterNames: ChapterNames(forTrack: l10n.playerPartNumber, wholeBook: l10n.playerWholeBook),
   );
   unawaited(engine.restore());
   ref.onDispose(engine.dispose);
@@ -121,6 +138,36 @@ class PlayerPrefsState extends Notifier<PlayerPrefs> {
     await ref.read(playerEngineProvider).updatePrefs(next);
   }
 }
+
+/// Feeds progress made on other devices to the player (docs/plan
+/// 04-phase3-player.md 3.7): applied quietly when paused, offered when
+/// playing far away, our own echoes ignored. Kept alive by the app shell.
+final remoteProgressBridgeProvider = Provider<void>((ref) {
+  final session = ref.watch(accountSessionProvider);
+  if (session == null) return;
+  final engine = ref.watch(playerEngineProvider);
+  final sub = session.socket.events.listen((event) {
+    if (event is! ProgressUpdated) return;
+    final own = event.sessionId;
+    if (own != null && AbsProgressSink.isOwnSession(own)) return;
+    final p = event.progress;
+    final itemId = p['libraryItemId'];
+    final time = p['currentTime'];
+    final last = p['lastUpdate'];
+    if (itemId is! String || time is! num || last is! num) return;
+    final item = ItemRef(AbsSource(session.accountId), itemId, episodeId: p['episodeId'] as String?);
+    unawaited(
+      engine.applyRemote(
+        item,
+        PositionStamp(
+          Duration(milliseconds: (time * 1000).round()),
+          DateTime.fromMillisecondsSinceEpoch(last.toInt()),
+        ),
+      ),
+    );
+  });
+  ref.onDispose(sub.cancel);
+});
 
 /// True when [ref] is the loaded book.
 bool isCurrent(PlayerSnapshot s, ItemRef ref) => s.now?.ref == ref;

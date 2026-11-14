@@ -6,12 +6,13 @@ import 'package:drift/drift.dart';
 import 'db_location.dart';
 import 'tables/accounts.dart';
 import 'tables/app_settings.dart';
+import 'tables/listening.dart';
 
 part 'global_db.g.dart';
 
-/// The one database shared by every account: app settings and the accounts
-/// list.
-@DriftDatabase(tables: [AppSettings, Accounts])
+/// The one database shared by every account: app settings, the accounts
+/// list and the listening log behind the stats.
+@DriftDatabase(tables: [AppSettings, Accounts, ListeningBuckets, ListeningSessions, ListenedBooks])
 class GlobalDb extends _$GlobalDb {
   GlobalDb(super.executor);
 
@@ -19,13 +20,18 @@ class GlobalDb extends _$GlobalDb {
   GlobalDb.open() : super(openAppDatabase('global'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
       if (from < 2) await m.createTable(accounts);
+      if (from < 3) {
+        await m.createTable(listeningBuckets);
+        await m.createTable(listeningSessions);
+        await m.createTable(listenedBooks);
+      }
     },
   );
 

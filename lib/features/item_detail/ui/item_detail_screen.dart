@@ -25,8 +25,10 @@ import '../../library/ui/widgets/book_cards.dart';
 import '../../library/ui/widgets/book_cover.dart';
 import '../../library/ui/widgets/browse_layout.dart';
 import '../../library/ui/widgets/progress_badge.dart';
+import '../../downloads/ui/download_button.dart';
 import '../../local_library/ui/edit_book_sheet.dart';
 import '../../player/player_controller.dart';
+import '../../stats/ui/book_listening_card.dart';
 
 /// One book, themed with its cover: header, the main play button, progress,
 /// description, chapters, details and more in the series. Renders from the
@@ -174,6 +176,10 @@ class _DetailBody extends ConsumerWidget {
                 _Pad(child: DescriptionText(html: detail.descriptionHtml!)),
               ],
               if (detail.chapters.length > 1) _Chapters(detail: detail),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(Space.xl, Space.xl, Space.xl, 0),
+                child: BookListeningCard(itemRef: book.ref),
+              ),
               _Details(detail: detail, libraryId: libraryId),
               _MoreInSeries(detail: detail),
             ],
@@ -189,6 +195,7 @@ class _DetailBody extends ConsumerWidget {
     final repository = ref.read(absLibraryRepositoryProvider);
     final action = await showModalBottomSheet<String>(
       context: context,
+      useRootNavigator: true,
       useSafeArea: true,
       builder: (context) => SafeArea(
         child: Column(
@@ -196,12 +203,12 @@ class _DetailBody extends ConsumerWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.playlist_play_rounded),
-              title: Text(l10n.itemPlayNextAction),
+              title: Text(l10n.queuePlayNext),
               onTap: () => Navigator.pop(context, 'next'),
             ),
             ListTile(
               leading: const Icon(Icons.playlist_add_rounded),
-              title: Text(l10n.itemAddToUpNext),
+              title: Text(l10n.queueAdd),
               onTap: () => Navigator.pop(context, 'queue'),
             ),
             if (!isLocal && libraryId != null)
@@ -501,8 +508,12 @@ class _ActionRow extends ConsumerWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Download button (Phase 4): the downloads feature provides
-        // `DownloadButton(itemRef)` for server books; it goes first here.
+        if (isServer)
+          Expanded(
+            child: Center(
+              child: DownloadButton(itemRef: book.ref, title: book.title, compact: true),
+            ),
+          ),
         Expanded(
           child: _Action(
             icon: finished ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
@@ -524,7 +535,7 @@ class _ActionRow extends ConsumerWidget {
         Expanded(
           child: _Action(
             icon: Icons.queue_rounded,
-            label: l10n.itemPlayNextAction,
+            label: l10n.queuePlayNext,
             onTap: () => BookActions.playNext(context, ref, book),
           ),
         ),

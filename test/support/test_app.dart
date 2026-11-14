@@ -11,10 +11,15 @@ import 'package:earloom/app/theme/app_theme.dart';
 import 'package:earloom/core/db/account_db.dart';
 import 'package:earloom/core/db/global_db.dart';
 import 'package:earloom/core/db/local_db.dart';
+import 'package:earloom/core/db/offline_db.dart';
+import 'package:earloom/core/net/reachability.dart';
 import 'package:earloom/core/storage/secure_store.dart';
 import 'package:earloom/features/accounts/data/account_session.dart';
+import 'package:earloom/features/downloads/data/offline_providers.dart';
 import 'package:earloom/features/local_library/data/local_storage.dart';
 import 'package:earloom/features/local_library/data/providers.dart';
+import 'package:earloom/features/player/player_controller.dart';
+import 'package:earloom/features/player/ui/player_side_effects.dart';
 import 'package:earloom/l10n/gen/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +27,8 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'fake_downloads.dart';
+import 'fake_player.dart';
 import 'offline_covers.dart';
 
 /// English strings for assertions, so tests never hardcode UI copy.
@@ -94,9 +101,11 @@ Future<GlobalDb> pumpEarloom(
   void Function(GlobalDb db)? onDb,
   SecureStore? secureStore,
   LocalDb? localDb,
+  OfflineDb? offlineDb,
 }) async {
   useOfflineCoverCache();
   final db = await openTestGlobalDb(tester);
+  final offline = offlineDb ?? await openTestOfflineDb(tester);
   onDb?.call(db);
   addTearDown(db.close);
   final local = localDb ?? await openTestLocalDb(tester);
@@ -110,15 +119,18 @@ Future<GlobalDb> pumpEarloom(
     ProviderScope(
       overrides: [
         globalDbProvider.overrideWithValue(db),
+        audioBackendProvider.overrideWithValue(FakeBackend()),
+        accelerometerProvider.overrideWithValue(Stream.empty),
+        // Account caches live in memory: no files, no path_provider.
+        accountDbOpenerProvider.overrideWithValue(
+          (_) => AccountDb(DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true)),
+        ),
         initialThemeModeProvider.overrideWithValue(themeMode),
         initialOnboardedProvider.overrideWithValue(onboarded),
         secureStoreProvider.overrideWithValue(secureStore ?? MemorySecureStore()),
         localDbProvider.overrideWithValue(local),
-        // A signed-in account gets an in-memory cache, never a file.
-        accountDbOpenerProvider.overrideWithValue(
-          (_) => AccountDb(DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true)),
-        ),
         localStorageProvider.overrideWithValue(LocalStorage(Directory('${storage.path}/local'))),
+        ...offlineTestOverrides(offline),
         ...overrides,
       ],
       child: const EarloomApp(),
@@ -128,6 +140,19 @@ Future<GlobalDb> pumpEarloom(
   return db;
 }
 
+/// The offline services without a network, a plugin or a disk: an
+/// in-memory database, a server that always answers and no connectivity
+/// events. Download manager tests override [downloadManagerProvider] or
+/// [downloadTransportProvider] themselves.
+List<Override> offlineTestOverrides(OfflineDb db, {Pinger? pinger}) => [
+  offlineDbProvider.overrideWithValue(db),
+  connectivityChangesProvider.overrideWithValue(const Stream<void>.empty()),
+  pingerProvider.overrideWithValue(pinger ?? (_, _) async => true),
+  supportDirProvider.overrideWithValue(() async => Directory.systemTemp),
+  supportPathProvider.overrideWith((ref) async => Directory.systemTemp.path),
+  freeSpaceProvider.overrideWith((ref) async => null),
+];
+
 /// Delivers a link the way the operating system does while the app runs.
 Future<void> openLink(WidgetTester tester, String link) async {
   final message = const JSONMethodCodec().encodeMethodCall(
@@ -135,4 +160,12 @@ Future<void> openLink(WidgetTester tester, String link) async {
   );
   await tester.binding.defaultBinaryMessenger.handlePlatformMessage('flutter/navigation', message, (_) {});
   await tester.pumpAndSettle();
+}
+
+/// A phone-sized window (the default test window is 800 wide, which the
+/// app treats as a tablet).
+void usePhoneSize(WidgetTester tester, {Size size = const Size(390, 844)}) {
+  tester.view.physicalSize = size * 2;
+  tester.view.devicePixelRatio = 2;
+  addTearDown(tester.view.reset);
 }

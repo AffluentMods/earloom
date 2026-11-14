@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/db/account_db.dart';
 import '../core/db/global_db.dart';
+import '../core/db/offline_db.dart';
 import '../features/accounts/data/account_session.dart';
 import 'theme/app_theme.dart';
 import 'theme/cover_scheme.dart';
@@ -12,6 +13,12 @@ import 'theme/cover_scheme.dart';
 /// The app-wide database. Opened in `main` and provided through an override.
 final globalDbProvider = Provider<GlobalDb>(
   (ref) => throw StateError('globalDbProvider must be overridden at startup'),
+);
+
+/// Downloads, offline sessions and the outbox of every account. Opened in
+/// `main` and provided through an override.
+final offlineDbProvider = Provider<OfflineDb>(
+  (ref) => throw StateError('offlineDbProvider must be overridden at startup'),
 );
 
 /// The cache database of the current account. Throws when there is none:
@@ -26,8 +33,8 @@ final accountDbProvider = Provider<AccountDb>((ref) {
 }, dependencies: [accountSessionProvider]);
 
 final coverSchemeServiceProvider = Provider<CoverSchemeService>(
-  (ref) => CoverSchemeService(ref.watch(accountDbProvider)),
-  dependencies: [accountDbProvider],
+  (ref) => CoverSchemeService(ref.watch(accountSessionProvider)?.db),
+  dependencies: [accountSessionProvider],
 );
 
 /// The theme mode read from disk before the first frame, so the app never

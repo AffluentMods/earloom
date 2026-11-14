@@ -8,6 +8,8 @@ import 'package:material_ui/material_ui.dart' show Widget;
 
 import '../features/accounts/ui/accounts_screen.dart';
 import '../features/accounts/ui/add_server_screen.dart';
+import '../features/downloads/ui/download_settings_screen.dart';
+import '../features/downloads/ui/downloads_screen.dart';
 import '../features/home/ui/home_screen.dart';
 import '../core/library/browse_models.dart';
 import '../core/library/source_id.dart';
@@ -20,8 +22,11 @@ import '../features/library/ui/filtered_books_screen.dart';
 import '../features/library/ui/series_screen.dart';
 import '../features/local_library/ui/import_books_screen.dart';
 import '../features/onboarding/ui/onboarding_screen.dart';
+import '../features/player/player_controller.dart';
 import '../features/player/ui/now_playing_screen.dart';
 import '../features/search/ui/search_screen.dart';
+import '../features/settings/ui/settings_screen.dart';
+import '../features/stats/ui/stats_screen.dart';
 import '../features/you/ui/you_screen.dart';
 import 'app_scaffold.dart';
 import 'debug/debug_routes.dart';
@@ -38,6 +43,14 @@ abstract final class AppRoutes {
   static const onboarding = '/onboarding';
   static const addServer = '/accounts/add';
   static const accounts = '/you/accounts';
+  static const stats = '/you/stats';
+  static const settings = '/you/settings';
+  static const settingsPlayback = '/you/settings/playback';
+  static const settingsAppearance = '/you/settings/appearance';
+  static const settingsPrivacy = '/you/settings/privacy';
+  static const settingsAbout = '/you/settings/about';
+  static const downloads = '/you/downloads';
+  static const downloadSettings = '/you/downloads/settings';
   static const importFiles = '/local/import';
   static String item(String id) => '/item/${Uri.encodeComponent(id)}';
 
@@ -128,7 +141,7 @@ List<RouteBase> browseRoutes({bool top = false}) {
 final routerProvider = Provider<GoRouter>((ref) {
   final onboarded = ValueNotifier<bool>(ref.read(onboardingProvider));
   ref.listen(onboardingProvider, (_, value) => onboarded.value = value);
-  final router = buildRouter(onboarded: onboarded);
+  final router = buildRouter(onboarded: onboarded, hasBook: () => ref.read(playerProvider).hasBook);
   ref.onDispose(router.dispose);
   ref.onDispose(onboarded.dispose);
   return router;
@@ -138,7 +151,11 @@ final routerProvider = Provider<GoRouter>((ref) {
 const _onboardingRoutes = ['/onboarding', '/accounts/add', '/local/import'];
 
 @visibleForTesting
-GoRouter buildRouter({String initialLocation = AppRoutes.home, ValueListenable<bool>? onboarded}) {
+GoRouter buildRouter({
+  String initialLocation = AppRoutes.home,
+  ValueListenable<bool>? onboarded,
+  bool Function()? hasBook,
+}) {
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: onboarded,
@@ -180,7 +197,25 @@ GoRouter buildRouter({String initialLocation = AppRoutes.home, ValueListenable<b
               GoRoute(
                 path: AppRoutes.you,
                 builder: (_, _) => const YouScreen(),
-                routes: [GoRoute(path: 'accounts', builder: (_, _) => const AccountsScreen())],
+                routes: [
+                  GoRoute(path: 'accounts', builder: (_, _) => const AccountsScreen()),
+                  GoRoute(path: 'stats', builder: (_, _) => const StatsScreen()),
+                  GoRoute(
+                    path: 'settings',
+                    builder: (_, _) => const SettingsScreen(),
+                    routes: [
+                      GoRoute(path: 'playback', builder: (_, _) => const PlaybackSettingsScreen()),
+                      GoRoute(path: 'appearance', builder: (_, _) => const AppearanceSettingsScreen()),
+                      GoRoute(path: 'privacy', builder: (_, _) => const PrivacySettingsScreen()),
+                      GoRoute(path: 'about', builder: (_, _) => const AboutScreen()),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'downloads',
+                    builder: (_, _) => const DownloadsScreen(),
+                    routes: [GoRoute(path: 'settings', builder: (_, _) => const DownloadSettingsScreen())],
+                  ),
+                ],
               ),
             ],
           ),
@@ -194,6 +229,8 @@ GoRouter buildRouter({String initialLocation = AppRoutes.home, ValueListenable<b
       ...browseRoutes(top: true),
       GoRoute(
         path: AppRoutes.player,
+        // A link to the player with nothing loaded has nothing to show.
+        redirect: (_, _) => (hasBook?.call() ?? true) ? null : AppRoutes.home,
         pageBuilder: (_, state) => NowPlayingPage(key: state.pageKey),
       ),
       GoRoute(path: AppRoutes.onboarding, builder: (_, _) => const OnboardingScreen()),

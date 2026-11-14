@@ -30,6 +30,10 @@ final class PlayerPrefs {
     this.sleepLast = const Duration(minutes: 30),
     this.shakeToExtend = true,
     this.chapterScrubber = true,
+    this.autoSleep = false,
+    this.autoSleepFrom = 22 * 60,
+    this.autoSleepUntil = 6 * 60,
+    this.lockScreenChapter = false,
   });
 
   static const skipChoices = [5, 10, 15, 30, 45, 60, 90];
@@ -54,6 +58,25 @@ final class PlayerPrefs {
   /// The Now Playing scrubber shows the chapter (true) or the whole book.
   final bool chapterScrubber;
 
+  /// Start the sleep timer by itself when playback starts inside the
+  /// window, given in minutes after midnight (it may wrap past midnight).
+  final bool autoSleep;
+  final int autoSleepFrom;
+  final int autoSleepUntil;
+
+  /// The lock screen and notification show the chapter (true) or the
+  /// whole book (false) as their progress bar.
+  final bool lockScreenChapter;
+
+  /// Whether [time] falls inside the auto sleep window.
+  bool inAutoSleepWindow(DateTime time) {
+    final m = time.hour * 60 + time.minute;
+    if (autoSleepFrom == autoSleepUntil) return false;
+    return autoSleepFrom < autoSleepUntil
+        ? m >= autoSleepFrom && m < autoSleepUntil
+        : m >= autoSleepFrom || m < autoSleepUntil;
+  }
+
   PlayerPrefs copyWith({
     Duration? skipBack,
     Duration? skipForward,
@@ -68,6 +91,10 @@ final class PlayerPrefs {
     Duration? sleepLast,
     bool? shakeToExtend,
     bool? chapterScrubber,
+    bool? autoSleep,
+    int? autoSleepFrom,
+    int? autoSleepUntil,
+    bool? lockScreenChapter,
   }) => PlayerPrefs(
     skipBack: skipBack ?? this.skipBack,
     skipForward: skipForward ?? this.skipForward,
@@ -82,6 +109,10 @@ final class PlayerPrefs {
     sleepLast: sleepLast ?? this.sleepLast,
     shakeToExtend: shakeToExtend ?? this.shakeToExtend,
     chapterScrubber: chapterScrubber ?? this.chapterScrubber,
+    autoSleep: autoSleep ?? this.autoSleep,
+    autoSleepFrom: autoSleepFrom ?? this.autoSleepFrom,
+    autoSleepUntil: autoSleepUntil ?? this.autoSleepUntil,
+    lockScreenChapter: lockScreenChapter ?? this.lockScreenChapter,
   );
 
   Map<String, Object?> toJson() => {
@@ -98,6 +129,10 @@ final class PlayerPrefs {
     'sleepLast': sleepLast.inSeconds,
     'shakeToExtend': shakeToExtend,
     'chapterScrubber': chapterScrubber,
+    'autoSleep': autoSleep,
+    'autoSleepFrom': autoSleepFrom,
+    'autoSleepUntil': autoSleepUntil,
+    'lockScreenChapter': lockScreenChapter,
   };
 
   /// Unknown or broken values fall back to the defaults one by one.
@@ -123,6 +158,10 @@ final class PlayerPrefs {
       sleepLast: secs('sleepLast', d.sleepLast),
       shakeToExtend: flag('shakeToExtend', d.shakeToExtend),
       chapterScrubber: flag('chapterScrubber', d.chapterScrubber),
+      autoSleep: flag('autoSleep', d.autoSleep),
+      autoSleepFrom: number('autoSleepFrom', d.autoSleepFrom.toDouble()).round().clamp(0, 1439),
+      autoSleepUntil: number('autoSleepUntil', d.autoSleepUntil.toDouble()).round().clamp(0, 1439),
+      lockScreenChapter: flag('lockScreenChapter', d.lockScreenChapter),
     );
   }
 }
@@ -194,6 +233,59 @@ final class LastPlayed {
   }
 }
 
+/// A book waiting in Up next, with what the queue sheet shows, so the
+/// queue reads well offline and before any library is loaded.
+final class QueueEntry {
+  const QueueEntry({required this.ref, required this.title, this.author, this.coverPath, this.coverUrl, this.coverKey});
+
+  final ItemRef ref;
+  final String title;
+  final String? author;
+  final String? coverPath;
+  final String? coverUrl;
+  final String? coverKey;
+
+  CoverSource? get cover {
+    if (coverPath != null) return FileCover(coverPath!);
+    if (coverUrl != null) return NetworkCover(itemCoverUrl: Uri.parse(coverUrl!), cacheKey: coverKey ?? coverUrl!);
+    return null;
+  }
+
+  factory QueueEntry.of(ItemRef ref, {required String title, String? author, CoverSource? cover}) => QueueEntry(
+    ref: ref,
+    title: title,
+    author: author,
+    coverPath: cover is FileCover ? cover.path : null,
+    coverUrl: cover is NetworkCover ? cover.itemCoverUrl.toString() : null,
+    coverKey: cover is NetworkCover ? cover.cacheKey : null,
+  );
+
+  Map<String, Object?> toJson() => {
+    'ref': ref.key,
+    'title': title,
+    'author': author,
+    'coverPath': coverPath,
+    'coverUrl': coverUrl,
+    'coverKey': coverKey,
+  };
+
+  static QueueEntry? fromJson(Object? json) {
+    if (json is! Map<String, Object?>) return null;
+    final ref = ItemRef.tryParseKey('${json['ref']}');
+    final title = json['title'];
+    if (ref == null || title is! String) return null;
+    String? text(String key) => json[key] is String ? json[key]! as String : null;
+    return QueueEntry(
+      ref: ref,
+      title: title,
+      author: text('author'),
+      coverPath: text('coverPath'),
+      coverUrl: text('coverUrl'),
+      coverKey: text('coverKey'),
+    );
+  }
+}
+
 /// Where the player keeps its settings and memory.
 abstract interface class PlayerStore {
   Future<PlayerPrefs> loadPrefs();
@@ -202,8 +294,8 @@ abstract interface class PlayerStore {
   Future<void> saveLast(LastPlayed? last);
   Future<double?> speedFor(ItemRef ref);
   Future<void> saveSpeed(ItemRef ref, double speed);
-  Future<List<ItemRef>> loadQueue();
-  Future<void> saveQueue(List<ItemRef> queue);
+  Future<List<QueueEntry>> loadQueue();
+  Future<void> saveQueue(List<QueueEntry> queue);
 }
 
 /// [PlayerStore] in the app settings table.
@@ -250,14 +342,15 @@ final class SettingsPlayerStore implements PlayerStore {
   Future<void> saveSpeed(ItemRef ref, double speed) => _db.writeSetting(_speed(ref), '$speed');
 
   @override
-  Future<List<ItemRef>> loadQueue() async {
+  Future<List<QueueEntry>> loadQueue() async {
     final json = await _json(_queue);
     if (json is! List) return const [];
-    return [for (final k in json) ?ItemRef.tryParseKey('$k')];
+    return [for (final e in json) ?QueueEntry.fromJson(e)];
   }
 
   @override
-  Future<void> saveQueue(List<ItemRef> queue) => _db.writeSetting(_queue, jsonEncode([for (final r in queue) r.key]));
+  Future<void> saveQueue(List<QueueEntry> queue) =>
+      _db.writeSetting(_queue, jsonEncode([for (final e in queue) e.toJson()]));
 }
 
 /// [PlayerStore] in memory, for tests.
@@ -265,7 +358,7 @@ final class MemoryPlayerStore implements PlayerStore {
   PlayerPrefs prefs = const PlayerPrefs();
   LastPlayed? last;
   final speeds = <String, double>{};
-  List<ItemRef> queue = [];
+  List<QueueEntry> queue = [];
 
   @override
   Future<PlayerPrefs> loadPrefs() async => prefs;
@@ -280,7 +373,7 @@ final class MemoryPlayerStore implements PlayerStore {
   @override
   Future<void> saveSpeed(ItemRef ref, double speed) async => speeds[ref.key] = speed;
   @override
-  Future<List<ItemRef>> loadQueue() async => queue;
+  Future<List<QueueEntry>> loadQueue() async => queue;
   @override
-  Future<void> saveQueue(List<ItemRef> value) async => queue = [...value];
+  Future<void> saveQueue(List<QueueEntry> value) async => queue = [...value];
 }

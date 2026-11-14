@@ -6,7 +6,21 @@ Branch: `phase-4-offline`
 
 ---
 
-## 4.1 Data model (AccountDb)
+## As built (decisions made while building, for review)
+
+- **Offline tables live in `OfflineDb` (`offline.sqlite`), not AccountDb.** One database for every account, each row with its `accountId`: a download of account A plays, records its listening and flushes its outbox while account B is current. Schema dump in `drift_schemas/offline/`. Because of this, `items.isDownloaded` is not denormalized into AccountDb; cards use `DownloadedBadge`, which watches the download states.
+- **Download keys** are `ItemRef.key` (`abs:<accountId>|<itemId>[|<episodeId>]`), and `DownloadManager` takes `ItemRef`s instead of bare item ids.
+- **One task group for all downloads** (`earloom.downloads`); the download a file belongs to is in the task's `metaData`, and each book gets one grouped notification. "At most 2 books at once" is the plugin's native holding queue limited to 2 files, which also works while the app is suspended.
+- **Storage location:** Application Support on both platforms (`<support>/accounts/<id>/downloads/...`). The Android SD card option (4.2, 4.5 "Download location") is not built.
+- **File names:** `track_000.<ext>` and `cover.img` (the cover is stored as the server sent it, WebP).
+- **Waiting for Wi-Fi** is shown when Wi-Fi only is on and the downloader reports no Wi-Fi or Ethernet. The setting is applied to all tasks at once (`requireWiFi`), only when it changes.
+- **Auto-delete and the size limit** only consider books finished on this phone (`downloads.finishedAt`, set when the player reaches the end of a downloaded book). Finished on another device does not count yet.
+- **Auto-download of the next book in a series** runs for downloaded books only (their snapshot has the series), once per book per app run, at 75%.
+- **Start position of a downloaded book** is the newest of this phone's own record, its local sessions, and the progress saved with the download. Progress from other devices that arrived later (AccountDb cache, socket) is not consulted yet.
+- **Bookmarks offline** are queued in the outbox and shown right away from the queue; the list fetched last time is kept in memory only.
+- **Reachability** re-checks every 60 s while offline, and on connectivity change (connectivity_plus, already a dependency of background_downloader), app foreground and failed requests.
+
+## 4.1 Data model (OfflineDb)
 
 | Table | Columns |
 |---|---|

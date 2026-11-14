@@ -257,6 +257,7 @@ Future<void> showDownloadOptions(
     context: context,
     showDragHandle: true,
     useSafeArea: true,
+    isScrollControlled: true,
     builder: (sheet) {
       final l10n = AppLocalizations.of(sheet);
       final text = Theme.of(sheet).textTheme;
@@ -278,43 +279,45 @@ Future<void> showDownloadOptions(
 
       final shown = state.title.isEmpty ? title : state.title;
       return SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.xl, Space.md),
-              child: Text(shown, style: text.titleLarge, maxLines: 2, overflow: TextOverflow.ellipsis),
-            ),
-            if (state.phase == DownloadPhase.failed)
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(Space.lg, 0, Space.lg, Space.md),
-                child: ErrorNotice(message: downloadErrorText(l10n, state.error), details: state.errorDetails),
+                padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.xl, Space.md),
+                child: Text(shown, style: text.titleLarge, maxLines: 2, overflow: TextOverflow.ellipsis),
               ),
-            ...switch (state.phase) {
-              DownloadPhase.complete => [
-                action(Icons.refresh_rounded, l10n.downloadRedownload, () async {
-                  await manager.delete(state.key);
-                  await manager.enqueueItem(state.ref, title: shown);
-                }),
-                action(Icons.delete_outline_rounded, l10n.downloadDelete, remove, destructive: true),
-              ],
-              DownloadPhase.failed => [
-                action(Icons.refresh_rounded, l10n.downloadRetry, () => manager.resume(state.key)),
-                action(Icons.delete_outline_rounded, l10n.downloadDelete, remove, destructive: true),
-              ],
-              DownloadPhase.paused => [
-                action(Icons.play_arrow_rounded, l10n.downloadResume, () => manager.resume(state.key)),
-                action(Icons.close_rounded, l10n.downloadCancel, () => manager.cancel(state.key), destructive: true),
-              ],
-              DownloadPhase.queued || DownloadPhase.waitingForWifi || DownloadPhase.downloading => [
-                action(Icons.pause_rounded, l10n.downloadPause, () => manager.pause(state.key)),
-                action(Icons.close_rounded, l10n.downloadCancel, () => manager.cancel(state.key), destructive: true),
-              ],
-              DownloadPhase.none => const <Widget>[],
-            },
-            const SizedBox(height: Space.sm),
-          ],
+              if (state.phase == DownloadPhase.failed)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(Space.lg, 0, Space.lg, Space.md),
+                  child: ErrorNotice(message: downloadErrorText(l10n, state.error), details: state.errorDetails),
+                ),
+              ...switch (state.phase) {
+                DownloadPhase.complete => [
+                  action(Icons.refresh_rounded, l10n.downloadRedownload, () async {
+                    await manager.delete(state.key);
+                    await manager.enqueueItem(state.ref, title: shown);
+                  }),
+                  action(Icons.delete_outline_rounded, l10n.downloadDelete, remove, destructive: true),
+                ],
+                DownloadPhase.failed => [
+                  action(Icons.refresh_rounded, l10n.downloadRetry, () => manager.resume(state.key)),
+                  action(Icons.delete_outline_rounded, l10n.downloadDelete, remove, destructive: true),
+                ],
+                DownloadPhase.paused => [
+                  action(Icons.play_arrow_rounded, l10n.downloadResume, () => manager.resume(state.key)),
+                  action(Icons.close_rounded, l10n.downloadCancel, () => manager.cancel(state.key), destructive: true),
+                ],
+                DownloadPhase.queued || DownloadPhase.waitingForWifi || DownloadPhase.downloading => [
+                  action(Icons.pause_rounded, l10n.downloadPause, () => manager.pause(state.key)),
+                  action(Icons.close_rounded, l10n.downloadCancel, () => manager.cancel(state.key), destructive: true),
+                ],
+                DownloadPhase.none => const <Widget>[],
+              },
+              const SizedBox(height: Space.sm),
+            ],
+          ),
         ),
       );
     },

@@ -500,6 +500,10 @@ class AbsDownloadManager implements DownloadManager {
         if (file.status == FileState.complete) return;
         await _db.updateFile(key, file.trackIndex, DownloadFilesCompanion(progress: Value(fraction)));
         await _updateBytes(key);
+        final row = await _db.download(key);
+        if (row?.status == DownloadStatus.queued && fraction > 0) {
+          await _db.updateDownload(key, const DownloadsCompanion(status: Value(DownloadStatus.downloading)));
+        }
       case FileStatusEvent(:final status):
         await _onStatus(file, event, status);
     }
@@ -681,6 +685,15 @@ class AbsDownloadManager implements DownloadManager {
       var lost = false;
       for (final f in files) {
         final taskId = f.taskId;
+        // Paused by the system (not by the user): carry on.
+        if (f.status == FileState.paused && row.status != DownloadStatus.paused && taskId != null) {
+          await _db.updateFile(row.key, f.trackIndex, const DownloadFilesCompanion(status: Value(FileState.enqueued)));
+          if (!await _transport.resume(taskId)) {
+            await _db.updateFile(row.key, f.trackIndex, const DownloadFilesCompanion(status: Value(FileState.pending)));
+            lost = true;
+          }
+          continue;
+        }
         if (f.status != FileState.enqueued && f.status != FileState.running) continue;
         final status = taskId == null ? null : known[taskId];
         switch (status) {

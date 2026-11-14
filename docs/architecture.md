@@ -45,12 +45,15 @@ Rule: **the UI reads the database.** Repositories write what the server says int
 | Database | File | Holds |
 |---|---|---|
 | `GlobalDb` | `global.sqlite` | app settings, accounts list, device id, recently played across sources |
-| `AccountDb` | `account_<id>.sqlite` | everything cached for one ABS account: libraries, items, details, progress, series, authors, collections, playlists, shelves, filter data, cover colors, downloads, local sessions, outbox |
+| `AccountDb` | `account_<id>.sqlite` | everything cached for one ABS account: libraries, items, details, progress, series, authors, collections, playlists, shelves, filter data, cover colors |
+| `OfflineDb` | `offline.sqlite` | downloads and their files, item snapshots for offline playback, local listening sessions, the outbox; every row carries its `accountId` |
 | `LocalDb` | `local.sqlite` | the On this device library: books, files, chapters, progress, bookmarks |
+
+`OfflineDb` is one database for all accounts (Phase 4 decision, unlike the plan's "in AccountDb"): a book downloaded in account A keeps playing, recording its listening and flushing its outbox while account B is current, and only the current account's `AccountDb` is open. Removing an account deletes its rows (`OfflineDb.deleteAccount`) and its `accounts/<id>/` folder.
 
 Tokens and custom headers live only in the platform secure store (`SecureStore`), never in SQLite.
 
-All three live in Application Support. Schema changes need a migration and a migration test (drift schema dumps in `drift_schemas/`).
+All four live in Application Support. Schema changes need a migration and a migration test (drift schema dumps in `drift_schemas/`).
 
 ## 6. Networking and auth (ABS)
 
@@ -69,9 +72,17 @@ From `docs/abs-api.md` section 18, which overrides the original plan:
 - One `AudioHandler` (audio_service) owns one `just_audio` player. The app talks only to `PlayerController`.
 - A `PlayableBook` is source-agnostic: tracks (`Uri` plus optional headers, start offset, duration, mime), chapters, start position, title, author, cover. Built by:
   - **local:** file URIs from `LocalDb`;
-  - **downloaded server book:** file URIs from the account's downloads;
+  - **downloaded server book:** file URIs from `download_files` and the track map from the saved snapshot, never the server (`DownloadedPlayback`);
   - **streamed server book:** `POST /api/items/:id/play`, then the public session track URLs (no token, Range works), HLS for transcodes.
-- `ProgressSink` per source receives position updates: local writes to `LocalDb`; server writes locally first, syncs the session every 15 s, falls back to the outbox and local sessions when offline.
+- `ProgressSink` per source receives position updates: local writes to `LocalDb`; a streamed server book syncs its session every 15 s and, when a sync cannot reach the server (or the server forgot the session), moves its listening into a local session from that moment until a sync gets through again; a downloaded book always records a local session and sends its position straight to the server when it answers, else queues it.
+
+## 7a. Downloads, offline and the outbox (Phase 4)
+
+- **Downloads** (`features/downloads/data`): `DownloadManager` is the interface the UI uses; `AbsDownloadManager` implements it on top of a `DownloadTransport` (background_downloader in the app, a fake in tests). Before any audio file is queued the expanded item is saved as a snapshot and the cover as `cover.img`. Each audio file is one background task with headers captured when it is queued; a 401 makes the main isolate refresh and queue the remaining files again. The downloader's native holding queue runs at most two files at once (so at most two books). Finished files are checked against the size in the snapshot.
+- **On disk:** `<support>/accounts/<accountId>/downloads/<itemId>/[<episodeId>/]track_000.<ext>`. The database stores paths relative to Application Support, because the absolute path changes between launches on iOS. iOS excludes the folder and every file from iCloud backup; Android's backup rules exclude `accounts/`.
+- **Local sessions** (`OfflineSessionRecorder`): opened on the first report, updated every report, closed on stop or finish, then queued once for `/api/session/local-all` with their final values (the server moves a re-sent session to a new day). Sessions left open by a kill are closed at the next start.
+- **Outbox** (`core/sync`): progress (coalesced to the newest per item), finished flags, bookmark changes, playlist edits and local sessions, sent in order per item. Before sending progress the flusher reads the server's progress and skips ours when the server's is newer. Failures back off 30 s, 2 min, 10 min, then hourly; a 4xx other than 401 becomes a dead letter shown in a quiet "could not sync" row with details. Local sessions go 25 per request.
+- **Reachability** (`core/net/reachability.dart`): online means the current server answers `/ping` within 3 s. Checked on account change, connectivity change, app foreground, after failures, and every 60 s while offline. The offline banner sits on top of the tabs and shows only while the server does not answer.
 - `TrackMap` is the only place that converts whole-book positions to (track, offset).
 
 ## 8. Local library
@@ -92,6 +103,7 @@ From `docs/abs-api.md` section 18, which overrides the original plan:
 | `/library` (tab) | Grid or list, sort, filters, Series, Authors, Collections, Playlists | Current library of the current source |
 | `/search` (tab) | Online search, offline full-text search | Across the current source |
 | `/you` (tab) | Downloads, Stats, Accounts, Settings, On this device | |
+| `/you/downloads` | Downloads: active, on this phone, storage | Settings at `/you/downloads/settings` |
 | `/book/:source/:id` | Book detail | Cover themed |
 | `/player` | Now Playing | Full screen, swipe down to close |
 | `/accounts/add` | Add a server, then sign in | |

@@ -10,6 +10,7 @@ import 'package:earloom/app/providers.dart';
 import 'package:earloom/app/theme/app_theme.dart';
 import 'package:earloom/core/db/global_db.dart';
 import 'package:earloom/core/db/offline_db.dart';
+import 'package:earloom/core/net/reachability.dart';
 import 'package:earloom/core/storage/secure_store.dart';
 import 'package:earloom/features/accounts/data/account_session.dart';
 import 'package:earloom/features/downloads/data/offline_providers.dart';
@@ -118,10 +119,10 @@ Future<GlobalDb> pumpEarloom(
 /// in-memory database, a server that always answers and no connectivity
 /// events. Download manager tests override [downloadManagerProvider] or
 /// [downloadTransportProvider] themselves.
-List<Override> offlineTestOverrides(OfflineDb db) => [
+List<Override> offlineTestOverrides(OfflineDb db, {Pinger? pinger}) => [
   offlineDbProvider.overrideWithValue(db),
   connectivityChangesProvider.overrideWithValue(const Stream<void>.empty()),
-  pingerProvider.overrideWithValue((_, _) async => true),
+  pingerProvider.overrideWithValue(pinger ?? (_, _) async => true),
   supportDirProvider.overrideWithValue(() async => Directory.systemTemp),
   supportPathProvider.overrideWith((ref) async => Directory.systemTemp.path),
   freeSpaceProvider.overrideWith((ref) async => null),

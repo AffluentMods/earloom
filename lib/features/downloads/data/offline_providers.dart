@@ -58,6 +58,18 @@ Future<AbsClient> accountClient(Ref ref, String accountId) async {
   );
 }
 
+/// Forgets everything offline of a removed account: its downloads (and
+/// their background tasks), snapshots, local sessions and queued changes.
+/// They can no longer reach a server.
+Future<void> removeAccountOfflineData(WidgetRef ref, String accountId) async {
+  final db = ref.read(offlineDbProvider);
+  final manager = ref.read(downloadManagerProvider);
+  for (final row in await db.allDownloads()) {
+    if (row.accountId == accountId) await manager.delete(row.key);
+  }
+  await db.deleteAccount(accountId);
+}
+
 // --- Reachability ---
 
 final pingerProvider = Provider<Pinger>((ref) => pingServer);

@@ -59,6 +59,18 @@ final class EpisodeSummary {
   bool get isPlayed => progress?.isFinished ?? false;
   bool get isInProgress => !isPlayed && (progress?.isStarted ?? false);
 
+  /// What cover widgets draw for the episode: the show's cover (and, with
+  /// no cover, the show's initials), with the episode's progress and
+  /// download state.
+  BookSummary get coverBook => BookSummary(
+    ref: ref,
+    title: showTitle,
+    duration: duration,
+    coverKey: coverKey,
+    progress: progress,
+    isPodcast: true,
+  );
+
   /// The episode as a "book", for the shared cover, hero and queue widgets:
   /// the episode title, the show as the author line.
   BookSummary get asBook => BookSummary(

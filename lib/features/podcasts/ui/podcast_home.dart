@@ -98,7 +98,7 @@ class _PodcastHomeState extends ConsumerState<PodcastHome> {
             padding: const EdgeInsets.fromLTRB(Space.lg, Space.sm, Space.lg, 0),
             child: hero == null
                 ? _NothingPlaying(text: l10n.podcastHomeNothingInProgress)
-                : HeroCard(book: hero.asBook, onOpen: () => showEpisodeSheet(context, hero.ref)),
+                : HeroCard(book: hero.asBook, cover: hero.coverBook, onOpen: () => showEpisodeSheet(context, hero.ref)),
           ),
         ),
         for (final shelf in shown)

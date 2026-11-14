@@ -269,6 +269,11 @@ class AbsLibraryRepository {
     if (id == null) return;
     final copy = Map<String, Object?>.from(json)..remove('userMediaProgress');
     await _dao.upsertItems([AbsJson.item(copy)]);
+    // A podcast's episodes live in their own table (the podcast
+    // repository): the detail keeps the show only.
+    if (copy['mediaType'] == 'podcast') {
+      copy['media'] = Map<String, Object?>.from(AbsJson.map(copy['media']))..remove('episodes');
+    }
     await _dao.putDetail(id, jsonEncode(copy), _now);
     final meta = AbsJson.map(AbsJson.map(json['media'])['metadata']);
     final series = AbsJson.maps(meta['series']);

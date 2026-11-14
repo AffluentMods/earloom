@@ -190,9 +190,13 @@ class _Ring extends CustomPainter {
 /// episode sheet; swipe reveals Played, Download and Up next (also offered
 /// to screen readers as actions).
 class EpisodeRow extends ConsumerStatefulWidget {
-  const EpisodeRow({super.key, required this.episode, this.showCover = false});
+  const EpisodeRow({super.key, required this.episode, this.showCover = false, this.onShow = false});
 
   final EpisodeSummary episode;
+
+  /// The row sits on its show's screen: the sheet offers no way "back" to
+  /// the show.
+  final bool onShow;
 
   /// With the show's cover and name, for lists across shows.
   final bool showCover;
@@ -263,7 +267,7 @@ class _EpisodeRowState extends ConsumerState<EpisodeRow> with SingleTickerProvid
     final row = Material(
       color: current ? scheme.secondaryContainer : scheme.surface,
       child: InkWell(
-        onTap: () => showEpisodeSheet(context, e.ref),
+        onTap: () => showEpisodeSheet(context, e.ref, fromShow: widget.onShow),
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 84),
           child: Padding(
@@ -271,7 +275,7 @@ class _EpisodeRowState extends ConsumerState<EpisodeRow> with SingleTickerProvid
             child: Row(
               children: [
                 if (widget.showCover) ...[
-                  BookCover(book: e.asBook, size: 56, shadow: false, showProgress: false),
+                  BookCover(book: e.coverBook, size: 56, shadow: false, showProgress: false),
                   const SizedBox(width: Space.md),
                 ],
                 Expanded(
@@ -468,7 +472,7 @@ class EpisodeCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              BookCover(book: e.asBook, size: width),
+              BookCover(book: e.coverBook, size: width),
               const SizedBox(height: Space.sm),
               Flexible(
                 child: Text(

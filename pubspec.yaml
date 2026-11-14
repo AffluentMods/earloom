@@ -47,7 +47,9 @@ dependencies:
   file_picker: ^13.3.3
   android_file_picker: ^2.1.6
   sensors_plus: ^7.1.1
-  flutter_local_notifications: ^23.0.2
+  # New episode notifications. 23.x needs compileSdk 37; Flutter 3.50
+  # builds against 36, so stay on 22.x until Flutter moves.
+  flutter_local_notifications: ^22.3.3
 
 dev_dependencies:
   flutter_test:

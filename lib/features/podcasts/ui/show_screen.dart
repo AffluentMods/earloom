@@ -21,6 +21,7 @@ import '../../library/ui/widgets/browse_layout.dart';
 import '../../player/player_controller.dart';
 import '../data/podcast_models.dart';
 import '../data/podcast_providers.dart';
+import '../data/podcast_repository.dart' show serverMessage;
 import 'admin_actions.dart';
 import 'episode_widgets.dart';
 import 'show_settings_sheet.dart';
@@ -43,6 +44,9 @@ class _ShowScreenState extends ConsumerState<ShowScreen> with RefreshingState {
   EpisodeSort? _sort;
   EpisodeFilter _filter = EpisodeFilter.all;
 
+  /// The first refresh ended: a show still missing then is really gone.
+  bool _refreshed = false;
+
   @override
   void initState() {
     super.initState();
@@ -51,8 +55,10 @@ class _ShowScreenState extends ConsumerState<ShowScreen> with RefreshingState {
 
   Future<void> _refresh({bool force = false}) async {
     final repository = ref.read(podcastRepositoryProvider);
-    if (repository == null || repository.source != widget.show.source) return;
-    await runRefresh(() => repository.refreshShow(widget.show.itemId, force: force));
+    if (repository != null && repository.source == widget.show.source) {
+      await runRefresh(() => repository.refreshShow(widget.show.itemId, force: force));
+    }
+    if (mounted && !_refreshed) setState(() => _refreshed = true);
   }
 
   @override
@@ -70,6 +76,14 @@ class _ShowScreenState extends ConsumerState<ShowScreen> with RefreshingState {
         ),
       ),
       data: (show) {
+        if (show == null && !_refreshed) return const _Loading();
+        if (show == null && refreshError != null && serverMessage(refreshError!) == null) {
+          // Offline, before this show was ever loaded.
+          return Scaffold(
+            appBar: AppBar(),
+            body: RefreshNotice(error: refreshError, padding: const EdgeInsets.all(Space.lg)),
+          );
+        }
         if (show == null) {
           return Scaffold(
             appBar: AppBar(),
@@ -228,7 +242,7 @@ class _ShowBody extends ConsumerWidget {
                       );
                     }
                     final e = entry as EpisodeSummary;
-                    return EpisodeRow(key: ValueKey(e.episodeId), episode: e);
+                    return EpisodeRow(key: ValueKey(e.episodeId), episode: e, onShow: true);
                   },
                 ),
               SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + Space.xxl)),
@@ -323,30 +337,28 @@ class _PlayButtons extends ConsumerWidget {
     final playingLatest = ref.watch(
       playerProvider.select((s) => latest != null && s.now?.ref == latest.ref && s.playing),
     );
-    return Row(
+    // Stacked: both labels stay whole on a small phone and at large text.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: FilledButton.icon(
-            onPressed: latest == null
-                ? null
-                : () => playingLatest ? BookActions.playOrPause(ref, latest.ref) : BookActions.play(ref, latest.ref),
-            icon: Icon(playingLatest ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 26),
-            label: Text(
-              playingLatest ? l10n.itemPause : l10n.podcastPlayLatest,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+        FilledButton.icon(
+          onPressed: latest == null
+              ? null
+              : () => playingLatest ? BookActions.playOrPause(ref, latest.ref) : BookActions.play(ref, latest.ref),
+          icon: Icon(playingLatest ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 26),
+          label: Text(
+            playingLatest ? l10n.itemPause : l10n.podcastPlayLatest,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
         ),
-        const SizedBox(width: Space.md),
-        Expanded(
-          child: FilledButton.tonalIcon(
-            onPressed: unplayed.isEmpty ? null : () => _playAll(context, ref, unplayed),
-            icon: const Icon(Icons.playlist_play_rounded, size: 26),
-            label: Text(l10n.podcastPlayAllUnplayed, maxLines: 1, overflow: TextOverflow.ellipsis),
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-          ),
+        const SizedBox(height: Space.sm),
+        FilledButton.tonalIcon(
+          onPressed: unplayed.isEmpty ? null : () => _playAll(context, ref, unplayed),
+          icon: const Icon(Icons.playlist_play_rounded, size: 26),
+          label: Text(l10n.podcastPlayAllUnplayed, maxLines: 1, overflow: TextOverflow.ellipsis),
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
         ),
       ],
     );

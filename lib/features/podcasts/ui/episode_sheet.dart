@@ -158,7 +158,7 @@ class _Body extends ConsumerWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                BookCover(book: e.asBook, size: 72, showProgress: false),
+                BookCover(book: e.coverBook, size: 72, showProgress: false),
                 const SizedBox(width: Space.lg),
                 Expanded(
                   child: Column(
@@ -182,7 +182,7 @@ class _Body extends ConsumerWidget {
                       ),
                       Semantics(
                         header: true,
-                        child: Text(e.title, style: text.headlineSmall?.copyWith(color: scheme.onSurface)),
+                        child: Text(e.title, style: text.titleLarge?.copyWith(color: scheme.onSurface, fontSize: 24)),
                       ),
                       if (meta.isNotEmpty) ...[
                         const SizedBox(height: Space.xs),

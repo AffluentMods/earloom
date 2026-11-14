@@ -89,6 +89,11 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
             </intent-filter>
         </receiver>
+        <!-- Impeller on (the default); only the CI emulator build turns it off
+             (android/app/build.gradle.kts). -->
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="${enableImpeller}"/>
         <!-- Home screen widget (lib/platform/widget_bridge.dart writes its data). -->
         <receiver
             android:name=".widget.NowPlayingWidget"

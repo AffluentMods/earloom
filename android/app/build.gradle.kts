@@ -26,6 +26,11 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Impeller stays on everywhere except the CI emulator, which has no
+        // GPU and crashes rendering it (.github/workflows/devices.yml passes
+        // -P earloomImpeller=false). Set through the manifest because the
+        // playback service's Flutter engine ignores launch flags.
+        manifestPlaceholders["enableImpeller"] = (project.findProperty("earloomImpeller") ?: "true").toString()
     }
 
     // play: Google Play and the App Store build (may later carry Google Cast).

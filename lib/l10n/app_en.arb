@@ -28,5 +28,238 @@
   "genericRetry": "Try again",
   "genericCancel": "Cancel",
   "genericSave": "Save",
-  "offlineBanner": "Offline. Showing what is on this device."
+  "offlineBanner": "Offline. Showing what is on this device.",
+  "genericCopyDetails": "Copy details",
+  "@genericCopyDetails": {
+    "description": "Button that copies the technical details of an error to the clipboard."
+  },
+  "genericDetailsCopied": "Details copied",
+  "@genericDetailsCopied": {
+    "description": "Confirmation after the error details were copied to the clipboard."
+  },
+  "chapterNumber": "Chapter {number}",
+  "@chapterNumber": {
+    "description": "Title of a chapter whose file has no chapter name. The number counts from 1.",
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "seriesBookOf": "Book {sequence} of {series}",
+  "@seriesBookOf": {
+    "description": "Position of a book in its series, for example 'Book 2 of The Example Saga'. The sequence is text as the user wrote it ('2', '2.5').",
+    "placeholders": { "sequence": { "type": "String" }, "series": { "type": "String" } }
+  },
+  "sizeKilobytes": "{size} KB",
+  "@sizeKilobytes": {
+    "description": "A file size in kilobytes. The number is already formatted.",
+    "placeholders": { "size": { "type": "String" } }
+  },
+  "sizeMegabytes": "{size} MB",
+  "@sizeMegabytes": {
+    "description": "A file size in megabytes. The number is already formatted.",
+    "placeholders": { "size": { "type": "String" } }
+  },
+  "sizeGigabytes": "{size} GB",
+  "@sizeGigabytes": {
+    "description": "A file size in gigabytes. The number is already formatted.",
+    "placeholders": { "size": { "type": "String" } }
+  },
+  "importTitle": "Add books",
+  "@importTitle": {
+    "description": "Title of the screen that imports audiobook files from the phone."
+  },
+  "importHeadline": "Add books from this phone",
+  "@importHeadline": {
+    "description": "Heading on the import screen before anything is picked."
+  },
+  "importExplanation": "Earloom copies the files into its own storage, so they keep working if you move or delete the originals.",
+  "@importExplanation": {
+    "description": "Explains what importing does, on the import screen."
+  },
+  "importChooseFiles": "Choose files",
+  "@importChooseFiles": {
+    "description": "Button that opens the system picker to choose audio files."
+  },
+  "importChooseFilesHint": "Several files make one book. A single M4B file is a whole book.",
+  "@importChooseFilesHint": {
+    "description": "Explains what choosing files does."
+  },
+  "importChooseFolder": "Choose a folder",
+  "@importChooseFolder": {
+    "description": "Button that opens the system picker to choose a folder."
+  },
+  "importChooseFolderHint": "Each sub-folder with audio becomes its own book.",
+  "@importChooseFolderHint": {
+    "description": "Explains what choosing a folder does."
+  },
+  "importSupportedFormats": "Works with MP3, M4B, M4A, AAC, FLAC, OGG, Opus and WAV.",
+  "@importSupportedFormats": {
+    "description": "List of supported audio formats on the import screen."
+  },
+  "importPreparing": "Getting your files ready",
+  "@importPreparing": {
+    "description": "Shown while the picked files are prepared, before copying starts."
+  },
+  "importPreparingHint": "Large files from a cloud can take a moment.",
+  "@importPreparingHint": {
+    "description": "Shown under 'Getting your files ready'."
+  },
+  "importDuplicatesTitle": "Already in your library",
+  "@importDuplicatesTitle": {
+    "description": "Heading when some picked books were imported before."
+  },
+  "importDuplicatesBody": "{count, plural, =1{You already have this book:} other{You already have these {count} books:}}",
+  "@importDuplicatesBody": {
+    "description": "Introduces the list of picked books that are already in the library.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "importSkipDuplicates": "Skip them",
+  "@importSkipDuplicates": {
+    "description": "Button: import only the books that are not in the library yet."
+  },
+  "importAddCopies": "Add another copy",
+  "@importAddCopies": {
+    "description": "Button: import the books again even though they are already in the library."
+  },
+  "importRunningTitle": "{count, plural, =1{Adding 1 book} other{Adding {count} books}}",
+  "@importRunningTitle": {
+    "description": "Heading while books are being copied.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "importStageReading": "Reading chapters and cover",
+  "@importStageReading": {
+    "description": "Status of a book after its files are copied, while tags are read."
+  },
+  "importStageSaving": "Saving",
+  "@importStageSaving": {
+    "description": "Status of a book while it is written into the library."
+  },
+  "importBytesProgress": "{done} of {total}",
+  "@importBytesProgress": {
+    "description": "Copy progress of a book, for example '120 MB of 480 MB'. Both sizes are already formatted.",
+    "placeholders": { "done": { "type": "String" }, "total": { "type": "String" } }
+  },
+  "importWaiting": "Waiting, {size}",
+  "@importWaiting": {
+    "description": "Status of a book that has not started copying yet, with its size, for example 'Waiting, 480 MB'.",
+    "placeholders": { "size": { "type": "String" } }
+  },
+  "importBookAdded": "Added",
+  "@importBookAdded": {
+    "description": "Status of a book that was imported."
+  },
+  "importBookFailed": "Not added",
+  "@importBookFailed": {
+    "description": "Status of a book that could not be imported."
+  },
+  "importBookStopped": "Stopped",
+  "@importBookStopped": {
+    "description": "Status of a book that was not imported because the user cancelled."
+  },
+  "importDoneTitle": "{count, plural, =0{No books added} =1{1 book added} other{{count} books added}}",
+  "@importDoneTitle": {
+    "description": "Heading when the import is over.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "importDoneCancelled": "Import stopped. Books finished before that were kept.",
+  "@importDoneCancelled": {
+    "description": "Shown when the user cancelled the import."
+  },
+  "importSkippedFiles": "{count, plural, =1{1 file was not audio and was left out.} other{{count} files were not audio and were left out.}}",
+  "@importSkippedFiles": {
+    "description": "Shown after an import when some picked files were not audio.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "importSkippedDuplicates": "{count, plural, =1{1 book you already had was skipped.} other{{count} books you already had were skipped.}}",
+  "@importSkippedDuplicates": {
+    "description": "Shown after an import when the user skipped books already in the library.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "importOpenLibrary": "Open library",
+  "@importOpenLibrary": {
+    "description": "Button after an import that goes to the library."
+  },
+  "importAddMore": "Add more books",
+  "@importAddMore": {
+    "description": "Button after an import to start another one."
+  },
+  "importFailedTitle": "Could not add books",
+  "@importFailedTitle": {
+    "description": "Heading when the picked files could not be read at all."
+  },
+  "importErrorNoAudio": "There are no audio files Earloom can play in what you picked.",
+  "@importErrorNoAudio": {
+    "description": "Error when the picked files or folder hold no supported audio."
+  },
+  "importErrorNoSpace": "There is not enough free space on this phone.",
+  "@importErrorNoSpace": {
+    "description": "Error when the phone ran out of storage while importing."
+  },
+  "importErrorUnreadable": "A file could not be read. It may have been moved or deleted, or it is no longer shared with Earloom.",
+  "@importErrorUnreadable": {
+    "description": "Error when a picked file could not be read."
+  },
+  "importErrorNotDownloaded": "Some files are not downloaded to this phone yet. Download them in the Files app, then try again.",
+  "@importErrorNotDownloaded": {
+    "description": "Error when picked files are still only in iCloud or another cloud."
+  },
+  "importErrorUnknown": "Something went wrong while adding the books.",
+  "@importErrorUnknown": {
+    "description": "Error for any other import problem. A 'Copy details' button is next to it."
+  },
+  "editBookTitle": "Edit book",
+  "@editBookTitle": {
+    "description": "Title of the sheet that edits a book's details."
+  },
+  "editBookFieldTitle": "Title",
+  "@editBookFieldTitle": {
+    "description": "Label of the book title field."
+  },
+  "editBookFieldAuthors": "Author",
+  "@editBookFieldAuthors": {
+    "description": "Label of the author field. Several names are separated by commas."
+  },
+  "editBookFieldNarrators": "Narrator",
+  "@editBookFieldNarrators": {
+    "description": "Label of the narrator field. Several names are separated by commas."
+  },
+  "editBookNamesHint": "Separate several names with commas",
+  "@editBookNamesHint": {
+    "description": "Helper text under the author and narrator fields."
+  },
+  "editBookFieldSeries": "Series",
+  "@editBookFieldSeries": {
+    "description": "Label of the series name field."
+  },
+  "editBookFieldSequence": "Number",
+  "@editBookFieldSequence": {
+    "description": "Label of the field for the book's number in its series."
+  },
+  "editBookFieldDescription": "Description",
+  "@editBookFieldDescription": {
+    "description": "Label of the book description field."
+  },
+  "editBookChangeCover": "Change cover",
+  "@editBookChangeCover": {
+    "description": "Button that picks a new cover image."
+  },
+  "editBookTitleRequired": "Enter a title",
+  "@editBookTitleRequired": {
+    "description": "Error under the title field when it is empty."
+  },
+  "editBookSaveFailed": "The changes could not be saved.",
+  "@editBookSaveFailed": {
+    "description": "Error when saving the edited book details failed."
+  },
+  "editBookCoverUnsupported": "That picture cannot be used. Choose a JPEG, PNG or WebP image.",
+  "@editBookCoverUnsupported": {
+    "description": "Error when the picked cover image has an unsupported format."
+  },
+  "bookCoverLabel": "Cover of {title}",
+  "@bookCoverLabel": {
+    "description": "Screen reader label for a book cover.",
+    "placeholders": { "title": { "type": "String" } }
+  },
+  "bookNoCoverLabel": "No cover",
+  "@bookNoCoverLabel": {
+    "description": "Screen reader label for a book without a cover."
+  }
 }

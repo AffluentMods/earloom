@@ -15,5 +15,9 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    // Folder picking for imports (lib/features/local_library).
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "FolderAccessPlugin") {
+      FolderAccessPlugin.register(with: registrar)
+    }
   }
 }

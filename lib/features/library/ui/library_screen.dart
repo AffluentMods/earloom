@@ -125,27 +125,8 @@ class _LibraryViewState extends ConsumerState<_LibraryView> with TickerProviderS
         titleSpacing: Space.sm,
         title: LibrarySwitcherButton(library: widget.library, large: true),
         actions: [
+          // Sort and filter live in a labeled row above the books.
           if (onBooks) ...[
-            IconButton(
-              icon: const Icon(Icons.swap_vert_rounded),
-              tooltip: l10n.librarySort,
-              onPressed: () async {
-                final next = await showSortSheet(context, _query, local: isLocal);
-                if (next != null) setState(() => _query = next);
-              },
-            ),
-            IconButton(
-              icon: Badge(
-                isLabelVisible: _query.filters.isNotEmpty,
-                label: Text(NumberFormat.decimalPattern(l10n.localeName).format(_query.filters.length)),
-                child: const Icon(Icons.filter_list_rounded),
-              ),
-              tooltip: _query.filters.isEmpty ? l10n.libraryFilter : l10n.libraryFilterCount(_query.filters.length),
-              onPressed: () async {
-                final next = await showFilterSheet(context, _key, _query);
-                if (next != null) setState(() => _query = next);
-              },
-            ),
             IconButton(
               icon: Icon(grid ? Icons.view_list_rounded : Icons.grid_view_rounded),
               tooltip: grid ? l10n.libraryList : l10n.libraryGrid,
@@ -322,10 +303,9 @@ class _BooksViewState extends ConsumerState<_BooksView> with RefreshingState, Au
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(child: RefreshNotice(error: refreshError)),
-          if (widget.query.filters.isNotEmpty)
-            SliverToBoxAdapter(
-              child: _ActiveFilters(query: widget.query, onChanged: widget.onQuery),
-            ),
+          SliverToBoxAdapter(
+            child: _QueryBar(library: widget.library, query: widget.query, onChanged: widget.onQuery),
+          ),
           body,
           if (hasMore)
             const SliverToBoxAdapter(
@@ -361,35 +341,76 @@ AbsLibraryRepository? _repositoryFor(WidgetRef ref, SourceId source) {
   return repository != null && repository.source == source ? repository : null;
 }
 
-/// Removable chips for the active filters, plus Clear all.
-class _ActiveFilters extends StatelessWidget {
-  const _ActiveFilters({required this.query, required this.onChanged});
+/// What the books are sorted and filtered by, in words: the sort, Filter,
+/// then each active filter as a removable chip and Clear all.
+class _QueryBar extends StatelessWidget {
+  const _QueryBar({required this.library, required this.query, required this.onChanged});
 
+  final LibraryInfo library;
   final LibraryQuery query;
   final ValueChanged<LibraryQuery> onChanged;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return SizedBox(
-      height: 56,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: Space.lg, vertical: Space.sm),
-        children: [
-          for (final f in query.filters) ...[
-            InputChip(
-              label: Text(filterChipLabel(l10n, f)),
-              onDeleted: () => onChanged(query.without(f)),
-              deleteButtonTooltipMessage: l10n.filterRemove(filterChipLabel(l10n, f)),
+    final sort = librarySortLabel(l10n, query.sort);
+    final direction = query.descending ? l10n.librarySortDescending : l10n.librarySortAscending;
+    final filters = query.filters.length;
+    final scheme = Theme.of(context).colorScheme;
+    // Outline, not the faint default: these are controls and need 3:1.
+    return ChipTheme(
+      data: ChipTheme.of(context).copyWith(side: BorderSide(color: scheme.outline)),
+      child: SizedBox(
+        height: 56,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: Space.lg, vertical: Space.sm),
+          children: [
+            Semantics(
+              label: l10n.librarySortedBy(sort, direction),
+              excludeSemantics: true,
+              button: true,
+              child: ActionChip(
+                avatar: Icon(query.descending ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded),
+                label: Text(sort),
+                tooltip: l10n.librarySort,
+                onPressed: () async {
+                  final next = await showSortSheet(context, query, local: library.source is LocalSource);
+                  if (next != null) onChanged(next);
+                },
+              ),
             ),
             const SizedBox(width: Space.sm),
+            ActionChip(
+              avatar: const Icon(Icons.filter_list_rounded),
+              label: Text(
+                filters == 0
+                    ? l10n.libraryFilter
+                    : l10n.libraryFilterShort(NumberFormat.decimalPattern(l10n.localeName).format(filters)),
+              ),
+              tooltip: filters == 0 ? l10n.libraryFilter : l10n.libraryFilterCount(filters),
+              onPressed: () async {
+                final next = await showFilterSheet(context, libraryKeyOf(library), query);
+                if (next != null) onChanged(next);
+              },
+            ),
+            for (final f in query.filters) ...[
+              const SizedBox(width: Space.sm),
+              InputChip(
+                label: Text(filterChipLabel(l10n, f)),
+                onDeleted: () => onChanged(query.without(f)),
+                deleteButtonTooltipMessage: l10n.filterRemove(filterChipLabel(l10n, f)),
+              ),
+            ],
+            if (filters > 0) ...[
+              const SizedBox(width: Space.xs),
+              TextButton(
+                onPressed: () => onChanged(query.copyWith(filters: const [])),
+                child: Text(l10n.filterClearAll),
+              ),
+            ],
           ],
-          TextButton(
-            onPressed: () => onChanged(query.copyWith(filters: const [])),
-            child: Text(l10n.filterClearAll),
-          ),
-        ],
+        ),
       ),
     );
   }

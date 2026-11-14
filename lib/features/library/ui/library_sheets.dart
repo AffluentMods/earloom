@@ -10,6 +10,16 @@ import '../../../core/library/source_id.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../data/library_providers.dart';
 
+/// The name of a sort field, as the sort sheet and the Library bar show it.
+String librarySortLabel(AppLocalizations l10n, LibrarySort sort) => switch (sort) {
+  LibrarySort.title => l10n.librarySortTitle,
+  LibrarySort.author => l10n.librarySortAuthor,
+  LibrarySort.addedAt => l10n.librarySortAdded,
+  LibrarySort.duration => l10n.librarySortDuration,
+  LibrarySort.progress => l10n.librarySortProgress,
+  LibrarySort.publishedYear => l10n.librarySortPublished,
+};
+
 /// Picks the sort field and direction. Null when dismissed.
 Future<LibraryQuery?> showSortSheet(BuildContext context, LibraryQuery query, {required bool local}) {
   return showModalBottomSheet<LibraryQuery>(
@@ -37,12 +47,8 @@ class _SortSheetState extends State<_SortSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final options = [
-      (LibrarySort.title, l10n.librarySortTitle),
-      (LibrarySort.author, l10n.librarySortAuthor),
-      (LibrarySort.addedAt, l10n.librarySortAdded),
-      (LibrarySort.duration, l10n.librarySortDuration),
-      (LibrarySort.progress, l10n.librarySortProgress),
-      if (!widget.local) (LibrarySort.publishedYear, l10n.librarySortPublished),
+      for (final sort in LibrarySort.values)
+        if (!widget.local || sort != LibrarySort.publishedYear) (sort, librarySortLabel(l10n, sort)),
     ];
     return SafeArea(
       child: SingleChildScrollView(

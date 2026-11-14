@@ -13,5 +13,7 @@ class MainActivity : AudioServiceActivity() {
         super.configureFlutterEngine(flutterEngine)
         // Reads folders picked for import (lib/features/local_library).
         SafChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
+        // Free space for the Downloads screen (lib/features/downloads).
+        StorageChannel(flutterEngine.dartExecutor.binaryMessenger)
     }
 }

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 Affluent Labs LLC
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
@@ -14,11 +15,16 @@ import 'app/providers.dart';
 import 'app/theme/app_theme.dart';
 import 'core/db/global_db.dart';
 import 'core/db/local_db.dart';
+import 'core/db/offline_db.dart';
+import 'features/downloads/data/abs_download_manager.dart';
+import 'features/downloads/data/download_rules.dart';
+import 'features/downloads/data/offline_providers.dart';
 import 'features/local_library/data/local_storage.dart';
 import 'features/local_library/data/providers.dart';
 import 'features/player/audio_handler.dart';
 import 'features/player/bookmarks.dart';
 import 'features/player/media_browser.dart';
+import 'features/player/offline_session_recorder.dart';
 import 'features/player/player_controller.dart';
 import 'features/player/ui/player_widgets.dart';
 
@@ -26,6 +32,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final globalDb = GlobalDb.open();
   final localDb = LocalDb.open();
+  final offlineDb = OfflineDb.open();
   final support = await getApplicationSupportDirectory();
   final themeMode = AppThemeMode.fromName(await globalDb.readSetting(SettingKeys.themeMode));
   final onboarded =
@@ -34,6 +41,7 @@ Future<void> main() async {
     overrides: [
       globalDbProvider.overrideWithValue(globalDb),
       localDbProvider.overrideWithValue(localDb),
+      offlineDbProvider.overrideWithValue(offlineDb),
       localStorageProvider.overrideWithValue(LocalStorage(Directory(p.join(support.path, 'local')))),
       initialThemeModeProvider.overrideWithValue(themeMode),
       initialOnboardedProvider.overrideWithValue(onboarded),
@@ -41,6 +49,34 @@ Future<void> main() async {
   );
   await _startPlayer(container);
   runApp(UncontrolledProviderScope(container: container, child: const EarloomApp()));
+  unawaited(_startOffline(container, globalDb, offlineDb));
+}
+
+/// Downloads, the outbox and the server reachability. Runs after the first
+/// frame: nothing here may delay start-up.
+Future<void> _startOffline(ProviderContainer container, GlobalDb globalDb, OfflineDb offlineDb) async {
+  try {
+    // Nothing plays yet, so any open local session was cut off by a crash
+    // or a kill: close it and queue it.
+    await OfflineSessionRecorder.closeOrphans(offlineDb);
+    final settings = await DownloadSettings.load(globalDb);
+    final manager = container.read(downloadManagerProvider);
+    if (manager is AbsDownloadManager) {
+      await manager.start(wifiOnly: settings.wifiOnly);
+    }
+    final scheduler = container.read(syncSchedulerProvider)..start();
+    // App foreground: check the server, flush, run the storage rules.
+    AppLifecycleListener(
+      onResume: () async {
+        await scheduler.onForeground();
+        await container.read(downloadRulesProvider).run();
+      },
+    );
+    await scheduler.onForeground();
+    await container.read(downloadRulesProvider).run();
+  } on Object catch (e) {
+    debugPrint('Offline services did not start: $e');
+  }
 }
 
 /// Connects the player engine to the lock screen, notification, headset

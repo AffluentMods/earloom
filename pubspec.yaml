@@ -27,6 +27,7 @@ dependencies:
   audio_service: ^0.18.19
   audio_session: ^0.2.4
   background_downloader: ^9.6.6
+  connectivity_plus: ^7.3.2
   cached_network_image: ^4.0.7
   material_color_utilities: ^0.13.0
   flutter_web_auth_2: ^5.1.0

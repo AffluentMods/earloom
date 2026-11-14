@@ -4,6 +4,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../features/downloads/ui/offline_banner.dart';
 import '../features/player/ui/mini_player.dart';
 import '../l10n/gen/app_localizations.dart';
 
@@ -18,7 +19,7 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      body: shell,
+      body: OfflineBanner(child: shell),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

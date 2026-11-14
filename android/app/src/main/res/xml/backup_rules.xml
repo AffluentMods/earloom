@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 and older. Downloaded audio (accounts/<id>/downloads) can be
+     tens of GB and is never backed up: it would push the backup over its
+     size limit, and the server still has it. -->
+<full-backup-content>
+    <exclude domain="file" path="accounts/"/>
+</full-backup-content>

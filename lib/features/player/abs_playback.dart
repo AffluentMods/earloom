@@ -11,6 +11,7 @@ import '../../core/library/source_id.dart';
 import '../../core/net/abs_client.dart';
 import '../../core/net/abs_errors.dart';
 import '../../core/ui/cover_image.dart';
+import 'offline_session_recorder.dart';
 import 'playable.dart';
 import 'progress_resolver.dart';
 
@@ -151,12 +152,25 @@ final class ClientPlaybackApi implements AbsPlaybackApi {
   void dispose() => _client.close();
 }
 
+/// Where a streamed book's listening goes when the server cannot be
+/// reached (docs/plan/05-phase4-offline.md 4.6, the Phase 3 handoff).
+final class OfflineHooks {
+  const OfflineHooks({required this.recorder, required this.queueFinished});
+
+  /// A recorder for this book's offline listening.
+  final OfflineSessionRecorder Function(ItemRef ref, LocalSessionInfo info) recorder;
+
+  /// Queues "finished" for when the server is back.
+  final Future<void> Function(ItemRef ref, DateTime at) queueFinished;
+}
+
 /// Opens server playback sessions and turns them into [PlayableBook]s.
 final class AbsSessionStarter {
-  AbsSessionStarter({required this.api, required this.device, this.localPosition});
+  AbsSessionStarter({required this.api, required this.device, this.localPosition, this.offline});
 
   final AbsPlaybackApi api;
   final PlaybackDevice device;
+  final OfflineHooks? offline;
 
   /// Where this phone last was in a book, for the "picked up on another
   /// device" check.
@@ -174,7 +188,7 @@ final class AbsSessionStarter {
         'mediaPlayer': 'earloom',
       },
     );
-    final parsed = parseSession(session, ref: ref, api: api);
+    final parsed = parseSession(session, ref: ref, api: api, offline: offline, deviceInfo: device.toJson());
     if (startAt != null) return (parsed.book, StartDecision(startAt));
     final local = await localPosition?.call(ref);
     DateTime? serverAt = parsed.progressUpdatedAt;
@@ -198,6 +212,8 @@ final class AbsSessionStarter {
     Map<String, Object?> session, {
     required ItemRef ref,
     required AbsPlaybackApi api,
+    OfflineHooks? offline,
+    Map<String, Object?> deviceInfo = const {},
   }) {
     final id = session['id'];
     if (id is! String || id.isEmpty) throw const AbsUnexpected('Play session without an id');
@@ -235,11 +251,34 @@ final class AbsSessionStarter {
     final coverUrl = api.url('/api/items/${ref.itemId}/cover');
     final progress = (item['userMediaProgress'] as Map?)?.cast<String, Object?>();
     final lastUpdate = (progress?['lastUpdate'] as num?)?.toInt();
-    final sink = AbsProgressSink(api: api, sessionId: id, itemId: ref.itemId, episodeId: ref.episodeId);
+    final title = (session['displayTitle'] as String?) ?? (meta['title'] as String?) ?? '';
+    final info = LocalSessionInfo(
+      duration: _seconds(session['duration']),
+      deviceInfo: deviceInfo,
+      libraryId: session['libraryId'] as String?,
+      mediaType: (session['mediaType'] as String?) ?? (ref.episodeId == null ? 'book' : 'podcast'),
+      displayTitle: title,
+      displayAuthor: _nonEmpty(session['displayAuthor'] as String?),
+      mediaMetadata: {
+        'title': ?(meta['title'] as String?),
+        'authorName': ?(meta['authorName'] as String?),
+        'narratorName': ?(meta['narratorName'] as String?),
+        'seriesName': ?(meta['seriesName'] as String?),
+      },
+    );
+    final sink = AbsProgressSink(
+      api: api,
+      sessionId: id,
+      itemId: ref.itemId,
+      episodeId: ref.episodeId,
+      recorder: offline == null ? null : () => offline.recorder(ref, info),
+      queueFinished: offline == null ? null : (at) => offline.queueFinished(ref, at),
+      startPosition: _seconds(session['currentTime']),
+    );
     return (
       book: PlayableBook(
         ref: ref,
-        title: (session['displayTitle'] as String?) ?? (meta['title'] as String?) ?? '',
+        title: title,
         author: _nonEmpty(session['displayAuthor'] as String?),
         narrator: _nonEmpty(meta['narratorName'] as String?),
         seriesLine: _nonEmpty(meta['seriesName'] as String?),
@@ -261,10 +300,27 @@ final class AbsSessionStarter {
   static String? _nonEmpty(String? s) => (s == null || s.trim().isEmpty) ? null : s;
 }
 
-/// Reports to an open server session. Listening time that could not be
-/// sent is kept and goes out with the next sync.
+/// Reports to an open server session.
+///
+/// When a sync fails because the server cannot be reached (or forgot the
+/// session), the listening moves to a local session from that moment: the
+/// time the server never got goes into it, and every later report too,
+/// until a sync gets through again. Then the local session is closed and
+/// queued for `/api/session/local-all`. Each second of listening is counted
+/// exactly once: either it went out in a sync, or it is in the local session.
 final class AbsProgressSink implements ProgressSink {
-  AbsProgressSink({required this.api, required this.sessionId, required this.itemId, this.episodeId}) {
+  AbsProgressSink({
+    required this.api,
+    required this.sessionId,
+    required this.itemId,
+    this.episodeId,
+    OfflineSessionRecorder Function()? recorder,
+    this._queueFinished,
+    Duration startPosition = Duration.zero,
+    DateTime Function()? clock,
+  }) : _recorderFactory = recorder,
+       _lastSynced = startPosition,
+       _clock = clock ?? DateTime.now {
     _own.add(sessionId);
   }
 
@@ -277,13 +333,21 @@ final class AbsProgressSink implements ProgressSink {
   final String sessionId;
   final String itemId;
   final String? episodeId;
+  final OfflineSessionRecorder Function()? _recorderFactory;
+  final Future<void> Function(DateTime at)? _queueFinished;
+  final DateTime Function() _clock;
   Duration _unsent = Duration.zero;
+  Duration _lastSynced;
   bool _closed = false;
 
   /// The server forgot the session (restart, another device of this user):
   /// further syncs are pointless. The engine reopens a session on the next
   /// stream failure.
   bool _gone = false;
+  OfflineSessionRecorder? _recorder;
+
+  /// True while listening goes to the local session.
+  bool get isOffline => _recorder?.isOpen ?? false;
 
   static double _secs(Duration d) => d.inMilliseconds / 1000;
 
@@ -294,18 +358,58 @@ final class AbsProgressSink implements ProgressSink {
 
   @override
   Future<void> report({required Duration position, required Duration listened, required bool isPlaying}) async {
-    if (_closed || _gone) return;
+    if (_closed) return;
+    if (isOffline) {
+      await _recorder!.record(position: position, listened: listened);
+      if (!_gone) await _probe(position);
+      return;
+    }
     final listenedTotal = _unsent + listened;
     _unsent = listenedTotal;
+    if (_gone) {
+      await _handOff(position);
+      return;
+    }
     try {
       await api.sync(sessionId, _body(position, listenedTotal));
       _unsent = Duration.zero;
+      _lastSynced = position;
+    } on AbsHttpError catch (e) {
+      if (e.status == 404) {
+        _gone = true;
+        await _handOff(position);
+      }
+    } on AbsUnreachable {
+      await _handOff(position);
+    } on AbsFailure {
+      // The server answered but is busy (5xx, 429): keep the time for the
+      // next sync.
+    }
+  }
+
+  /// Moves the unsent time into a new local session. Without a recorder
+  /// (tests, no offline database) the time stays in memory as before.
+  Future<void> _handOff(Duration position) async {
+    final factory = _recorderFactory;
+    if (factory == null) return;
+    final recorder = _recorder ??= factory();
+    await recorder.record(position: position, listened: _unsent, startAt: _lastSynced);
+    _unsent = Duration.zero;
+  }
+
+  /// While offline: a sync with no listening time tells whether the server
+  /// is back (and moves progress there). If it is, the local session ends.
+  Future<void> _probe(Duration position) async {
+    try {
+      await api.sync(sessionId, _body(position, Duration.zero));
     } on AbsHttpError catch (e) {
       if (e.status == 404) _gone = true;
+      return;
     } on AbsFailure {
-      // Offline or the server is busy: keep the time for the next sync.
-      // Phase 4 hands long gaps to the offline session outbox.
+      return;
     }
+    _lastSynced = position;
+    await _recorder!.close(position: position);
   }
 
   @override
@@ -313,8 +417,9 @@ final class AbsProgressSink implements ProgressSink {
     try {
       await api.markFinished(itemId, episodeId: episodeId);
     } on AbsFailure {
-      // The sync at the very end already crossed the server's auto-finish
-      // line in nearly every case.
+      // Usually the sync at the very end already crossed the server's
+      // auto-finish line; queue it anyway so an offline finish is never lost.
+      await _queueFinished?.call(_clock());
     }
   }
 
@@ -323,7 +428,19 @@ final class AbsProgressSink implements ProgressSink {
     if (_closed) return;
     _closed = true;
     try {
-      if (!_gone) await api.close(sessionId, _body(position, _unsent));
+      if (isOffline) {
+        await _recorder!.close(position: position);
+        if (!_gone) await api.close(sessionId, _body(position, Duration.zero));
+      } else if (!_gone) {
+        await api.close(sessionId, _body(position, _unsent));
+        _unsent = Duration.zero;
+      }
+    } on AbsUnreachable {
+      // The last bit of listening must not be lost: record it locally.
+      if (_unsent > Duration.zero && _recorderFactory != null) {
+        await _handOff(position);
+        await _recorder?.close(position: position);
+      }
     } on AbsFailure {
       // The server closes idle sessions itself.
     } finally {

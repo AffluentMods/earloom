@@ -1345,5 +1345,446 @@
   "widgetNowPlayingDescription": "What you are listening to, with play and pause",
   "@widgetNowPlayingDescription": {
     "description": "Android widget picker description. Mirrored in android/app/src/main/res/values/strings.xml."
+  },
+  "downloadAction": "Download",
+  "@downloadAction": {
+    "description": "Button: download a book for offline listening."
+  },
+  "downloadWaitingWifi": "Waiting for Wi-Fi",
+  "@downloadWaitingWifi": {
+    "description": "Download state: Wi-Fi only is on and there is no Wi-Fi."
+  },
+  "downloadQueued": "Queued",
+  "@downloadQueued": {
+    "description": "Download state: waiting for its turn."
+  },
+  "downloadProgress": "{percent}%",
+  "@downloadProgress": {
+    "description": "Download progress inside the ring.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadProgressSemantics": "Downloading, {percent} percent. Tap to pause.",
+  "@downloadProgressSemantics": {
+    "description": "Screen reader label of the progress ring.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadPaused": "Paused",
+  "@downloadPaused": {
+    "description": "Download state."
+  },
+  "downloadFailed": "Download failed",
+  "@downloadFailed": {
+    "description": "Download state."
+  },
+  "downloadRetry": "Try again",
+  "@downloadRetry": {
+    "description": "Button on a failed download."
+  },
+  "downloadDownloaded": "Downloaded",
+  "@downloadDownloaded": {
+    "description": "Download state and badge."
+  },
+  "downloadDelete": "Remove download",
+  "@downloadDelete": {
+    "description": "Action: delete the downloaded files."
+  },
+  "downloadRedownload": "Download again",
+  "@downloadRedownload": {
+    "description": "Action: delete and download the book again."
+  },
+  "downloadPause": "Pause download",
+  "@downloadPause": {
+    "description": "Action."
+  },
+  "downloadResume": "Resume download",
+  "@downloadResume": {
+    "description": "Action."
+  },
+  "downloadCancel": "Cancel download",
+  "@downloadCancel": {
+    "description": "Action: stop and remove partial files."
+  },
+  "downloadAllInSeries": "Download all",
+  "@downloadAllInSeries": {
+    "description": "Series screen action."
+  },
+  "downloadNextInSeries": "Download next {count}",
+  "@downloadNextInSeries": {
+    "description": "Series screen action.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadFileIncomplete": "A file did not download completely.",
+  "@downloadFileIncomplete": {
+    "description": "Download error."
+  },
+  "downloadErrorNetwork": "The server could not be reached.",
+  "@downloadErrorNetwork": {
+    "description": "Download error."
+  },
+  "downloadErrorForbidden": "This account is not allowed to download from this server. The server admin can allow it.",
+  "@downloadErrorForbidden": {
+    "description": "Download error."
+  },
+  "downloadErrorNotFound": "This book is no longer on the server.",
+  "@downloadErrorNotFound": {
+    "description": "Download error."
+  },
+  "downloadErrorStorage": "The files could not be saved. The phone may be out of space.",
+  "@downloadErrorStorage": {
+    "description": "Download error."
+  },
+  "downloadErrorAuth": "Sign in again to download.",
+  "@downloadErrorAuth": {
+    "description": "Download error."
+  },
+  "downloadErrorOther": "The download stopped.",
+  "@downloadErrorOther": {
+    "description": "Download error."
+  },
+  "downloadDeleteConfirmTitle": "Remove this download?",
+  "@downloadDeleteConfirmTitle": {
+    "description": "Dialog title."
+  },
+  "downloadDeleteConfirmBody": "Your progress and bookmarks stay. You can download it again anytime.",
+  "@downloadDeleteConfirmBody": {
+    "description": "Dialog body."
+  },
+  "downloadQueuedSnack": "Added to downloads",
+  "@downloadQueuedSnack": {
+    "description": "Snackbar after starting a download."
+  },
+  "downloadsTitle": "Downloads",
+  "@downloadsTitle": {
+    "description": "Screen title and You tab row."
+  },
+  "downloadsActive": "Downloading",
+  "@downloadsActive": {
+    "description": "Section header."
+  },
+  "downloadsCompleted": "On this phone",
+  "@downloadsCompleted": {
+    "description": "Section header for finished downloads."
+  },
+  "downloadsPauseAll": "Pause all",
+  "@downloadsPauseAll": {
+    "description": "Action."
+  },
+  "downloadsResumeAll": "Resume all",
+  "@downloadsResumeAll": {
+    "description": "Action."
+  },
+  "downloadsRetryAll": "Retry failed",
+  "@downloadsRetryAll": {
+    "description": "Action: retry every failed download."
+  },
+  "downloadsStorageUsed": "{used} used by downloads, {free} free",
+  "@downloadsStorageUsed": {
+    "description": "Storage bar caption.",
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "free": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsStorageUsedOnly": "{used} used by downloads",
+  "@downloadsStorageUsedOnly": {
+    "description": "Storage bar caption when free space is unknown.",
+    "placeholders": {
+      "used": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsDeleteSelected": "{count, plural, =1{Remove 1 download} other{Remove {count} downloads}}",
+  "@downloadsDeleteSelected": {
+    "description": "Action and dialog title.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsDeleteFinished": "Remove finished books",
+  "@downloadsDeleteFinished": {
+    "description": "Action."
+  },
+  "downloadsDeleteFinishedBody": "{count, plural, =1{Remove the download of 1 finished book? Progress and bookmarks stay.} other{Remove the downloads of {count} finished books? Progress and bookmarks stay.}}",
+  "@downloadsDeleteFinishedBody": {
+    "description": "Dialog body.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsNoneFinished": "No finished books are downloaded.",
+  "@downloadsNoneFinished": {
+    "description": "Snackbar."
+  },
+  "downloadsDeleted": "{count, plural, =1{Removed 1 download} other{Removed {count} downloads}}",
+  "@downloadsDeleted": {
+    "description": "Snackbar.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsEmpty": "Nothing downloaded yet",
+  "@downloadsEmpty": {
+    "description": "Empty state title."
+  },
+  "downloadsEmptyBody": "Download a book from its page to listen without a connection.",
+  "@downloadsEmptyBody": {
+    "description": "Empty state body."
+  },
+  "downloadsSort": "Sort",
+  "@downloadsSort": {
+    "description": "Sort menu tooltip."
+  },
+  "downloadsSortTitle": "Title",
+  "@downloadsSortTitle": {
+    "description": "Sort choice."
+  },
+  "downloadsSortSize": "Size",
+  "@downloadsSortSize": {
+    "description": "Sort choice."
+  },
+  "downloadsSortDate": "Date downloaded",
+  "@downloadsSortDate": {
+    "description": "Sort choice."
+  },
+  "downloadsSelect": "Select",
+  "@downloadsSelect": {
+    "description": "Action: enter multi-select."
+  },
+  "downloadsSelectedCount": "{count} selected",
+  "@downloadsSelectedCount": {
+    "description": "Title while selecting.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsMore": "More",
+  "@downloadsMore": {
+    "description": "Overflow menu tooltip."
+  },
+  "downloadsSettings": "Download settings",
+  "@downloadsSettings": {
+    "description": "Action."
+  },
+  "downloadsServerRemoved": "Removed server",
+  "@downloadsServerRemoved": {
+    "description": "Group header for downloads of an account that is gone."
+  },
+  "downloadsBytesOf": "{done} of {total}",
+  "@downloadsBytesOf": {
+    "description": "Download progress line.",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "downloadsCountOnPhone": "{count, plural, =0{Nothing downloaded} =1{1 book on this phone} other{{count} books on this phone}}",
+  "@downloadsCountOnPhone": {
+    "description": "You tab row subtitle.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadsActiveCount": "{count, plural, =1{1 downloading} other{{count} downloading}}",
+  "@downloadsActiveCount": {
+    "description": "You tab row subtitle while downloads run.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDownloadsTitle": "Download settings",
+  "@settingsDownloadsTitle": {
+    "description": "Screen title."
+  },
+  "settingsDownloadsNetwork": "Network",
+  "@settingsDownloadsNetwork": {
+    "description": "Section header."
+  },
+  "settingsDownloadsWifiOnly": "Download on Wi-Fi only",
+  "@settingsDownloadsWifiOnly": {
+    "description": "Setting."
+  },
+  "settingsDownloadsWifiOnlyBody": "Downloads wait for Wi-Fi instead of using mobile data.",
+  "@settingsDownloadsWifiOnlyBody": {
+    "description": "Setting explanation."
+  },
+  "settingsDownloadsRules": "Automatic",
+  "@settingsDownloadsRules": {
+    "description": "Section header."
+  },
+  "settingsDownloadsAutoNextInSeries": "Download the next book in a series",
+  "@settingsDownloadsAutoNextInSeries": {
+    "description": "Setting."
+  },
+  "settingsDownloadsAutoNextBody": "When a downloaded book is three quarters done.",
+  "@settingsDownloadsAutoNextBody": {
+    "description": "Setting explanation."
+  },
+  "settingsDownloadsAutoDelete": "Remove finished books after {days} days",
+  "@settingsDownloadsAutoDelete": {
+    "description": "Setting.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDownloadsAutoDeleteBody": "Counts from when you finished the book on this phone.",
+  "@settingsDownloadsAutoDeleteBody": {
+    "description": "Setting explanation."
+  },
+  "settingsDownloadsMaxSizeTitle": "Storage limit",
+  "@settingsDownloadsMaxSizeTitle": {
+    "description": "Setting."
+  },
+  "settingsDownloadsMaxSize": "Keep at most {gb} GB",
+  "@settingsDownloadsMaxSize": {
+    "description": "Storage limit choice.",
+    "placeholders": {
+      "gb": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDownloadsMaxSizeOff": "No limit",
+  "@settingsDownloadsMaxSizeOff": {
+    "description": "Storage limit choice."
+  },
+  "settingsDownloadsMaxSizeBody": "Over the limit, the books you finished longest ago are removed first.",
+  "@settingsDownloadsMaxSizeBody": {
+    "description": "Setting explanation."
+  },
+  "settingsDownloadsNeverUnfinished": "Books you have not finished are never removed automatically.",
+  "@settingsDownloadsNeverUnfinished": {
+    "description": "Footnote under the automatic rules."
+  },
+  "syncPendingChanges": "{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}",
+  "@syncPendingChanges": {
+    "description": "Sync status row.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncFailedChanges": "{count, plural, =1{1 change could not sync} other{{count} changes could not sync}}",
+  "@syncFailedChanges": {
+    "description": "Sync status row.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncDetails": "Details",
+  "@syncDetails": {
+    "description": "Button."
+  },
+  "syncDetailsTitle": "Changes that could not sync",
+  "@syncDetailsTitle": {
+    "description": "Dialog title."
+  },
+  "syncDetailsBody": "The server refused these changes, so they will not be sent again.",
+  "@syncDetailsBody": {
+    "description": "Dialog body."
+  },
+  "syncDismiss": "Dismiss",
+  "@syncDismiss": {
+    "description": "Button: forget the refused changes."
+  },
+  "syncKindProgress": "Listening position",
+  "@syncKindProgress": {
+    "description": "Kind of change."
+  },
+  "syncKindFinished": "Marked as finished",
+  "@syncKindFinished": {
+    "description": "Kind of change."
+  },
+  "syncKindBookmark": "Bookmark",
+  "@syncKindBookmark": {
+    "description": "Kind of change."
+  },
+  "syncKindSession": "Listening time",
+  "@syncKindSession": {
+    "description": "Kind of change."
+  },
+  "syncKindPlaylist": "Playlist change",
+  "@syncKindPlaylist": {
+    "description": "Kind of change."
+  },
+  "offlineBannerCheck": "Check again",
+  "@offlineBannerCheck": {
+    "description": "Banner action."
+  },
+  "notificationDownloadRunning": "Downloading {title}",
+  "@notificationDownloadRunning": {
+    "description": "Notification title.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationDownloadFiles": "{finished} of {total} files",
+  "@notificationDownloadFiles": {
+    "description": "Notification body. The placeholders are filled by the system.",
+    "placeholders": {
+      "finished": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationDownloadComplete": "Downloaded {title}",
+  "@notificationDownloadComplete": {
+    "description": "Notification title.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationDownloadFailed": "{title} did not download",
+  "@notificationDownloadFailed": {
+    "description": "Notification title.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
   }
 }

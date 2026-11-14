@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 
 import '../features/accounts/ui/accounts_screen.dart';
 import '../features/accounts/ui/add_server_screen.dart';
+import '../features/downloads/ui/download_settings_screen.dart';
+import '../features/downloads/ui/downloads_screen.dart';
 import '../features/home/ui/home_screen.dart';
 import '../features/item_detail/ui/item_detail_screen.dart';
 import '../features/library/ui/library_screen.dart';
@@ -39,6 +41,8 @@ abstract final class AppRoutes {
   static const settingsAppearance = '/you/settings/appearance';
   static const settingsPrivacy = '/you/settings/privacy';
   static const settingsAbout = '/you/settings/about';
+  static const downloads = '/you/downloads';
+  static const downloadSettings = '/you/downloads/settings';
   static const importFiles = '/local/import';
   static String item(String id) => '/item/${Uri.encodeComponent(id)}';
 }
@@ -110,6 +114,11 @@ GoRouter buildRouter({
                       GoRoute(path: 'privacy', builder: (_, _) => const PrivacySettingsScreen()),
                       GoRoute(path: 'about', builder: (_, _) => const AboutScreen()),
                     ],
+                  ),
+                  GoRoute(
+                    path: 'downloads',
+                    builder: (_, _) => const DownloadsScreen(),
+                    routes: [GoRoute(path: 'settings', builder: (_, _) => const DownloadSettingsScreen())],
                   ),
                 ],
               ),

@@ -135,6 +135,7 @@ class _PlayerSideEffectsState extends ConsumerState<PlayerSideEffects> with Widg
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(remoteProgressBridgeProvider);
     ref.listen(playerNoticesProvider, (_, next) {
       if (next case AsyncData(:final value)) _onNotice(value);
     });

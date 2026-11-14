@@ -12,6 +12,7 @@ import '../../app/providers.dart';
 import '../../core/db/global_db.dart';
 import '../../core/library/source_id.dart';
 import '../../core/net/abs_client.dart';
+import '../../core/socket/abs_socket.dart';
 import '../accounts/data/account_session.dart';
 import '../accounts/data/accounts_repository.dart' show AccountRowX;
 import '../../l10n/gen/app_localizations.dart';
@@ -131,6 +132,36 @@ class PlayerPrefsState extends Notifier<PlayerPrefs> {
     await ref.read(playerEngineProvider).updatePrefs(next);
   }
 }
+
+/// Feeds progress made on other devices to the player (docs/plan
+/// 04-phase3-player.md 3.7): applied quietly when paused, offered when
+/// playing far away, our own echoes ignored. Kept alive by the app shell.
+final remoteProgressBridgeProvider = Provider<void>((ref) {
+  final session = ref.watch(accountSessionProvider);
+  if (session == null) return;
+  final engine = ref.watch(playerEngineProvider);
+  final sub = session.socket.events.listen((event) {
+    if (event is! ProgressUpdated) return;
+    final own = event.sessionId;
+    if (own != null && AbsProgressSink.isOwnSession(own)) return;
+    final p = event.progress;
+    final itemId = p['libraryItemId'];
+    final time = p['currentTime'];
+    final last = p['lastUpdate'];
+    if (itemId is! String || time is! num || last is! num) return;
+    final item = ItemRef(AbsSource(session.accountId), itemId, episodeId: p['episodeId'] as String?);
+    unawaited(
+      engine.applyRemote(
+        item,
+        PositionStamp(
+          Duration(milliseconds: (time * 1000).round()),
+          DateTime.fromMillisecondsSinceEpoch(last.toInt()),
+        ),
+      ),
+    );
+  });
+  ref.onDispose(sub.cancel);
+});
 
 /// True when [ref] is the loaded book.
 bool isCurrent(PlayerSnapshot s, ItemRef ref) => s.now?.ref == ref;

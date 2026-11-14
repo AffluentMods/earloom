@@ -89,6 +89,10 @@ abstract interface class AbsPlaybackApi {
   Future<void> sync(String sessionId, Map<String, Object?> body);
   Future<void> close(String sessionId, Map<String, Object?> body);
   Future<void> markFinished(String itemId, {String? episodeId});
+
+  /// When the user's progress for the item last changed, or null if there
+  /// is none.
+  Future<DateTime?> progressUpdatedAt(String itemId, {String? episodeId});
   Uri url(String path);
   Map<String, String> get customHeaders;
   void dispose();
@@ -127,6 +131,20 @@ final class ClientPlaybackApi implements AbsPlaybackApi {
   );
 
   @override
+  Future<DateTime?> progressUpdatedAt(String itemId, {String? episodeId}) async {
+    try {
+      final json = await _client.get<Map<String, Object?>>(
+        episodeId == null ? '/api/me/progress/$itemId' : '/api/me/progress/$itemId/$episodeId',
+      );
+      final last = json['lastUpdate'];
+      return last is num ? DateTime.fromMillisecondsSinceEpoch(last.toInt()) : null;
+    } on AbsHttpError catch (e) {
+      if (e.status == 404) return null;
+      rethrow;
+    }
+  }
+
+  @override
   Uri url(String path) => _client.url(path);
 
   @override
@@ -159,10 +177,18 @@ final class AbsSessionStarter {
     final parsed = parseSession(session, ref: ref, api: api);
     if (startAt != null) return (parsed.book, StartDecision(startAt));
     final local = await localPosition?.call(ref);
-    final serverAt = parsed.progressUpdatedAt;
+    DateTime? serverAt = parsed.progressUpdatedAt;
+    if (local != null && serverAt == null) {
+      try {
+        serverAt = await api.progressUpdatedAt(ref.itemId, episodeId: ref.episodeId);
+      } on AbsFailure {
+        // Unknown: the server position stands.
+      }
+    }
     final decision = resolveStart(
       local: local,
-      server: PositionStamp(parsed.book.startPosition, serverAt ?? DateTime.fromMillisecondsSinceEpoch(0)),
+      // With no timestamp at all, the server (what the session says) wins.
+      server: PositionStamp(parsed.book.startPosition, serverAt ?? DateTime.now()),
     );
     return (parsed.book, decision);
   }
@@ -238,7 +264,14 @@ final class AbsSessionStarter {
 /// Reports to an open server session. Listening time that could not be
 /// sent is kept and goes out with the next sync.
 final class AbsProgressSink implements ProgressSink {
-  AbsProgressSink({required this.api, required this.sessionId, required this.itemId, this.episodeId});
+  AbsProgressSink({required this.api, required this.sessionId, required this.itemId, this.episodeId}) {
+    _own.add(sessionId);
+  }
+
+  /// Sessions this phone opened. Their progress events come back over the
+  /// socket and must not be mistaken for another device.
+  static final _own = <String>{};
+  static bool isOwnSession(String id) => _own.contains(id);
 
   final AbsPlaybackApi api;
   final String sessionId;

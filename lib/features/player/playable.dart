@@ -3,6 +3,7 @@
 
 import '../../core/library/models.dart';
 import '../../core/library/source_id.dart';
+import '../../core/ui/cover_image.dart';
 
 /// One audio file (or stream) of a book.
 final class PlayableTrack {
@@ -42,6 +43,7 @@ final class PlayableBook {
     this.chapters = const [],
     this.startPosition = Duration.zero,
     this.artworkUri,
+    this.cover,
     this.coverKey,
   });
 
@@ -61,6 +63,9 @@ final class PlayableBook {
 
   /// A local file the lock screen, car and widgets can show.
   final Uri? artworkUri;
+
+  /// What the app shows. Defaults to [artworkUri] when that is a file.
+  final CoverSource? cover;
   final String? coverKey;
 
   /// Receives progress for this book.

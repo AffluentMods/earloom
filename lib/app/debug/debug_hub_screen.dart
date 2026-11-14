@@ -44,6 +44,12 @@ class DebugHubScreen extends ConsumerWidget {
             subtitle: const Text('Sample covers next to the schemes derived from them'),
             onTap: () => context.push(DebugRoutes.colors),
           ),
+          ListTile(
+            leading: const Icon(Icons.layers_outlined),
+            title: const Text('States'),
+            subtitle: const Text('Loading, empty, offline, errors and notices'),
+            onTap: () => context.push(DebugRoutes.states),
+          ),
           const Divider(),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: Space.md),

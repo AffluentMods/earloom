@@ -65,3 +65,6 @@ Thumbs.db
 lib/l10n/gen/
 *.g.dart
 *.freezed.dart
+
+# Claude Code worktrees and local settings
+.claude/worktrees/

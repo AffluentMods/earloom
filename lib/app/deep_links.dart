@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 Affluent Labs LLC
 
-/// The custom URL scheme of the app: `earloom://item/<id>`, `earloom://player`.
+/// The custom URL scheme of the app: `earloom://item/<id>`, `earloom://player`
+/// (`?action=resume` also starts playback), `earloom://downloads`,
+/// `earloom://search`. The last three are the app icon shortcuts.
 const appScheme = 'earloom';
 
 /// Maps an incoming URI to an in-app location.
@@ -19,7 +21,11 @@ String? normalizeDeepLink(Uri uri, {String fallback = '/home'}) {
     case 'item' when segments.length == 1:
       return '/item/${Uri.encodeComponent(segments.single)}';
     case 'player' when segments.isEmpty:
-      return '/player';
+      return uri.queryParameters['action'] == 'resume' ? '/player?resume=1' : '/player';
+    case 'downloads' when segments.isEmpty:
+      return '/you/downloads';
+    case 'search' when segments.isEmpty:
+      return '/search';
     default:
       return fallback;
   }

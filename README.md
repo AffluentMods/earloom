@@ -23,7 +23,7 @@ You need the Flutter stable release named in [`CONTRIBUTING.md`](CONTRIBUTING.md
 git clone https://github.com/AffluentMods/earloom.git
 cd earloom
 tool/bootstrap.sh
-flutter run
+flutter run --flavor foss   # Android; on iOS plain `flutter run`
 ```
 
 `tool/bootstrap.sh` fetches packages and generates code (database and translations). On Windows, run it from Git Bash.

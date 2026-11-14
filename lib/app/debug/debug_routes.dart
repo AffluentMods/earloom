@@ -14,6 +14,7 @@ import 'debug_hub_screen.dart';
 import 'demo_books.dart';
 import 'design_item_preview.dart';
 import 'design_player_preview.dart';
+import 'states_catalog_screen.dart';
 
 // Everything under lib/app/debug is for developers and design review. The
 // routes are only registered in debug builds, so the plain English strings
@@ -24,6 +25,7 @@ const debugMenuLabel = 'Developer screens';
 abstract final class DebugRoutes {
   static const hub = '/debug';
   static const colors = '/debug/colors';
+  static const states = '/debug/states';
   static String designItem(int book) => '/debug/design/item/$book';
   static String designPlayer(int book) => '/debug/design/player/$book';
 }
@@ -45,6 +47,7 @@ final debugRoutes = <RouteBase>[
     routes: [
       GoRoute(path: DebugRoutes.hub, builder: (_, _) => const DebugHubScreen()),
       GoRoute(path: DebugRoutes.colors, builder: (_, _) => const CoverColorsScreen()),
+      GoRoute(path: DebugRoutes.states, builder: (_, _) => const StatesCatalogScreen()),
       GoRoute(
         path: '/debug/design/item/:book',
         builder: (_, state) => _themed(state, (book) => DesignItemPreview(book: book)),

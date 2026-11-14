@@ -17,16 +17,20 @@ import 'package:earloom/app/debug/debug_hub_screen.dart';
 import 'package:earloom/app/debug/demo_books.dart';
 import 'package:earloom/app/debug/design_item_preview.dart';
 import 'package:earloom/app/debug/design_player_preview.dart';
+import 'package:earloom/app/providers.dart';
 import 'package:earloom/features/home/ui/home_screen.dart';
 import 'package:earloom/features/item_detail/ui/item_detail_screen.dart';
 import 'package:earloom/features/library/ui/library_screen.dart';
+import 'package:earloom/features/onboarding/ui/onboarding_screen.dart';
 import 'package:earloom/features/player/ui/now_playing_screen.dart';
 import 'package:earloom/features/search/ui/search_screen.dart';
 import 'package:earloom/features/you/ui/you_screen.dart';
 import 'package:earloom/l10n/gen/app_localizations.dart';
 import 'package:earloom/main.dart' as app;
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -34,8 +38,23 @@ void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('the app launches and the Phase 0 shell works on this device', (tester) async {
+    // One line per step in the device log, so a device that dies mid-run
+    // (the CI emulator has) shows where.
+    void step(String name) => debugPrint('walk: $name');
+    step('launch');
     await app.main();
     await settle(tester);
+
+    // A fresh install opens the welcome screen. Earlier runs on the same
+    // device may already have finished it.
+    if (find.byType(OnboardingScreen).evaluate().isNotEmpty) {
+      step('onboarding');
+      await shotNow(binding, tester, 'onboarding');
+      final container = ProviderScope.containerOf(tester.element(find.byType(OnboardingScreen)));
+      await container.read(onboardingProvider.notifier).complete();
+      GoRouter.of(tester.element(find.byType(OnboardingScreen))).go('/home');
+      await settle(tester);
+    }
     expect(find.byType(HomeScreen), findsOneWidget);
 
     // In-app screenshots only where they are cheap. On Android the screenshot
@@ -55,44 +74,56 @@ void main() {
       await settle(tester);
     }
 
+    step('home');
     await shot('01_home');
 
     // Every tab opens its screen.
+    step('library tab');
     await tab(l10n.tabLibrary);
     expect(find.byType(LibraryScreen), findsOneWidget);
+    step('search tab');
     await tab(l10n.tabSearch);
     expect(find.byType(SearchScreen), findsOneWidget);
+    step('you tab');
     await tab(l10n.tabYou);
     expect(find.byType(YouScreen), findsOneWidget);
 
     // Developer screens, then the theme switch.
+    step('debug hub');
     await tester.tap(find.byIcon(Icons.bug_report_outlined));
     await settle(tester);
     expect(find.byType(DebugHubScreen), findsOneWidget);
 
     Brightness brightness() => Theme.of(tester.element(find.byType(DebugHubScreen))).brightness;
+    step('dark theme');
     await setTheme(tester, 'Dark');
     expect(brightness(), Brightness.dark);
     await shot('02_debug_hub_dark');
 
     // Design previews: first book in dark, then light, then a second book.
+    step('item preview dark');
     await openPreview(tester, item: true, book: 0);
     expect(find.byType(DesignItemPreview), findsOneWidget);
     await shot('03_item_dark');
     await back(tester);
 
+    step('player preview dark');
     await openPreview(tester, item: false, book: 0);
     expect(find.byType(DesignPlayerPreview), findsOneWidget);
     await shot('04_player_dark');
     await back(tester);
 
+    step('light theme');
     await setTheme(tester, 'Light');
     expect(brightness(), Brightness.light);
+    step('item preview light');
     await openPreview(tester, item: true, book: 1);
     await shot('05_item_light');
     await back(tester);
 
+    step('amoled theme');
     await setTheme(tester, 'AMOLED');
+    step('player preview amoled');
     await openPreview(tester, item: false, book: 6);
     await shot('06_player_amoled');
     await back(tester);
@@ -101,17 +132,29 @@ void main() {
     await setTheme(tester, 'System');
 
     // Deep links, delivered the way the operating system hands them over.
+    step('deep link item');
     await openLink(tester, 'earloom://item/test');
     expect(tester.widget<ItemDetailScreen>(find.byType(ItemDetailScreen)).itemId, 'test');
     await shot('07_deep_link_item');
 
+    // Nothing is loaded on a fresh install: the player link lands on Home.
+    step('deep link player');
     await openLink(tester, 'earloom://player');
-    expect(find.byType(NowPlayingScreen), findsOneWidget);
+    expect(find.byType(NowPlayingScreen), findsNothing);
+    expect(find.byType(HomeScreen), findsOneWidget);
 
     await openLink(tester, 'earloom://settings/delete-everything');
     expect(find.byType(HomeScreen), findsOneWidget);
     expect(find.byType(ItemDetailScreen), findsNothing);
   });
+}
+
+/// A screenshot before the regular shot() helper exists (iOS only, see the
+/// note on Android screenshots below).
+Future<void> shotNow(IntegrationTestWidgetsFlutterBinding binding, WidgetTester tester, String name) async {
+  if (Platform.isAndroid) return;
+  await settle(tester);
+  await binding.takeScreenshot('${Platform.operatingSystem}_00_$name');
 }
 
 /// Lets real async work finish (image decoding, database reads), then waits

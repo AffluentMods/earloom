@@ -1,0 +1,75 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 Affluent Labs LLC
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
+
+import '../../../app/router.dart';
+import '../../../app/theme/tokens.dart';
+import '../../../core/library/browse_models.dart';
+import '../../../core/library/models.dart';
+import '../../../core/library/source_id.dart';
+import 'library_screen.dart' show libraryPaneProvider;
+
+/// Opens browse screens inside the tab the user is in, so the tab bar and
+/// the mini player stay. Outside a browsing tab they open full screen.
+abstract final class BrowseNav {
+  /// The tab root the current location is in, or empty.
+  static String base(BuildContext context) {
+    final String path;
+    try {
+      path = GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
+    } on Object {
+      return '';
+    }
+    for (final b in AppRoutes.browseBases) {
+      if (path == b || path.startsWith('$b/')) return b;
+    }
+    return '';
+  }
+
+  /// [heroTag] is the tag of the cover that was tapped, so it flies to the
+  /// detail header.
+  static void book(BuildContext context, ItemRef ref, {Object? heroTag}) {
+    final where = base(context);
+    final path = GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
+    // On wide screens the Library tab shows the book next to the list.
+    if (where == AppRoutes.library &&
+        path == AppRoutes.library &&
+        MediaQuery.sizeOf(context).width >= Breakpoints.expanded) {
+      ProviderScope.containerOf(context).read(libraryPaneProvider.notifier).show(ref);
+      return;
+    }
+    context.push(AppRoutes.book(ref, base: where), extra: heroTag);
+  }
+
+  /// A podcast show (the item without an episode).
+  static void show(BuildContext context, ItemRef show, {Object? heroTag}) =>
+      context.push(AppRoutes.show(show, base: base(context)), extra: heroTag);
+
+  /// A book, or the show screen when [book] is a podcast.
+  static void open(BuildContext context, BookSummary book, {Object? heroTag}) => book.isPodcast
+      ? show(context, ItemRef(book.ref.source, book.ref.itemId), heroTag: heroTag)
+      : BrowseNav.book(context, book.ref, heroTag: heroTag);
+
+  static void series(BuildContext context, SourceId source, String id) =>
+      context.push(AppRoutes.series(source, id, base: base(context)));
+
+  static void author(BuildContext context, SourceId source, String id) =>
+      context.push(AppRoutes.author(source, id, base: base(context)));
+
+  /// Books of a library with one filter: a narrator, a genre, a tag.
+  static void filtered(BuildContext context, SourceId source, String libraryId, FilterKind kind, String value) =>
+      context.push(AppRoutes.filtered(source, libraryId, kind, value, base: base(context)));
+
+  static void collection(BuildContext context, SourceId source, String id) =>
+      context.push(AppRoutes.collection(source, id, base: base(context)));
+
+  static void playlist(BuildContext context, SourceId source, String id) =>
+      context.push(AppRoutes.playlist(source, id, base: base(context)));
+}
+
+/// A hero tag that is unique on its screen: the same book can sit on two
+/// shelves at once.
+String coverHeroTag(ItemRef ref, String place) => 'cover|${ref.key}|$place';

@@ -3,6 +3,7 @@
 
 import 'package:material_ui/material_ui.dart';
 
+import 'cover_scheme.dart';
 import 'tokens.dart';
 import 'typography.dart';
 
@@ -33,7 +34,7 @@ abstract final class AppTheme {
       brightness: brightness,
       dynamicSchemeVariant: DynamicSchemeVariant.neutral,
     );
-    return amoled ? toAmoled(scheme) : scheme;
+    return CoverSchemeService.ensureReadable(amoled ? toAmoled(scheme) : scheme);
   }
 
   /// Forces the base surfaces of a dark scheme to pure black and keeps the

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home screen widget colors. On Android 12+ they follow the wallpaper
+     colors (values-v31); these neutral ones are for older versions. -->
+<resources>
+    <color name="widget_background">#FFF4F2F7</color>
+    <color name="widget_on_background">#FF1B1B21</color>
+    <color name="widget_on_background_muted">#FF47464F</color>
+    <color name="widget_accent">#FF4F5B92</color>
+    <color name="widget_on_accent">#FFFFFFFF</color>
+    <color name="widget_track">#334F5B92</color>
+</resources>

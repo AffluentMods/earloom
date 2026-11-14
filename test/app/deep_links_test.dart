@@ -19,6 +19,14 @@ void main() {
     expect(norm('earloom://player/'), '/player');
   });
 
+  test('the app icon shortcuts map to their screens', () {
+    expect(norm('earloom://player?action=resume'), '/player?resume=1');
+    expect(norm('earloom://player?action=anything'), '/player');
+    expect(norm('earloom://downloads'), '/you/downloads');
+    expect(norm('earloom://search'), '/search');
+    expect(norm('earloom://downloads/x'), '/home');
+  });
+
   test('an item id that happens to be a route name stays an item', () {
     expect(norm('earloom://item/home'), '/item/home');
   });

@@ -51,12 +51,15 @@ jobs:
           script: tool/ci/device_check_android.sh
         env:
           # The CI emulator has no GPU: it renders through SwiftShader, and
-          # three runs in a row the emulator process itself died on the Now
-          # Playing preview (large blurred shadow, full-screen gradient) while
-          # Flutter drew with Impeller's OpenGL ES backend, with no app error
-          # and plenty of free memory. Skia is used on this emulator only.
-          # Real devices, and this script on a real device, keep Impeller.
-          FLUTTER_DRIVE_ARGS: --no-enable-impeller
+          # the emulator process itself dies on the Now Playing preview (large
+          # blurred shadow, full-screen gradient) when Flutter draws with
+          # Impeller's OpenGL ES backend, with no app error and plenty of free
+          # memory. Skia is used on this emulator only. It goes in through the
+          # manifest (android/app/build.gradle.kts): the playback service's
+          # engine never sees launch flags such as --no-enable-impeller, which
+          # is why that flag stopped working once audio_service arrived.
+          # Real devices keep Impeller.
+          FLUTTER_DRIVE_ARGS: -P earloomImpeller=false
       - name: Memory report (on failure)
         if: failure()
         run: |

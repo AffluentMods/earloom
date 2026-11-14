@@ -269,7 +269,7 @@ class _BooksViewState extends ConsumerState<_BooksView> with RefreshingState, Au
       body = SliverPadding(
         padding: const EdgeInsets.fromLTRB(Space.lg, Space.md, Space.lg, Space.lg),
         sliver: SliverGrid.builder(
-          gridDelegate: bookGridDelegate,
+          gridDelegate: bookGridDelegate(context),
           itemCount: list.length,
           itemBuilder: (context, i) => LayoutBuilder(
             builder: (context, c) => BookGridCard(book: list[i], width: c.maxWidth, place: 'library'),
@@ -410,7 +410,7 @@ class _SeriesViewState extends ConsumerState<_SeriesView> with RefreshingState, 
             SliverPadding(
               padding: const EdgeInsets.all(Space.lg),
               sliver: SliverGrid.builder(
-                gridDelegate: bookGridDelegate,
+                gridDelegate: bookGridDelegate(context),
                 itemCount: list.length,
                 itemBuilder: (context, i) => LayoutBuilder(
                   builder: (context, c) => SeriesCard(series: list[i], width: c.maxWidth),

@@ -96,11 +96,21 @@ class BookCover extends ConsumerWidget {
               bottom: Space.sm,
               child: DownloadedBadge(itemRef: book.ref, size: (size * 0.15).clamp(18.0, 24.0)),
             ),
-          if (showRing)
+          // Finished: a check in the corner. In progress: a thin bar along
+          // the bottom of the cover, which reads at a glance (a small ring
+          // looked like a loading spinner).
+          if (showRing && progress.isFinished)
             Positioned(
               right: Space.sm,
               bottom: Space.sm,
               child: ProgressBadge(progress: progress, size: (size * 0.2).clamp(22.0, 32.0)),
+            )
+          else if (showRing)
+            Positioned(
+              left: size * 0.08,
+              right: size * 0.08,
+              bottom: size * 0.07,
+              child: CoverProgressBar(progress: progress),
             ),
         ],
       ),

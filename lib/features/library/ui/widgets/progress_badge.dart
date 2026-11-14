@@ -102,3 +102,36 @@ class ThinProgressBar extends StatelessWidget {
     );
   }
 }
+
+/// A thin progress bar laid over the bottom of a cover.
+class CoverProgressBar extends StatelessWidget {
+  const CoverProgressBar({super.key, required this.progress});
+
+  final ListeningProgress progress;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    return Semantics(
+      label: l10n.listenedPercent((progress.fraction * 100).round()),
+      child: Container(
+        height: 6,
+        padding: const EdgeInsets.all(1),
+        decoration: BoxDecoration(
+          color: scheme.surface.withValues(alpha: 0.85),
+          borderRadius: BorderRadius.circular(Radii.pill),
+          boxShadow: [BoxShadow(color: scheme.shadow.withValues(alpha: 0.25), blurRadius: 4)],
+        ),
+        child: FractionallySizedBox(
+          alignment: AlignmentDirectional.centerStart,
+          // A started book always shows a sliver, so "barely started" reads.
+          widthFactor: progress.fraction.clamp(0.04, 1.0),
+          child: DecoratedBox(
+            decoration: BoxDecoration(color: scheme.primary, borderRadius: BorderRadius.circular(Radii.pill)),
+          ),
+        ),
+      ),
+    );
+  }
+}

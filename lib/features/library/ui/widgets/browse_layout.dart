@@ -3,6 +3,7 @@
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/rendering.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../app/theme/tokens.dart';
@@ -184,7 +185,7 @@ class SliverGridSkeleton extends StatelessWidget {
     return SliverPadding(
       padding: const EdgeInsets.all(Space.lg),
       sliver: SliverGrid(
-        gridDelegate: bookGridDelegate,
+        gridDelegate: bookGridDelegate(context),
         delegate: SliverChildBuilderDelegate(
           (_, _) => const ExcludeSemantics(
             child: Column(
@@ -209,12 +210,38 @@ class SliverGridSkeleton extends StatelessWidget {
 }
 
 /// The book grid: as many columns as fit at about 150 points, at least two.
-const bookGridDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
-  maxCrossAxisExtent: 180,
-  mainAxisSpacing: Space.xl,
-  crossAxisSpacing: Space.lg,
-  childAspectRatio: 0.62,
-);
+/// Each cell is the square cover plus room for two title lines and an
+/// author line at the current text size, so rows sit close together and
+/// large text never clips.
+SliverGridDelegate bookGridDelegate(BuildContext context) => _BookGridDelegate(MediaQuery.textScalerOf(context));
+
+class _BookGridDelegate extends SliverGridDelegate {
+  const _BookGridDelegate(this.textScaler);
+  final TextScaler textScaler;
+
+  static const _maxExtent = 180.0;
+
+  @override
+  SliverGridLayout getLayout(SliverConstraints constraints) {
+    final width = constraints.crossAxisExtent;
+    final columns = ((width + Space.lg) / (_maxExtent + Space.lg)).ceil().clamp(2, 12);
+    final tile = (width - Space.lg * (columns - 1)) / columns;
+    // Title: two lines of 14 at height 1.25; author: one line of 12 at 1.33.
+    final text = textScaler.scale(14) * 1.25 * 2 + textScaler.scale(12) * 1.34 + 2;
+    final extent = tile + Space.sm + text + Space.xs;
+    return SliverGridRegularTileLayout(
+      crossAxisCount: columns,
+      mainAxisStride: extent + Space.xl,
+      crossAxisStride: tile + Space.lg,
+      childMainAxisExtent: extent,
+      childCrossAxisExtent: tile,
+      reverseCrossAxis: false,
+    );
+  }
+
+  @override
+  bool shouldRelayout(_BookGridDelegate old) => old.textScaler != textScaler;
+}
 
 /// Shown above cached content when refreshing failed: offline, or another
 /// error in plain words with a way to copy the details. Never replaces the

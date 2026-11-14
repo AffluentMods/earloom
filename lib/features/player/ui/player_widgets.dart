@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../app/router.dart';
 import '../../../app/theme/cover_theme.dart';
 import '../../../core/ui/cover_image.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -181,4 +182,4 @@ Duration atSpeed(Duration bookTime, double speed) =>
     Duration(milliseconds: (bookTime.inMilliseconds / speed).round().clamp(0, 1 << 52));
 
 /// Opens the book page for what is playing.
-String? bookLocation(PlayerSnapshot s) => s.now == null ? null : '/item/${Uri.encodeComponent(s.now!.ref.key)}';
+String? bookLocation(PlayerSnapshot s) => s.now == null ? null : AppRoutes.book(s.now!.ref, base: AppRoutes.home);

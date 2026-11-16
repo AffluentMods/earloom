@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The app's own background (the shell surface), so launch does not flash
+     a different color before Flutter draws. Mirrors AppTheme's surface. -->
+<resources>
+    <color name="launch_background">#FFFCF8FA</color>
+</resources>

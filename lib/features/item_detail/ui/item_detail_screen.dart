@@ -151,48 +151,60 @@ class _DetailBody extends ConsumerWidget {
         child: RefreshIndicator(
           onRefresh: onRefresh,
           edgeOffset: MediaQuery.paddingOf(context).top + kToolbarHeight,
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.fromLTRB(
-              0,
-              MediaQuery.paddingOf(context).top + kToolbarHeight,
-              0,
-              MediaQuery.paddingOf(context).bottom + Space.xxl,
-            ),
-            children: [
-              RefreshNotice(error: refreshError, padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.xl, Space.lg)),
-              Center(
-                child: BookCover(book: book, size: coverSize, heroTag: heroTag, showProgress: false),
-              ),
-              const SizedBox(height: Space.xl),
-              _Pad(
-                child: _Header(detail: detail, libraryId: libraryId),
-              ),
-              const SizedBox(height: Space.xl),
-              _Pad(child: _PlayButton(book: book)),
-              _Pad(child: _ProgressLine(book: book)),
-              const SizedBox(height: Space.lg),
-              _Pad(
-                child: _ActionRow(book: book, libraryId: libraryId),
-              ),
-              if (detail.descriptionHtml != null && detail.descriptionHtml!.trim().isNotEmpty) ...[
-                const SizedBox(height: Space.lg),
-                _Pad(child: DescriptionText(html: detail.descriptionHtml!)),
-              ],
-              if (detail.chapters.length > 1) _Chapters(detail: detail),
-              BookBookmarks(itemRef: book.ref, chapters: detail.chapters),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(Space.xl, Space.xl, Space.xl, 0),
-                child: BookListeningCard(itemRef: book.ref),
-              ),
-              _Details(detail: detail, libraryId: libraryId),
-              _MoreInSeries(detail: detail),
-            ],
+          // On wide screens the page keeps a readable column in the middle;
+          // the cover tint behind it still fills the screen.
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final side = ((box.maxWidth - _maxContentWidth) / 2).clamp(0.0, double.infinity);
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  side,
+                  MediaQuery.paddingOf(context).top + kToolbarHeight,
+                  side,
+                  MediaQuery.paddingOf(context).bottom + Space.xxl,
+                ),
+                children: [
+                  RefreshNotice(
+                    error: refreshError,
+                    padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.xl, Space.lg),
+                  ),
+                  Center(
+                    child: BookCover(book: book, size: coverSize, heroTag: heroTag, showProgress: false),
+                  ),
+                  const SizedBox(height: Space.xl),
+                  _Pad(
+                    child: _Header(detail: detail, libraryId: libraryId),
+                  ),
+                  const SizedBox(height: Space.xl),
+                  _Pad(child: _PlayButton(book: book)),
+                  _Pad(child: _ProgressLine(book: book)),
+                  const SizedBox(height: Space.lg),
+                  _Pad(
+                    child: _ActionRow(book: book, libraryId: libraryId),
+                  ),
+                  if (detail.descriptionHtml != null && detail.descriptionHtml!.trim().isNotEmpty) ...[
+                    const SizedBox(height: Space.lg),
+                    _Pad(child: DescriptionText(html: detail.descriptionHtml!)),
+                  ],
+                  if (detail.chapters.length > 1) _Chapters(detail: detail),
+                  BookBookmarks(itemRef: book.ref, chapters: detail.chapters),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(Space.xl, Space.xl, Space.xl, 0),
+                    child: BookListeningCard(itemRef: book.ref),
+                  ),
+                  _Details(detail: detail, libraryId: libraryId),
+                  _MoreInSeries(detail: detail),
+                ],
+              );
+            },
           ),
         ),
       ),
     );
   }
+
+  static const _maxContentWidth = 720.0;
 
   Future<void> _showMore(BuildContext context, WidgetRef ref, BookSummary book, String? libraryId) async {
     final l10n = AppLocalizations.of(context);

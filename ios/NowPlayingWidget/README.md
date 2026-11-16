@@ -6,24 +6,31 @@ and the sleep timer Live Activity. The app side already writes the data
 (`lib/platform/widget_bridge.dart`) and starts the activity
 (`ios/Runner/SleepActivity.swift`).
 
-The Xcode target is created once, on the Mac:
+The `NowPlayingWidget` extension target is already in
+`ios/Runner.xcodeproj`: it builds `NowPlayingWidget.swift` and
+`ios/Runner/SleepTimerAttributes.swift`, uses `Info.plist` and
+`NowPlayingWidget.entitlements` from this folder, and is embedded in the app
+(the "Embed Foundation Extensions" phase sits before Flutter's "Thin Binary"
+script, which avoids Xcode's build cycle error).
 
-1. Open `ios/Runner.xcworkspace` in Xcode.
-2. File > New > Target > Widget Extension. Product name `NowPlayingWidget`,
-   bundle id `com.affluentlabs.earloom.NowPlayingWidget`, tick "Include Live
-   Activity", untick "Include Configuration App Intent". Do not activate the
-   new scheme.
-3. Delete the Swift files Xcode generated in the new group and add this
-   folder's `NowPlayingWidget.swift` to the `NowPlayingWidget` target.
-4. Add `ios/Runner/SleepTimerAttributes.swift` to the `NowPlayingWidget`
-   target too (File inspector > Target Membership), keeping it in Runner.
-5. Signing & Capabilities: add the App Group `group.com.affluentlabs.earloom`
-   to both the Runner and the NowPlayingWidget targets.
-6. Set the extension's deployment target to iOS 17.0, like Runner.
-7. `flutter build ios` and run on a phone: add the widget, play a book, start
-   a sleep timer and lock the phone.
+Entitlements in the repo:
 
-CarPlay needs the CarPlay audio entitlement once Apple grants it: Signing &
-Capabilities > + Capability > CarPlay Audio (`com.apple.developer.carplay-audio`).
-The CarPlay scene (`ios/Runner/CarPlaySceneDelegate.swift`) is already in
-the app and stays dormant until then.
+- App (`ios/Runner/Runner.entitlements`): CarPlay Audio
+  (`com.apple.developer.carplay-audio`) and the App Group
+  `group.com.affluentlabs.earloom`.
+- Widget (`NowPlayingWidget.entitlements`): the same App Group.
+
+What the Mac still needs, once, because signing uses the owner's account:
+
+1. In the Apple developer site, Identifiers: make sure the App Group
+   `group.com.affluentlabs.earloom` exists, the App ID
+   `com.affluentlabs.earloom` has App Groups (with that group) and CarPlay
+   Audio, and the App ID `com.affluentlabs.earloom.NowPlayingWidget` exists
+   with App Groups (same group).
+2. Open `ios/Runner.xcworkspace`, select each of the Runner and
+   NowPlayingWidget targets, Signing & Capabilities, pick the team. Xcode
+   shows the capabilities from the entitlements files; fix anything it marks
+   red.
+3. `flutter run` on an iPhone: add the widget, play a book, start a sleep
+   timer and lock the phone. Then the CarPlay Simulator (Xcode > Open
+   Developer Tool > Simulator, I/O > External Displays > CarPlay).

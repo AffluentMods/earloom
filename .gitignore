@@ -68,3 +68,8 @@ lib/l10n/gen/
 
 # Claude Code worktrees and local settings
 .claude/worktrees/
+
+# Demo server data (tool/demo-server)
+tool/demo-server/data/
+tool/demo-server/audiobooks/
+tool/demo-server/snapshot/

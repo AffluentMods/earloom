@@ -8,6 +8,9 @@
 //
 //   flutter test tool/screenshots/app_screens.dart
 //
+// With STORE=1 it renders the store listing set instead, at the sizes the
+// App Store and Google Play ask for, to build/screenshots/store/.
+//
 // Rendering differs a little between operating systems, so these images are
 // for looking at, never for pixel comparison.
 
@@ -188,7 +191,7 @@ PlayableBook _playable(ItemRef ref, Directory storage) {
   );
 }
 
-Future<void> _shoot(WidgetTester tester, String name) async {
+Future<void> _shoot(WidgetTester tester, String path, double pixelRatio) async {
   await settle(tester);
   // Let file images decode and cover colors resolve, then draw them.
   for (var i = 0; i < 8; i++) {
@@ -197,9 +200,9 @@ Future<void> _shoot(WidgetTester tester, String name) async {
   }
   await tester.runAsync(() async {
     final boundary = tester.renderObject<RenderRepaintBoundary>(find.byType(RepaintBoundary).first);
-    final image = await boundary.toImage(pixelRatio: _pixelRatio);
+    final image = await boundary.toImage(pixelRatio: pixelRatio);
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    final out = File('build/screenshots/app/$name.png');
+    final out = File(path);
     await out.create(recursive: true);
     await out.writeAsBytes(bytes!.buffer.asUint8List());
   });
@@ -233,6 +236,45 @@ void main() {
   final only = Platform.environment['SHOTS']?.split(',');
   bool wanted(String name) => only == null || only.any(name.contains);
 
+  String book(int i, String base) => AppRoutes.book(ItemRef(const LocalSource(), _idOf(i)), base: base);
+
+  if (Platform.environment['STORE'] != null) {
+    // Store sizes, in the order the listings show them. Dark: cover colors
+    // carry the screenshots.
+    const devices = <String, ({Size size, double ratio})>{
+      'ios_phone_6.9': (size: Size(440, 956), ratio: 3), // 1320 x 2868
+      'ios_ipad_13': (size: Size(1032, 1376), ratio: 2), // 2064 x 2752
+      'play_phone': (size: Size(414, 736), ratio: 3), // 1242 x 2208
+      'play_tablet_10': (size: Size(1280, 800), ratio: 2), // 2560 x 1600
+    };
+    final screens = <String, String>{
+      '1_home': AppRoutes.home,
+      '2_player': AppRoutes.player,
+      '3_book': book(0, AppRoutes.home),
+      '4_library': AppRoutes.library,
+      '5_stats': AppRoutes.stats,
+      '6_welcome': AppRoutes.onboarding,
+    };
+    for (final device in devices.entries) {
+      for (final screen in screens.entries) {
+        final name = '${device.key}/${screen.key}';
+        if (!wanted(name)) continue;
+        testWidgets(name, (tester) async {
+          await _render(
+            tester,
+            mode: AppThemeMode.dark,
+            size: device.value.size,
+            ratio: device.value.ratio,
+            onboarding: screen.value == AppRoutes.onboarding,
+            location: screen.value,
+            path: 'build/screenshots/store/$name.png',
+          );
+        });
+      }
+    }
+    return;
+  }
+
   for (final mode in [AppThemeMode.dark, AppThemeMode.light]) {
     for (final size in {'phone': _phone, 'tablet': _tablet}.entries) {
       final suffix = '${size.key}_${mode.name}';
@@ -244,8 +286,8 @@ void main() {
         'stats': AppRoutes.stats,
         'settings': AppRoutes.settings,
         'downloads': AppRoutes.downloads,
-        'item': AppRoutes.book(ItemRef(const LocalSource(), _idOf(0)), base: AppRoutes.home),
-        'item_unstarted': AppRoutes.book(ItemRef(const LocalSource(), _idOf(1)), base: AppRoutes.library),
+        'item': book(0, AppRoutes.home),
+        'item_unstarted': book(1, AppRoutes.library),
         'player': AppRoutes.player,
         'onboarding': AppRoutes.onboarding,
       };
@@ -254,54 +296,73 @@ void main() {
         if (!wanted(name)) continue;
         if (size.key == 'tablet' && !{'home', 'library', 'player', 'item'}.contains(route.key)) continue;
         testWidgets(name, (tester) async {
-          tester.view.physicalSize = size.value * _pixelRatio;
-          tester.view.devicePixelRatio = _pixelRatio;
-          addTearDown(tester.view.reset);
-          debugDisableShadows = false;
-          addTearDown(() => debugDisableShadows = true);
-          // The Now Playing background drifts forever; reduce motion holds it.
-          tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(
-            disableAnimations: true,
-          );
-          addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
-
-          final storage = Directory.systemTemp.createTempSync('earloom_shots_');
-          addTearDown(() => storage.deleteSync(recursive: true));
-          final local = await openTestLocalDb(tester);
-          final global = await openTestGlobalDb(tester);
-          await _seed(tester, local, global, storage);
-          if (_seeds.isEmpty) {
-            await tester.runAsync(() async {
-              for (var i = 0; i < demoBooks.length; i++) {
-                final seed = await CoverSchemeService.extractSeed(FileImage(File(demoBooks[i].coverAsset)));
-                _seeds[ItemRef(const LocalSource(), _idOf(i)).key] = seed;
-              }
-            });
-          }
-          await pumpEarloom(
+          await _render(
             tester,
-            themeMode: mode,
-            onboarded: route.key != 'onboarding',
-            localDb: local,
-            globalDb: global,
-            storageRoot: storage,
-            overrides: [
-              coverSchemeServiceProvider.overrideWithValue(_KnownCoverColors(_seeds)),
-              bookResolverProvider.overrideWithValue(
-                (ref, {startAt}) async =>
-                    (_playable(ref, storage), StartDecision(startAt ?? const Duration(minutes: 212))),
-              ),
-            ],
+            mode: mode,
+            size: size.value,
+            ratio: _pixelRatio,
+            onboarding: route.key == 'onboarding',
+            location: route.value,
+            path: 'build/screenshots/app/$name.png',
           );
-          if (route.key != 'onboarding') {
-            final container = ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
-            final engine = container.read(playerEngineProvider);
-            await tester.runAsync(() => engine.playItem(ItemRef(const LocalSource(), _idOf(0)), autoplay: false));
-          }
-          _go(tester, route.value);
-          await _shoot(tester, name);
         });
       }
     }
   }
+}
+
+/// Pumps the app with the demo books, a book loaded in the player, and
+/// [location] open, then writes a PNG to [path].
+Future<void> _render(
+  WidgetTester tester, {
+  required AppThemeMode mode,
+  required Size size,
+  required double ratio,
+  required bool onboarding,
+  required String location,
+  required String path,
+}) async {
+  tester.view.physicalSize = size * ratio;
+  tester.view.devicePixelRatio = ratio;
+  addTearDown(tester.view.reset);
+  debugDisableShadows = false;
+  addTearDown(() => debugDisableShadows = true);
+  // The Now Playing background drifts forever; reduce motion holds it.
+  tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+  addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+
+  final storage = Directory.systemTemp.createTempSync('earloom_shots_');
+  addTearDown(() => storage.deleteSync(recursive: true));
+  final local = await openTestLocalDb(tester);
+  final global = await openTestGlobalDb(tester);
+  await _seed(tester, local, global, storage);
+  if (_seeds.isEmpty) {
+    await tester.runAsync(() async {
+      for (var i = 0; i < demoBooks.length; i++) {
+        final seed = await CoverSchemeService.extractSeed(FileImage(File(demoBooks[i].coverAsset)));
+        _seeds[ItemRef(const LocalSource(), _idOf(i)).key] = seed;
+      }
+    });
+  }
+  await pumpEarloom(
+    tester,
+    themeMode: mode,
+    onboarded: !onboarding,
+    localDb: local,
+    globalDb: global,
+    storageRoot: storage,
+    overrides: [
+      coverSchemeServiceProvider.overrideWithValue(_KnownCoverColors(_seeds)),
+      bookResolverProvider.overrideWithValue(
+        (ref, {startAt}) async => (_playable(ref, storage), StartDecision(startAt ?? const Duration(minutes: 212))),
+      ),
+    ],
+  );
+  if (!onboarding) {
+    final container = ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
+    final engine = container.read(playerEngineProvider);
+    await tester.runAsync(() => engine.playItem(ItemRef(const LocalSource(), _idOf(0)), autoplay: false));
+  }
+  _go(tester, location);
+  await _shoot(tester, path, ratio);
 }

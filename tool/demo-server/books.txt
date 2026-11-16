@@ -1,0 +1,9 @@
+# Public-domain LibriVox recordings for the demo server, one title per line.
+# fetch_books.sh looks each one up in the LibriVox catalog and downloads it.
+# Only LibriVox (public domain). Never add anything else.
+The Time Machine
+Alice's Adventures in Wonderland
+The Adventures of Sherlock Holmes
+Pride and Prejudice
+The Wonderful Wizard of Oz
+Treasure Island

@@ -1,0 +1,27 @@
+# Public demo server for App Review, Play review and (later) a "Try the demo"
+# button. Same pinned Audiobookshelf as tool/abs-dev.
+#
+# Audiobookshelf listens on this machine only (127.0.0.1:13380). The outside
+# world reaches it through a Cloudflare Tunnel: put the tunnel token in
+# tool/demo-server/.env as TUNNEL_TOKEN=... (git-ignored, never commit it).
+# Steps: README.md in this folder.
+services:
+  abs:
+    image: ghcr.io/advplyr/audiobookshelf:2.37.2
+    container_name: earloom-demo
+    ports:
+      - "127.0.0.1:13380:80"
+    volumes:
+      - ./data/config:/config
+      - ./data/metadata:/metadata
+      - ./audiobooks:/audiobooks:ro
+    restart: unless-stopped
+  tunnel:
+    # Pin to the version you test with once the tunnel works.
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - abs
+    restart: unless-stopped

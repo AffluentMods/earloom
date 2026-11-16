@@ -158,6 +158,8 @@ class _Body extends ConsumerWidget {
   const _Body({required this.onClose});
   final VoidCallback onClose;
 
+  static const _tallMaxWidth = 640.0;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return LayoutBuilder(
@@ -186,19 +188,32 @@ class _Body extends ConsumerWidget {
             ],
           );
         }
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.xl, Space.lg),
-          child: Column(
-            children: [
-              top,
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, area) => Center(child: _Cover(maxSize: area.biggest.shortestSide)),
+        // Tall layout. On a tablet held upright the controls keep a phone
+        // like width in the middle instead of stretching edge to edge.
+        return Column(
+          children: [
+            top,
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: _Body._tallMaxWidth),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.xl, Space.lg),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: LayoutBuilder(
+                            builder: (context, area) => Center(child: _Cover(maxSize: area.biggest.shortestSide)),
+                          ),
+                        ),
+                        const _Controls(),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              const _Controls(),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
@@ -290,7 +305,8 @@ class _Cover extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final (now, playing) = ref.watch(playerProvider.select((s) => (s.now, s.playing)));
     if (now == null) return const SizedBox.shrink();
-    final size = maxSize.clamp(120.0, 420.0) - Space.lg;
+    // Up to 560 so a tablet gets a cover that fills its space.
+    final size = maxSize.clamp(120.0, 560.0) - Space.lg;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return AnimatedScale(
       scale: playing || reduceMotion ? 1 : 0.92,

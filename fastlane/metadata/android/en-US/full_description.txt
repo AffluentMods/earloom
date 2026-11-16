@@ -1,0 +1,30 @@
+Earloom is a free, open source audiobook player. Listen to the library on your own Audiobookshelf server, or to audiobook files you copy onto your phone. No ads, no account with us, no tracking.
+
+<b>Your server, your library</b>
+• Sign in to your Audiobookshelf server with a password or single sign-on.
+• Home, Library, series, authors, collections and playlists, with search across all of it.
+• Progress syncs both ways, and when you pick up a book you started on another device, Earloom offers to jump there.
+• Podcasts: new episodes, playback that remembers where you were, and automatic downloads.
+
+<b>Or just files on your phone</b>
+• Add M4B, MP3 and other audiobook files. Earloom reads titles, authors, chapters and covers.
+• Books on this phone work exactly like server books, and need no server at all.
+
+<b>Made for listening</b>
+• Each book's cover colors the player and the book page.
+• Chapters, bookmarks, speed from 0.5x to 3.5x, remembered per book, and skip times you choose.
+• A sleep timer that fades out, can stop at the end of a chapter, turns itself on at bedtime, and gives you more time when you shake the phone.
+• A short rewind after a pause, so you never lose the thread.
+
+<b>Offline first</b>
+• Download books and episodes and play them with no connection. Your progress waits and syncs when you are back online.
+
+<b>Everywhere you listen</b>
+• Android Auto, lock screen and notification controls, Bluetooth buttons, a home screen widget and app shortcuts.
+• Listening stats: time per day, streaks, your books, and a year in review.
+• Light, dark and pure black themes, large text support, and layouts for tablets.
+
+<b>Private by design</b>
+Earloom has no analytics, no crash reporting services and no ads. Your data goes only between your device and your own server.
+
+Earloom is an independent app for Audiobookshelf servers. It is not affiliated with or endorsed by the Audiobookshelf project. Source code: https://github.com/AffluentMods/earloom

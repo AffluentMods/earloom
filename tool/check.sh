@@ -24,6 +24,15 @@ if [[ "${1:-}" != "--fast" ]]; then
   dart run build_runner build >/dev/null
 fi
 
+# Packages vendored under third_party/<name>/ are other people's code: they
+# keep their authors' license, headers and style, so the checks below skip
+# them. third_party/README.md is ours and stays in.
+kept=()
+for f in "${ours[@]}"; do
+  [[ "$f" == third_party/*/* ]] || kept+=("$f")
+done
+ours=("${kept[@]}")
+
 note "Format"
 dart_files=()
 for f in "${ours[@]}"; do

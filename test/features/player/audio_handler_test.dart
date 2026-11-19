@@ -7,6 +7,7 @@ import 'package:earloom/features/player/audio_handler.dart';
 import 'package:earloom/features/player/player_engine.dart';
 import 'package:earloom/features/player/player_prefs.dart';
 import 'package:earloom/features/player/progress_resolver.dart';
+import 'package:earloom/features/player/sleep_timer.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/fake_player.dart';
@@ -56,6 +57,50 @@ void main() {
       await handler.customAction(AppAudioHandler.speedAction);
       expect(engine.value.speed, expected);
     }
+    await engine.dispose();
+  });
+
+  // On Android a headset or car pause key reaches pause(), a play key play()
+  // (third_party/audio_service patch); only the toggle keys reach click().
+  test('a pause key while paused leaves the book paused where it was', () async {
+    final (engine, handler, _) = await _setUp();
+    await engine.playItem(_ref, startAt: const Duration(minutes: 12));
+    await handler.pause();
+    final at = engine.value.position;
+    await handler.pause();
+    await Future<void>.delayed(Duration.zero);
+    expect(engine.value.playing, isFalse);
+    expect(engine.value.position, at);
+    expect(handler.playbackState.value.playing, isFalse);
+    await engine.dispose();
+  });
+
+  test('a play key while playing changes nothing', () async {
+    // All day is bedtime here, so pressing play would start a sleep timer.
+    final (engine, handler, _) = await _setUp(
+      prefs: const PlayerPrefs(autoSleep: true, autoSleepFrom: 0, autoSleepUntil: 24 * 60),
+    );
+    await engine.playItem(_ref, startAt: const Duration(minutes: 12));
+    engine.setSleepTimer(const SleepOff());
+    // In the last second, play starts the book over.
+    await engine.seek(const Duration(minutes: 59, seconds: 59, milliseconds: 300));
+    await handler.play();
+    expect(engine.value.playing, isTrue);
+    expect(engine.value.sleep, isA<SleepOff>());
+    expect(engine.value.position, greaterThan(const Duration(minutes: 59)));
+    await engine.dispose();
+  });
+
+  test('the headset toggle button still plays and pauses', () async {
+    final (engine, handler, _) = await _setUp();
+    await engine.playItem(_ref, startAt: const Duration(minutes: 12), autoplay: false);
+    await Future<void>.delayed(Duration.zero);
+    await handler.click();
+    await Future<void>.delayed(Duration.zero);
+    expect(engine.value.playing, isTrue);
+    await handler.click();
+    await Future<void>.delayed(Duration.zero);
+    expect(engine.value.playing, isFalse);
     await engine.dispose();
   });
 

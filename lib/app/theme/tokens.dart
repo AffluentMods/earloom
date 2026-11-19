@@ -27,7 +27,8 @@ abstract final class NeutralSeed {
   static const color = Color(0xFF6B6F80);
 }
 
-/// Window width breakpoints (Phase 8 uses them for tablet layouts).
+/// Window width breakpoints for tablet layouts (`WindowSize` in
+/// core/ui/adaptive.dart turns a width into a size class).
 abstract final class Breakpoints {
-  static const medium = 600.0, expanded = 840.0;
+  static const medium = 600.0, expanded = 840.0, large = 1200.0;
 }

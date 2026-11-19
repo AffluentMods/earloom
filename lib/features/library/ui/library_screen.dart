@@ -14,6 +14,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../core/library/browse_models.dart';
 import '../../../core/library/models.dart';
 import '../../../core/library/source_id.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../core/ui/states.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../item_detail/ui/item_detail_screen.dart';
@@ -51,21 +52,27 @@ class LibraryScreen extends ConsumerWidget {
     }
     final view = _LibraryView(key: ValueKey(selectionKey(value)), library: value);
     if (MediaQuery.sizeOf(context).width < Breakpoints.expanded) return view;
-    // Wide screens: the list on the left, the chosen book on the right.
+    // Wide screens: the books on the left, the chosen book on the right.
+    // Series, authors and lists open full screen, so their tabs use the
+    // whole width. The list stays the first child either way, so switching
+    // tabs keeps its state.
+    final showPane = ref.watch(librarySectionProvider) == LibrarySection.books;
     final selected = ref.watch(libraryPaneProvider);
     final l10n = AppLocalizations.of(context);
     return Row(
       children: [
-        Expanded(flex: 5, child: view),
-        const VerticalDivider(width: 1),
-        Expanded(
-          flex: 6,
-          child: selected == null
-              ? Scaffold(
-                  body: EmptyState(icon: Icons.menu_book_outlined, title: l10n.libraryPickBook),
-                )
-              : ItemDetailScreen(key: ValueKey(selected.key), itemId: selected.itemId, source: selected.source),
-        ),
+        Expanded(flex: showPane ? 5 : 11, child: view),
+        if (showPane) ...[
+          const VerticalDivider(width: 1),
+          Expanded(
+            flex: 6,
+            child: selected == null
+                ? Scaffold(
+                    body: EmptyState(icon: Icons.menu_book_outlined, title: l10n.libraryPickBook),
+                  )
+                : ItemDetailScreen(key: ValueKey(selected.key), itemId: selected.itemId, source: selected.source),
+          ),
+        ],
       ],
     );
   }
@@ -79,6 +86,17 @@ class LibraryPane extends Notifier<ItemRef?> {
   ItemRef? build() => null;
 
   void show(ItemRef? ref) => state = ref;
+}
+
+/// The Library tab section on screen, so wide screens show the book pane
+/// only beside the books.
+final librarySectionProvider = NotifierProvider<LibrarySectionNotifier, LibrarySection>(LibrarySectionNotifier.new);
+
+class LibrarySectionNotifier extends Notifier<LibrarySection> {
+  @override
+  LibrarySection build() => LibrarySection.books;
+
+  void set(LibrarySection section) => state = section;
 }
 
 class _LibraryView extends ConsumerStatefulWidget {
@@ -95,7 +113,20 @@ class _LibraryViewState extends ConsumerState<_LibraryView> with TickerProviderS
       ? const [LibrarySection.books, LibrarySection.series, LibrarySection.authors]
       : LibrarySection.values;
   late final TabController _tabs = TabController(length: _sections.length, vsync: this)
-    ..addListener(() => setState(() {}));
+    ..addListener(() {
+      setState(() {});
+      ref.read(librarySectionProvider.notifier).set(_sections[_tabs.index]);
+    });
+
+  @override
+  void initState() {
+    super.initState();
+    // A new library starts on its books.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ref.read(librarySectionProvider.notifier).set(_sections[_tabs.index]);
+    });
+  }
+
   LibraryQuery _query = const LibraryQuery();
 
   LibraryKey get _key => libraryKeyOf(widget.library);
@@ -251,6 +282,8 @@ class _BooksViewState extends ConsumerState<_BooksView> with RefreshingState, Au
     final list = books.value;
     final isLocal = widget.library.source is LocalSource;
     final hasMore = list != null && list.length >= _limit;
+    // On wide screens the chosen book is open beside the list: mark it.
+    final open = MediaQuery.sizeOf(context).width >= Breakpoints.expanded ? ref.watch(libraryPaneProvider) : null;
     Widget body;
     if (list == null || (list.isEmpty && _syncing && widget.query.filters.isEmpty)) {
       body = const SliverGridSkeleton();
@@ -281,19 +314,20 @@ class _BooksViewState extends ConsumerState<_BooksView> with RefreshingState, Au
       );
     } else if (widget.grid) {
       body = SliverPadding(
-        padding: const EdgeInsets.fromLTRB(Space.lg, Space.md, Space.lg, Space.lg),
+        padding: EdgeInsets.fromLTRB(context.gutter, Space.md, context.gutter, Space.lg),
         sliver: SliverGrid.builder(
           gridDelegate: bookGridDelegate(context),
           itemCount: list.length,
           itemBuilder: (context, i) => LayoutBuilder(
-            builder: (context, c) => BookGridCard(book: list[i], width: c.maxWidth, place: 'library'),
+            builder: (context, c) =>
+                BookGridCard(book: list[i], width: c.maxWidth, place: 'library', selected: list[i].ref == open),
           ),
         ),
       );
     } else {
       body = SliverList.builder(
         itemCount: list.length,
-        itemBuilder: (context, i) => BookListRow(book: list[i], place: 'library'),
+        itemBuilder: (context, i) => BookListRow(book: list[i], place: 'library', selected: list[i].ref == open),
       );
     }
     return RefreshIndicator(

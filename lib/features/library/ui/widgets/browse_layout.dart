@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../app/theme/tokens.dart';
 import '../../../../app/theme/typography.dart';
 import '../../../../core/net/abs_errors.dart';
+import '../../../../core/ui/adaptive.dart';
 import '../../../../core/ui/states.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 
@@ -24,7 +25,7 @@ class SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Padding(
-      padding: padding ?? const EdgeInsets.fromLTRB(Space.lg, Space.xl, Space.sm, Space.sm),
+      padding: padding ?? EdgeInsets.fromLTRB(context.gutter, Space.xl, context.gutter - Space.sm, Space.sm),
       child: Row(
         children: [
           Expanded(
@@ -96,7 +97,7 @@ class Shelf extends StatelessWidget {
           height: height,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: Space.lg),
+            padding: EdgeInsets.symmetric(horizontal: context.gutter),
             itemCount: itemCount,
             separatorBuilder: (_, _) => SizedBox(width: spacing),
             itemBuilder: itemBuilder,
@@ -163,26 +164,28 @@ class _SkeletonBoxState extends State<SkeletonBox> with SingleTickerProviderStat
 
 /// A loading shelf: a heading bar and a row of cover shapes.
 class ShelfSkeleton extends StatelessWidget {
-  const ShelfSkeleton({super.key, this.coverSize = 136});
+  const ShelfSkeleton({super.key, this.size});
 
-  final double coverSize;
+  /// Cover size; defaults to the shelf cover width for the window.
+  final double? size;
 
   @override
   Widget build(BuildContext context) {
+    final coverSize = size ?? shelfCoverWidth(context);
     return ExcludeSemantics(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(Space.lg, Space.xl, Space.lg, Space.md),
-            child: SkeletonBox(width: 160, height: 18),
+          Padding(
+            padding: EdgeInsets.fromLTRB(context.gutter, Space.xl, context.gutter, Space.md),
+            child: const SkeletonBox(width: 160, height: 18),
           ),
           SizedBox(
             height: coverSize + 44,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: Space.lg),
+              padding: EdgeInsets.symmetric(horizontal: context.gutter),
               itemCount: 4,
               separatorBuilder: (_, _) => const SizedBox(width: Space.lg),
               itemBuilder: (_, _) => Column(
@@ -210,7 +213,7 @@ class SliverGridSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.all(Space.lg),
+      padding: EdgeInsets.symmetric(horizontal: context.gutter, vertical: Space.lg),
       sliver: SliverGrid(
         gridDelegate: bookGridDelegate(context),
         delegate: SliverChildBuilderDelegate(
@@ -284,7 +287,7 @@ class RefreshNotice extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final offline = e is AbsUnreachable;
     return Padding(
-      padding: padding ?? const EdgeInsets.fromLTRB(Space.lg, Space.sm, Space.lg, 0),
+      padding: padding ?? EdgeInsets.fromLTRB(context.gutter, Space.sm, context.gutter, 0),
       child: InlineNotice(
         icon: offline ? Icons.cloud_off_rounded : Icons.sync_problem_rounded,
         message: offline ? l10n.offlineBanner : l10n.genericRefreshFailed,

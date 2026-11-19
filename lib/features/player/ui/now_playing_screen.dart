@@ -160,6 +160,9 @@ class _Body extends ConsumerWidget {
 
   static const _tallMaxWidth = 640.0;
 
+  /// Window height from which the wide layout lists the chapters.
+  static const _chaptersFrom = 560.0;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return LayoutBuilder(
@@ -167,19 +170,22 @@ class _Body extends ConsumerWidget {
         final wide = box.maxWidth > box.maxHeight && box.maxWidth >= Breakpoints.medium;
         final top = _TopBar(onClose: onClose);
         if (wide) {
+          // Tablets on their side: the cover on the left; controls on the
+          // right, with the chapter list under them when there is room.
           return Column(
             children: [
               top,
               Expanded(
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
                       child: Center(child: _Cover(maxSize: box.maxHeight * 0.75)),
                     ),
-                    const Expanded(
+                    Expanded(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: Space.xl),
-                        child: _Controls(),
+                        padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.xl, Space.lg),
+                        child: _WideControls(withChapters: box.maxHeight >= _chaptersFrom),
                       ),
                     ),
                   ],
@@ -317,8 +323,47 @@ class _Cover extends ConsumerWidget {
   }
 }
 
+/// The right side of the wide layout: the controls, and under them the
+/// chapter list for books that have chapters.
+class _WideControls extends ConsumerWidget {
+  const _WideControls({required this.withChapters});
+
+  final bool withChapters;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasChapters = ref.watch(playerProvider.select((s) => (s.now?.chapters.length ?? 0) > 1));
+    if (!withChapters || !hasChapters) {
+      return const Center(child: _Controls(labeled: true));
+    }
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: Space.lg),
+        const _Controls(labeled: true, chaptersBelow: true),
+        const SizedBox(height: Space.lg),
+        Expanded(
+          child: Material(
+            color: scheme.surface.withValues(alpha: 0.45),
+            borderRadius: BorderRadius.circular(Radii.card),
+            clipBehavior: Clip.antiAlias,
+            child: const ChaptersSheet(embedded: true),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _Controls extends ConsumerWidget {
-  const _Controls();
+  const _Controls({this.labeled = false, this.chaptersBelow = false});
+
+  /// Words under the small buttons, where there is room for them.
+  final bool labeled;
+
+  /// The chapter list is on screen already: no Chapters button.
+  final bool chaptersBelow;
 
   /// Natural width of the transport row: measured on a 320 point phone.
   static const _controlsWidth = 312.0;
@@ -395,7 +440,7 @@ class _Controls extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: Space.lg),
-        const _ActionRow(),
+        _ActionRow(labeled: labeled, showChapters: !chaptersBelow),
       ],
     );
   }
@@ -556,7 +601,10 @@ class _ScrubberState extends ConsumerState<_Scrubber> {
 
 /// Speed, sleep, bookmark, chapters, Up next.
 class _ActionRow extends ConsumerWidget {
-  const _ActionRow();
+  const _ActionRow({this.labeled = false, this.showChapters = true});
+
+  final bool labeled;
+  final bool showChapters;
 
   static const _actionsWidth = 344.0;
 
@@ -569,6 +617,71 @@ class _ActionRow extends ConsumerWidget {
       playerProvider.select((s) => (s.speed, s.sleep, s.sleepRemaining, s.queue.length)),
     );
     final sleeping = sleep is! SleepOff;
+    final items = <(Widget, String)>[
+      (
+        TextButton(
+          onPressed: () => showSpeedSheet(context),
+          style: TextButton.styleFrom(foregroundColor: scheme.onSurface, minimumSize: const Size(56, 48)),
+          child: Text(
+            formatSpeed(l10n, speed),
+            semanticsLabel: '${l10n.playerSpeed}, ${formatSpeed(l10n, speed)}',
+            style: theme.textTheme.labelLarge?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+          ),
+        ),
+        l10n.playerSpeedShort,
+      ),
+      (
+        sleeping
+            ? TextButton.icon(
+                onPressed: () => showSleepSheet(context),
+                style: TextButton.styleFrom(foregroundColor: scheme.primary, minimumSize: const Size(48, 48)),
+                icon: const Icon(Icons.bedtime_rounded),
+                label: Text(
+                  sleep is SleepAtChapterEnd || sleepLeft == null ? '' : formatClock(sleepLeft),
+                  semanticsLabel: sleep is SleepAtChapterEnd || sleepLeft == null
+                      ? l10n.playerSleepAtChapterEnd
+                      : l10n.playerSleepRemaining(formatClock(sleepLeft)),
+                  style: theme.textTheme.labelLarge?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+                ),
+              )
+            : IconButton(
+                icon: const Icon(Icons.bedtime_outlined),
+                tooltip: l10n.playerSleepTimer,
+                onPressed: () => showSleepSheet(context),
+              ),
+        l10n.playerSleepShort,
+      ),
+      (
+        IconButton(
+          icon: const Icon(Icons.bookmark_add_outlined),
+          tooltip: l10n.playerBookmark,
+          onPressed: () => addBookmarkHere(context, ref),
+        ),
+        l10n.playerBookmarkShort,
+      ),
+      if (showChapters)
+        (
+          IconButton(
+            icon: const Icon(Icons.format_list_bulleted_rounded),
+            tooltip: l10n.playerChapters,
+            onPressed: () => showChaptersSheet(context),
+          ),
+          l10n.playerChapters,
+        ),
+      (
+        IconButton(
+          icon: Badge(
+            isLabelVisible: queueLength > 0,
+            label: Text(queueLength.toString()),
+            child: const Icon(Icons.queue_music_rounded),
+          ),
+          tooltip: l10n.playerQueue,
+          onPressed: () => showQueueSheet(context),
+        ),
+        l10n.playerQueue,
+      ),
+      (const OutputButton(), l10n.playerOutputShort),
+    ];
     // Six buttons need about 340 points; narrower phones scale the row
     // down instead of overflowing.
     return LayoutBuilder(
@@ -579,58 +692,34 @@ class _ActionRow extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              TextButton(
-                onPressed: () => showSpeedSheet(context),
-                style: TextButton.styleFrom(foregroundColor: scheme.onSurface, minimumSize: const Size(56, 48)),
-                child: Text(
-                  formatSpeed(l10n, speed),
-                  semanticsLabel: '${l10n.playerSpeed}, ${formatSpeed(l10n, speed)}',
-                  style: theme.textTheme.labelLarge?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-                ),
-              ),
-              if (sleeping)
-                TextButton.icon(
-                  onPressed: () => showSleepSheet(context),
-                  style: TextButton.styleFrom(foregroundColor: scheme.primary, minimumSize: const Size(48, 48)),
-                  icon: const Icon(Icons.bedtime_rounded),
-                  label: Text(
-                    sleep is SleepAtChapterEnd || sleepLeft == null ? '' : formatClock(sleepLeft),
-                    semanticsLabel: sleep is SleepAtChapterEnd || sleepLeft == null
-                        ? l10n.playerSleepAtChapterEnd
-                        : l10n.playerSleepRemaining(formatClock(sleepLeft)),
-                    style: theme.textTheme.labelLarge?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-                  ),
-                )
-              else
-                IconButton(
-                  icon: const Icon(Icons.bedtime_outlined),
-                  tooltip: l10n.playerSleepTimer,
-                  onPressed: () => showSleepSheet(context),
-                ),
-              IconButton(
-                icon: const Icon(Icons.bookmark_add_outlined),
-                tooltip: l10n.playerBookmark,
-                onPressed: () => addBookmarkHere(context, ref),
-              ),
-              IconButton(
-                icon: const Icon(Icons.format_list_bulleted_rounded),
-                tooltip: l10n.playerChapters,
-                onPressed: () => showChaptersSheet(context),
-              ),
-              IconButton(
-                icon: Badge(
-                  isLabelVisible: queueLength > 0,
-                  label: Text(queueLength.toString()),
-                  child: const Icon(Icons.queue_music_rounded),
-                ),
-                tooltip: l10n.playerQueue,
-                onPressed: () => showQueueSheet(context),
-              ),
-              const OutputButton(),
+              for (final (button, label) in items) labeled ? _Labeled(label: label, child: button) : button,
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// A small button with its name under it, for the wide layout.
+class _Labeled extends StatelessWidget {
+  const _Labeled({required this.label, required this.child});
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        child,
+        // The button already says what it does to a screen reader.
+        ExcludeSemantics(
+          child: Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+        ),
+      ],
     );
   }
 }

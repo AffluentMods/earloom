@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 Affluent Labs LLC
 
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -25,8 +28,12 @@ Future<void> showChaptersSheet(BuildContext context) => showModalBottomSheet<voi
 /// Every chapter with its start and length. The current one is marked and
 /// scrolled into view; finished ones are dimmed.
 class ChaptersSheet extends ConsumerStatefulWidget {
-  const ChaptersSheet({super.key, this.controller});
+  const ChaptersSheet({super.key, this.controller, this.embedded = false});
   final ScrollController? controller;
+
+  /// Shown inside Now Playing on tablets instead of in a sheet: picking a
+  /// chapter keeps the list open, and the list follows the current chapter.
+  final bool embedded;
 
   @override
   ConsumerState<ChaptersSheet> createState() => _ChaptersSheetState();
@@ -35,6 +42,32 @@ class ChaptersSheet extends ConsumerStatefulWidget {
 class _ChaptersSheetState extends ConsumerState<ChaptersSheet> {
   static const _rowHeight = 64.0;
   bool _scrolled = false;
+  int? _followed;
+  late final ScrollController _own = ScrollController();
+
+  ScrollController get _controller => widget.controller ?? _own;
+
+  @override
+  void dispose() {
+    _own.dispose();
+    super.dispose();
+  }
+
+  /// Keeps the current chapter in view as playback moves on, unless the
+  /// user is looking somewhere else in the list right now.
+  void _follow(int current) {
+    if (_followed == current || current < 0) return;
+    _followed = current;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final c = _controller;
+      if (!mounted || !c.hasClients || c.position.isScrollingNotifier.value) return;
+      final top = current * _rowHeight;
+      final visible = top >= c.offset && top + _rowHeight <= c.offset + c.position.viewportDimension;
+      if (visible) return;
+      final target = (math.max(0, current - 1) * _rowHeight).clamp(0.0, c.position.maxScrollExtent);
+      unawaited(c.animateTo(target, duration: Motion.normal, curve: Curves.easeOutCubic));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +77,9 @@ class _ChaptersSheetState extends ConsumerState<ChaptersSheet> {
     final chapters = ref.watch(playerProvider.select((s) => s.now?.chapters ?? const []));
     final current = ref.watch(playerProvider.select((s) => s.chapterIndex));
     final speed = ref.watch(playerProvider.select((s) => s.speed));
-    if (!_scrolled && widget.controller != null && chapters.isNotEmpty) {
+    if (widget.embedded && chapters.isNotEmpty) {
+      _follow(current);
+    } else if (!_scrolled && widget.controller != null && chapters.isNotEmpty) {
       _scrolled = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final c = widget.controller!;
@@ -54,10 +89,10 @@ class _ChaptersSheetState extends ConsumerState<ChaptersSheet> {
       });
     }
     return CustomScrollView(
-      controller: widget.controller,
+      controller: _controller,
       slivers: [
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.xl, Space.sm),
+          padding: EdgeInsets.fromLTRB(Space.xl, widget.embedded ? Space.lg : 0, Space.xl, Space.sm),
           sliver: SliverToBoxAdapter(child: Text(l10n.playerChapters, style: theme.textTheme.titleLarge)),
         ),
         SliverFixedExtentList.builder(
@@ -111,7 +146,7 @@ class _ChaptersSheetState extends ConsumerState<ChaptersSheet> {
               ),
               onTap: () {
                 ref.read(playerEngineProvider).seek(c.start);
-                Navigator.of(context).pop();
+                if (!widget.embedded) Navigator.of(context).pop();
               },
             );
           },

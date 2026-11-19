@@ -8,6 +8,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../app/theme/tokens.dart';
 import '../../../core/library/models.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../core/ui/states.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../home/ui/hero_card.dart';
@@ -95,10 +96,15 @@ class _PodcastHomeState extends ConsumerState<PodcastHome> {
       slivers: [
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(Space.lg, Space.sm, Space.lg, 0),
+            padding: EdgeInsets.fromLTRB(context.gutter, Space.sm, context.gutter, 0),
             child: hero == null
                 ? _NothingPlaying(text: l10n.podcastHomeNothingInProgress)
-                : HeroCard(book: hero.asBook, cover: hero.coverBook, onOpen: () => showEpisodeSheet(context, hero.ref)),
+                : HeroCard(
+                    book: hero.asBook,
+                    cover: hero.coverBook,
+                    wide: context.windowSize.atLeast(WindowSize.medium),
+                    onOpen: () => showEpisodeSheet(context, hero.ref),
+                  ),
           ),
         ),
         for (final shelf in shown)

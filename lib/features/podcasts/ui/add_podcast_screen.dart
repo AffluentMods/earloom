@@ -8,6 +8,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../app/theme/tokens.dart';
 import '../../../core/library/source_id.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../core/ui/states.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../library/ui/browse_nav.dart';
@@ -134,103 +135,106 @@ class _AddPodcastScreenState extends ConsumerState<AddPodcastScreen> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final preview = _preview;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.podcastAdminAdd),
-        leading: preview == null ? null : BackButton(onPressed: () => setState(() => _preview = null)),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(Space.lg, 0, Space.lg, Space.sm),
-            child: SearchBar(
-              controller: _field,
-              hintText: l10n.podcastAdminSearchHint,
-              leading: const Icon(Icons.search_rounded),
-              elevation: const WidgetStatePropertyAll(0),
-              constraints: const BoxConstraints(minHeight: 52),
-              textInputAction: TextInputAction.search,
-              keyboardType: TextInputType.url,
-              onSubmitted: (q) => unawaited(_search(q)),
+    return ReadableWidth(
+      builder: (context, sides) => Scaffold(
+        appBar: AppBar(
+          titleSpacing: alignedTitleSpacing(context, sides),
+          title: Text(l10n.podcastAdminAdd),
+          leading: preview == null ? null : BackButton(onPressed: () => setState(() => _preview = null)),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Space.lg, 0, Space.lg, Space.sm),
+              child: SearchBar(
+                controller: _field,
+                hintText: l10n.podcastAdminSearchHint,
+                leading: const Icon(Icons.search_rounded),
+                elevation: const WidgetStatePropertyAll(0),
+                constraints: const BoxConstraints(minHeight: 52),
+                textInputAction: TextInputAction.search,
+                keyboardType: TextInputType.url,
+                onSubmitted: (q) => unawaited(_search(q)),
+              ),
             ),
-          ),
-          SizedBox(height: 2, child: _searching ? const LinearProgressIndicator(minHeight: 2) : null),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + Space.xxl),
-              children: [
-                if (_error != null)
-                  Padding(
-                    padding: const EdgeInsets.all(Space.lg),
-                    child: ErrorNotice(
-                      message: adminErrorText(l10n, _error!),
-                      details: failureDetails(_error!),
-                    ),
-                  ),
-                if (preview != null) ...[
-                  Padding(
-                    padding: const EdgeInsets.all(Space.lg),
-                    child: FeedPreviewCard(preview: preview),
-                  ),
-                  SectionHeader(title: l10n.podcastAdminChooseFolder),
-                  if (_folders.isEmpty)
+            SizedBox(height: 2, child: _searching ? const LinearProgressIndicator(minHeight: 2) : null),
+            Expanded(
+              child: ReadableListView(
+                padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + Space.xxl),
+                children: [
+                  if (_error != null)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: Space.xl),
-                      child: Text(l10n.podcastAdminNoFolders, style: theme.textTheme.bodyMedium),
-                    )
+                      padding: const EdgeInsets.all(Space.lg),
+                      child: ErrorNotice(
+                        message: adminErrorText(l10n, _error!),
+                        details: failureDetails(_error!),
+                      ),
+                    ),
+                  if (preview != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.all(Space.lg),
+                      child: FeedPreviewCard(preview: preview),
+                    ),
+                    SectionHeader(title: l10n.podcastAdminChooseFolder),
+                    if (_folders.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: Space.xl),
+                        child: Text(l10n.podcastAdminNoFolders, style: theme.textTheme.bodyMedium),
+                      )
+                    else
+                      RadioGroup<LibraryFolder>(
+                        groupValue: _folder,
+                        onChanged: (f) => setState(() => _folder = f),
+                        child: Column(
+                          children: [
+                            for (final f in _folders)
+                              RadioListTile<LibraryFolder>(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
+                                value: f,
+                                title: Text(f.fullPath),
+                              ),
+                          ],
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.all(Space.lg),
+                      child: FilledButton.icon(
+                        onPressed: _folder == null || _searching ? null : _add,
+                        icon: const Icon(Icons.add_rounded),
+                        label: Text(l10n.podcastAdminAdd),
+                        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                      ),
+                    ),
+                  ] else if (_results != null && _results!.isEmpty)
+                    EmptyState(icon: Icons.search_off_rounded, title: l10n.podcastAdminNoResults)
+                  else if (_results != null)
+                    for (final r in _results!)
+                      ListTile(
+                        minTileHeight: 72,
+                        leading: CircleAvatar(
+                          backgroundColor: scheme.secondaryContainer,
+                          foregroundColor: scheme.onSecondaryContainer,
+                          child: const Icon(Icons.podcasts_rounded),
+                        ),
+                        title: Text(r.title, maxLines: 2, overflow: TextOverflow.ellipsis),
+                        subtitle: Text(
+                          [?r.author, if (r.episodeCount > 0) l10n.podcastEpisodes(r.episodeCount)].join(' · '),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        onTap: _searching ? null : () => _openPreview(r.feedUrl),
+                      )
                   else
-                    RadioGroup<LibraryFolder>(
-                      groupValue: _folder,
-                      onChanged: (f) => setState(() => _folder = f),
-                      child: Column(
-                        children: [
-                          for (final f in _folders)
-                            RadioListTile<LibraryFolder>(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
-                              value: f,
-                              title: Text(f.fullPath),
-                            ),
-                        ],
-                      ),
+                    EmptyState(
+                      icon: Icons.podcasts_rounded,
+                      title: l10n.podcastAdminSearchTitle,
+                      body: l10n.podcastAdminSearchBody,
                     ),
-                  Padding(
-                    padding: const EdgeInsets.all(Space.lg),
-                    child: FilledButton.icon(
-                      onPressed: _folder == null || _searching ? null : _add,
-                      icon: const Icon(Icons.add_rounded),
-                      label: Text(l10n.podcastAdminAdd),
-                      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                    ),
-                  ),
-                ] else if (_results != null && _results!.isEmpty)
-                  EmptyState(icon: Icons.search_off_rounded, title: l10n.podcastAdminNoResults)
-                else if (_results != null)
-                  for (final r in _results!)
-                    ListTile(
-                      minTileHeight: 72,
-                      leading: CircleAvatar(
-                        backgroundColor: scheme.secondaryContainer,
-                        foregroundColor: scheme.onSecondaryContainer,
-                        child: const Icon(Icons.podcasts_rounded),
-                      ),
-                      title: Text(r.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-                      subtitle: Text(
-                        [?r.author, if (r.episodeCount > 0) l10n.podcastEpisodes(r.episodeCount)].join(' · '),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      onTap: _searching ? null : () => _openPreview(r.feedUrl),
-                    )
-                else
-                  EmptyState(
-                    icon: Icons.podcasts_rounded,
-                    title: l10n.podcastAdminSearchTitle,
-                    body: l10n.podcastAdminSearchBody,
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

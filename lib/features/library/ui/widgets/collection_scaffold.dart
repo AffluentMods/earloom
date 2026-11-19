@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../app/theme/cover_surfaces.dart';
 import '../../../../app/theme/tokens.dart';
 import '../../../../core/library/models.dart';
+import '../../../../core/ui/adaptive.dart';
 import 'book_cover.dart';
 import 'browse_layout.dart';
 
@@ -72,42 +73,48 @@ class CollectionScaffold extends StatelessWidget {
                       colors: [scheme.heroTint, scheme.surface],
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.xl, Space.lg),
-                    child: Column(
-                      children: [
-                        RefreshNotice(
-                          error: refreshError,
-                          padding: const EdgeInsets.only(bottom: Space.lg),
+                  child: LayoutBuilder(
+                    builder: (context, box) {
+                      final sides = centeredInsets(box.maxWidth, maxWidth: _maxWidth);
+                      final wide = box.maxWidth - sides.horizontal >= _sideBySideFrom;
+                      return Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          sides.left + Space.xl,
+                          0,
+                          sides.right + Space.xl,
+                          wide ? Space.xl : Space.lg,
                         ),
-                        artwork,
-                        const SizedBox(height: Space.lg),
-                        if (kicker != null)
-                          Text(kicker!, style: text.labelLarge?.copyWith(color: scheme.onSurfaceVariant)),
-                        Semantics(
-                          header: true,
-                          child: Text(
-                            title,
-                            textAlign: TextAlign.center,
-                            style: text.headlineMedium?.copyWith(color: scheme.onSurface),
-                          ),
+                        child: Column(
+                          children: [
+                            RefreshNotice(
+                              error: refreshError,
+                              padding: const EdgeInsets.only(bottom: Space.lg),
+                            ),
+                            if (wide)
+                              // Tablets: the artwork beside the name and
+                              // actions, not a phone's stack in the middle.
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  artwork,
+                                  const SizedBox(width: Space.xxl),
+                                  Expanded(child: _titleBlock(text, scheme, start: true)),
+                                ],
+                              )
+                            else ...[
+                              artwork,
+                              const SizedBox(height: Space.lg),
+                              _titleBlock(text, scheme, start: false),
+                            ],
+                          ],
                         ),
-                        if (subtitle != null) ...[
-                          const SizedBox(height: Space.xs),
-                          Text(
-                            subtitle!,
-                            textAlign: TextAlign.center,
-                            style: text.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
-                          ),
-                        ],
-                        if (primaryAction != null) ...[const SizedBox(height: Space.lg), primaryAction!],
-                        if (below != null) ...[const SizedBox(height: Space.lg), below!],
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
               ),
-              ...slivers,
+              // Rows and grids keep a sensible width on big screens.
+              for (final sliver in slivers) SliverReadable(maxWidth: _maxWidth, sliver: sliver),
               SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + Space.xxl)),
             ],
           );
@@ -117,6 +124,45 @@ class CollectionScaffold extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  static const _maxWidth = 960.0;
+
+  /// Content width from which the artwork sits beside the title.
+  static const _sideBySideFrom = 640.0;
+
+  Widget _titleBlock(TextTheme text, ColorScheme scheme, {required bool start}) {
+    final align = start ? TextAlign.start : TextAlign.center;
+    return Column(
+      crossAxisAlignment: start ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+      children: [
+        if (kicker != null) Text(kicker!, style: text.labelLarge?.copyWith(color: scheme.onSurfaceVariant)),
+        Semantics(
+          header: true,
+          child: Text(
+            title,
+            textAlign: align,
+            style: (start ? text.displaySmall : text.headlineMedium)?.copyWith(color: scheme.onSurface),
+          ),
+        ),
+        if (subtitle != null) ...[
+          const SizedBox(height: Space.xs),
+          Text(
+            subtitle!,
+            textAlign: align,
+            style: text.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
+          ),
+        ],
+        if (primaryAction != null) ...[
+          const SizedBox(height: Space.lg),
+          if (start)
+            ConstrainedBox(constraints: const BoxConstraints(maxWidth: 400), child: primaryAction)
+          else
+            primaryAction!,
+        ],
+        if (below != null) ...[const SizedBox(height: Space.lg), below!],
+      ],
     );
   }
 }

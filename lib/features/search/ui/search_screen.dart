@@ -11,6 +11,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../core/library/browse_models.dart';
 import '../../../core/library/source_id.dart';
 import '../../../core/net/abs_errors.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../core/ui/states.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../library/data/library_providers.dart';
@@ -122,71 +123,73 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final l10n = AppLocalizations.of(context);
     final libraries = ref.watch(absLibrariesProvider).value ?? const [];
     final query = _field.text.trim();
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.tabSearch)),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(Space.lg, 0, Space.lg, Space.sm),
-            child: SearchBar(
-              controller: _field,
-              focusNode: _focus,
-              hintText: l10n.searchHint,
-              leading: const Icon(Icons.search_rounded),
-              elevation: const WidgetStatePropertyAll(0),
-              constraints: const BoxConstraints(minHeight: 52),
-              textInputAction: TextInputAction.search,
-              onChanged: _onChanged,
-              onSubmitted: (q) {
-                if (q.trim().isNotEmpty) _search(q.trim());
-              },
-              trailing: [
-                if (_field.text.isNotEmpty)
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded),
-                    tooltip: l10n.searchClear,
-                    onPressed: () {
-                      _field.clear();
-                      _onChanged('');
-                      _focus.requestFocus();
-                    },
-                  ),
-              ],
-            ),
-          ),
-          if (libraries.length > 1)
+    return ReadableWidth(
+      builder: (context, sides) => Scaffold(
+        appBar: AppBar(titleSpacing: alignedTitleSpacing(context, sides), title: Text(l10n.tabSearch)),
+        body: Column(
+          children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: Space.lg),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: FilterChip(
-                  label: Text(l10n.searchAllLibraries),
-                  selected: _allLibraries,
-                  onSelected: (v) {
-                    setState(() => _allLibraries = v);
-                    if (query.isNotEmpty) unawaited(_run(query));
-                  },
-                ),
+              padding: EdgeInsets.fromLTRB(Space.lg + sides.left, 0, Space.lg + sides.right, Space.sm),
+              child: SearchBar(
+                controller: _field,
+                focusNode: _focus,
+                hintText: l10n.searchHint,
+                leading: const Icon(Icons.search_rounded),
+                elevation: const WidgetStatePropertyAll(0),
+                constraints: const BoxConstraints(minHeight: 52),
+                textInputAction: TextInputAction.search,
+                onChanged: _onChanged,
+                onSubmitted: (q) {
+                  if (q.trim().isNotEmpty) _search(q.trim());
+                },
+                trailing: [
+                  if (_field.text.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      tooltip: l10n.searchClear,
+                      onPressed: () {
+                        _field.clear();
+                        _onChanged('');
+                        _focus.requestFocus();
+                      },
+                    ),
+                ],
               ),
             ),
-          SizedBox(height: 2, child: _loading ? const LinearProgressIndicator(minHeight: 2) : null),
-          Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () => _focus.unfocus(),
-              child: query.isEmpty
-                  ? _Recent(onPick: _search)
-                  : _error != null && _results == null
-                  ? Padding(
-                      padding: const EdgeInsets.all(Space.lg),
-                      child: ErrorNotice(message: l10n.genericActionFailed, details: failureDetails(_error!)),
-                    )
-                  : _results == null
-                  ? const SizedBox.shrink()
-                  : _Results(results: _results!, onOpen: _remember),
+            if (libraries.length > 1)
+              Padding(
+                padding: EdgeInsets.fromLTRB(Space.lg + sides.left, 0, Space.lg + sides.right, 0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: FilterChip(
+                    label: Text(l10n.searchAllLibraries),
+                    selected: _allLibraries,
+                    onSelected: (v) {
+                      setState(() => _allLibraries = v);
+                      if (query.isNotEmpty) unawaited(_run(query));
+                    },
+                  ),
+                ),
+              ),
+            SizedBox(height: 2, child: _loading ? const LinearProgressIndicator(minHeight: 2) : null),
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () => _focus.unfocus(),
+                child: query.isEmpty
+                    ? _Recent(onPick: _search)
+                    : _error != null && _results == null
+                    ? Padding(
+                        padding: const EdgeInsets.all(Space.lg),
+                        child: ErrorNotice(message: l10n.genericActionFailed, details: failureDetails(_error!)),
+                      )
+                    : _results == null
+                    ? const SizedBox.shrink()
+                    : _Results(results: _results!, onOpen: _remember),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -204,7 +207,7 @@ class _Recent extends ConsumerWidget {
     if (recent.isEmpty) {
       return EmptyState(icon: Icons.manage_search_rounded, title: l10n.searchStartTitle, body: l10n.searchStartBody);
     }
-    return ListView(
+    return ReadableListView(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: [
         SectionHeader(
@@ -243,7 +246,7 @@ class _Results extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     if (results.isEmpty) {
-      return ListView(
+      return ReadableListView(
         children: [
           if (results.offline) const RefreshNotice(error: AbsUnreachable('offline search')),
           EmptyState(
@@ -261,7 +264,7 @@ class _Results extends ConsumerWidget {
         : (ref.watch(absLibrariesProvider).value?.firstOrNull?.id);
     return Listener(
       onPointerDown: (_) => onOpen(),
-      child: ListView(
+      child: ReadableListView(
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + Space.xxl),
         children: [

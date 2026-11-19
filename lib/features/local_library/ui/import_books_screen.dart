@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../app/router.dart';
 import '../../../app/theme/tokens.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../core/util/size_format.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../data/import_models.dart';
@@ -39,13 +40,15 @@ class ImportBooksScreen extends ConsumerWidget {
       ),
       ImportProblem() => _ProblemView(problem: state, onRetry: controller.reset),
     };
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.importTitle)),
-      body: SafeArea(
-        top: false,
-        child: AnimatedSwitcher(
-          duration: Motion.normal,
-          child: KeyedSubtree(key: ValueKey(state.runtimeType), child: body),
+    return ReadableWidth(
+      builder: (context, sides) => Scaffold(
+        appBar: AppBar(titleSpacing: alignedTitleSpacing(context, sides), title: Text(l10n.importTitle)),
+        body: SafeArea(
+          top: false,
+          child: AnimatedSwitcher(
+            duration: Motion.normal,
+            child: KeyedSubtree(key: ValueKey(state.runtimeType), child: body),
+          ),
         ),
       ),
     );
@@ -69,7 +72,7 @@ class _Page extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: ListView(
+          child: ReadableListView(
             padding: const EdgeInsets.fromLTRB(Space.xl, Space.lg, Space.xl, Space.xl),
             children: children,
           ),

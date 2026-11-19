@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 Affluent Labs LLC
 
+import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'cover_scheme.dart';
@@ -34,7 +35,50 @@ abstract final class AppTheme {
       brightness: brightness,
       dynamicSchemeVariant: DynamicSchemeVariant.neutral,
     );
+    if (brightness == Brightness.light) return CoverSchemeService.ensureReadable(toPaper(slateAccents(scheme)));
     return CoverSchemeService.ensureReadable(amoled ? toAmoled(scheme) : scheme);
+  }
+
+  /// Light surfaces from [Paper]: a crisp near-white page, white for the
+  /// lowest container, and soft cool grays for cards and raised surfaces.
+  static ColorScheme toPaper(ColorScheme scheme) {
+    assert(scheme.brightness == Brightness.light, 'Paper is the light theme');
+    final paper = TonalPalette.of(Paper.hue, Paper.chroma);
+    Color tone(int t) => Color(paper.get(t));
+    return scheme.copyWith(
+      surface: tone(99),
+      surfaceBright: tone(99),
+      surfaceDim: tone(87),
+      surfaceContainerLowest: tone(100),
+      surfaceContainerLow: tone(97),
+      surfaceContainer: tone(95),
+      surfaceContainerHigh: tone(93),
+      surfaceContainerHighest: tone(90),
+      onSurface: tone(10),
+      onSurfaceVariant: tone(30),
+      outline: tone(50),
+      outlineVariant: tone(85),
+      inverseSurface: tone(20),
+      onInverseSurface: tone(95),
+    );
+  }
+
+  /// The light shell's accent roles in [Paper]'s slate, so selected tabs and
+  /// neutral buttons match the surfaces instead of a lavender gray.
+  static ColorScheme slateAccents(ColorScheme scheme) {
+    final slate = TonalPalette.of(Paper.hue, Paper.accentChroma);
+    final soft = TonalPalette.of(Paper.hue, Paper.accentChroma * 0.6);
+    Color tone(TonalPalette p, int t) => Color(p.get(t));
+    return scheme.copyWith(
+      primary: tone(slate, 30),
+      onPrimary: tone(slate, 100),
+      primaryContainer: tone(slate, 90),
+      onPrimaryContainer: tone(slate, 10),
+      secondary: tone(soft, 40),
+      onSecondary: tone(soft, 100),
+      secondaryContainer: tone(soft, 89),
+      onSecondaryContainer: tone(soft, 10),
+    );
   }
 
   /// Forces the base surfaces of a dark scheme to pure black and keeps the

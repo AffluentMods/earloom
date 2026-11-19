@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Affluent Labs LLC
 
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:material_color_utilities/material_color_utilities.dart';
@@ -55,12 +56,30 @@ class CoverSchemeService {
   /// cover in dark mode lands just under the bar), so every on-role is
   /// checked and nudged until it meets WCAG AA against its background.
   static ColorScheme schemeFromSeed(Color seed, Brightness brightness, {bool amoled = false}) {
+    if (seed == NeutralSeed.color) return AppTheme.shellScheme(brightness, amoled: amoled);
     final scheme = ColorScheme.fromSeed(
       seedColor: seed,
       brightness: brightness,
-      dynamicSchemeVariant: seed == NeutralSeed.color ? DynamicSchemeVariant.neutral : DynamicSchemeVariant.fidelity,
+      dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
     );
-    return ensureReadable(amoled && brightness == Brightness.dark ? AppTheme.toAmoled(scheme) : scheme);
+    if (brightness == Brightness.light) return ensureReadable(AppTheme.toPaper(_softContainers(scheme)));
+    return ensureReadable(amoled ? AppTheme.toAmoled(scheme) : scheme);
+  }
+
+  /// In light mode fidelity makes the containers loud: a red cover turns the
+  /// mini player salmon and the page pink. The containers keep the cover's
+  /// hue but become pale tints of it; the buttons keep the full color.
+  static ColorScheme _softContainers(ColorScheme scheme) {
+    Color soft(Color c, double maxChroma, double tone) {
+      final hct = Hct.fromInt(c.toARGB32());
+      return Color(Hct.from(hct.hue, math.min(hct.chroma, maxChroma), tone).toInt());
+    }
+
+    return scheme.copyWith(
+      primaryContainer: soft(scheme.primaryContainer, 36, 88),
+      secondaryContainer: soft(scheme.secondaryContainer, 24, 91),
+      tertiaryContainer: soft(scheme.tertiaryContainer, 24, 91),
+    );
   }
 
   /// WCAG AA for normal text.

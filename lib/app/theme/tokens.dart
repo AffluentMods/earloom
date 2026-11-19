@@ -27,6 +27,19 @@ abstract final class NeutralSeed {
   static const color = Color(0xFF6B6F80);
 }
 
+/// The light theme's paper: every light surface is a tone of this one
+/// near-gray, a faint cool slate, whatever the cover. Material's own light
+/// neutrals lean toward the seed's hue, which reads pink or beige on white;
+/// in light mode the covers bring the color, the surfaces stay clean.
+abstract final class Paper {
+  /// HCT hue and chroma.
+  static const hue = 230.0, chroma = 4.0;
+
+  /// The shell's own accent (selected tabs, toggles, neutral buttons):
+  /// the same slate with more color in it.
+  static const accentChroma = 14.0;
+}
+
 /// Window width breakpoints for tablet layouts (`WindowSize` in
 /// core/ui/adaptive.dart turns a width into a size class).
 abstract final class Breakpoints {

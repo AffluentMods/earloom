@@ -31,8 +31,13 @@ dart_files=()
 for f in "${ours[@]}"; do
   [[ "$f" == *.dart && -f "$f" ]] && dart_files+=("$f")
 done
-dart format --output=none --set-exit-if-changed "${dart_files[@]}" >/dev/null \
-  || bad "unformatted Dart files. Run: dart format lib test tool"
+# In batches: one call with every file is longer than Windows allows for a
+# command line, and then the step fails whatever the formatting.
+format_ok=1
+for ((i = 0; i < ${#dart_files[@]}; i += 100)); do
+  dart format --output=none --set-exit-if-changed "${dart_files[@]:i:100}" >/dev/null || format_ok=0
+done
+[[ $format_ok -eq 1 ]] || bad "unformatted Dart files. Run: dart format lib test tool"
 
 note "Analyze"
 flutter analyze || fail=1

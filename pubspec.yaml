@@ -24,7 +24,10 @@ dependencies:
   drift_flutter: ^0.3.1
   flutter_secure_storage: ^11.2.0
   just_audio: ^0.10.6
-  audio_service: ^0.18.19
+  # 0.18.19 with one Android fix: explicit play and pause media keys no
+  # longer toggle. See third_party/README.md.
+  audio_service:
+    path: third_party/audio_service
   audio_session: ^0.2.4
   background_downloader: ^9.6.6
   connectivity_plus: ^7.3.2

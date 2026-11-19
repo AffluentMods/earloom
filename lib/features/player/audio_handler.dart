@@ -156,8 +156,14 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
     );
   }
 
+  /// A play key from a headset, car or watch says which state it wants, so
+  /// while already playing it changes nothing: no restart near the end, no
+  /// bedtime sleep timer. Pause is already a no-op while paused.
   @override
-  Future<void> play() => _engine.play();
+  Future<void> play() async {
+    if (_engine.value.playing) return;
+    await _engine.play();
+  }
 
   @override
   Future<void> pause() => _engine.pause();
@@ -223,7 +229,7 @@ class AppAudioHandler extends BaseAudioHandler with SeekHandler {
   @override
   Future<void> playFromSearch(String query, [Map<String, dynamic>? extras]) async {
     // "Play" with no title: resume what was playing.
-    if (query.trim().isEmpty) return _engine.play();
+    if (query.trim().isEmpty) return play();
     final hits = await browser?.search(query) ?? const [];
     final ref = hits.isEmpty ? null : MediaBrowser.refOf(hits.first.id);
     if (ref != null) await _engine.playItem(ref);

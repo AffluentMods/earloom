@@ -6,6 +6,7 @@ analyzer:
     - android/**
     - ios/**
     - lib/l10n/gen/**
+    - third_party/**
     - "**/*.g.dart"
     - "**/*.freezed.dart"
   language:

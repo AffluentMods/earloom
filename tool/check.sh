@@ -14,8 +14,10 @@ note() { printf '\n== %s\n' "$1"; }
 bad() { printf 'FAIL: %s\n' "$1"; fail=1; }
 
 # Every file we wrote ourselves: tracked or new, never ignored or generated.
-# Read into an array so paths with spaces survive.
-mapfile -t ours < <(git ls-files -co --exclude-standard)
+# Read into an array so paths with spaces survive. A read loop, not mapfile:
+# macOS still ships bash 3.2, which has no mapfile.
+ours=()
+while IFS= read -r f; do ours+=("$f"); done < <(git ls-files -co --exclude-standard)
 
 if [[ "${1:-}" != "--fast" ]]; then
   note "Code generation"

@@ -18,6 +18,10 @@ import '../../../l10n/gen/app_localizations.dart';
 class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
 
+  /// On tablets the text and buttons keep a readable width under the
+  /// full-width cover fan.
+  static const _maxContentWidth = 560.0;
+
   static const _covers = [
     'assets/demo/covers/long_way_to_morning.jpg',
     'assets/demo/covers/clockmakers_tide.jpg',
@@ -37,47 +41,59 @@ class OnboardingScreen extends ConsumerWidget {
               constraints: BoxConstraints(minHeight: box.maxHeight),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(Space.xl, Space.xl, Space.xl, Space.lg),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: math.min(box.maxHeight * 0.42, 360),
-                      child: const _CoverFan(covers: _covers),
-                    ),
-                    const SizedBox(height: Space.xxl),
-                    Text(
-                      l10n.onboardingTitle,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.displaySmall?.copyWith(color: scheme.onSurface),
-                    ),
-                    const SizedBox(height: Space.md),
-                    Text(
-                      l10n.onboardingBody,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant, height: 1.45),
-                    ),
-                    const SizedBox(height: Space.xxl),
-                    FilledButton.icon(
-                      onPressed: () => context.push('/accounts/add'),
-                      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
-                      icon: const Icon(Icons.dns_outlined),
-                      label: Text(l10n.onboardingConnectServer),
-                    ),
-                    const SizedBox(height: Space.md),
-                    OutlinedButton.icon(
-                      onPressed: () async {
-                        await ref.read(onboardingProvider.notifier).complete();
-                        if (context.mounted) context.go('/local/import');
-                      },
-                      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(56)),
-                      icon: const Icon(Icons.phone_iphone_rounded),
-                      label: Text(l10n.onboardingUseLocalFiles),
-                    ),
-                    const SizedBox(height: Space.sm),
-                    TextButton(
-                      onPressed: () => _explainAbs(context),
-                      child: Text(l10n.onboardingWhatIsAbs),
-                    ),
-                  ],
+                // Full width, so the narrower column below stays centered.
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: math.min(box.maxHeight * 0.42, 360),
+                        child: const _CoverFan(covers: _covers),
+                      ),
+                      const SizedBox(height: Space.xxl),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l10n.onboardingTitle,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.displaySmall?.copyWith(color: scheme.onSurface),
+                            ),
+                            const SizedBox(height: Space.md),
+                            Text(
+                              l10n.onboardingBody,
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant, height: 1.45),
+                            ),
+                            const SizedBox(height: Space.xxl),
+                            FilledButton.icon(
+                              onPressed: () => context.push('/accounts/add'),
+                              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
+                              icon: const Icon(Icons.dns_outlined),
+                              label: Text(l10n.onboardingConnectServer),
+                            ),
+                            const SizedBox(height: Space.md),
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                await ref.read(onboardingProvider.notifier).complete();
+                                if (context.mounted) context.go('/local/import');
+                              },
+                              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(56)),
+                              icon: const Icon(Icons.phone_iphone_rounded),
+                              label: Text(l10n.onboardingUseLocalFiles),
+                            ),
+                            const SizedBox(height: Space.sm),
+                            TextButton(
+                              onPressed: () => _explainAbs(context),
+                              child: Text(l10n.onboardingWhatIsAbs),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

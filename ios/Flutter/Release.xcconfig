@@ -1,1 +1,3 @@
 #include "Generated.xcconfig"
+// The signing team, local and git-ignored. See tool/ios/README.md.
+#include? "Signing.xcconfig"

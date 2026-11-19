@@ -27,10 +27,12 @@ What the Mac still needs, once, because signing uses the owner's account:
    `com.affluentlabs.earloom` has App Groups (with that group) and CarPlay
    Audio, and the App ID `com.affluentlabs.earloom.NowPlayingWidget` exists
    with App Groups (same group).
-2. Open `ios/Runner.xcworkspace`, select each of the Runner and
-   NowPlayingWidget targets, Signing & Capabilities, pick the team. Xcode
-   shows the capabilities from the entitlements files; fix anything it marks
-   red.
+2. Put the team ID in `ios/Flutter/Signing.xcconfig` (git-ignored, see
+   `tool/ios/README.md`); it signs both the Runner and NowPlayingWidget
+   targets. Do not pick the team in Xcode, which writes it into the
+   committed project file. Open `ios/Runner.xcworkspace` and check each
+   target's Signing & Capabilities: Xcode shows the team and the
+   capabilities from the entitlements files; fix anything it marks red.
 3. `flutter run` on an iPhone: add the widget, play a book, start a sleep
    timer and lock the phone. Then the CarPlay Simulator (Xcode > Open
    Developer Tool > Simulator, I/O > External Displays > CarPlay).

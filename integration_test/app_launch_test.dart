@@ -68,7 +68,8 @@ void main() {
     }
 
     final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
-    final bar = find.byType(NavigationBar);
+    // Phones get a bottom bar, tablets and wide windows a side rail.
+    final bar = find.byWidgetPredicate((w) => w is NavigationBar || w is NavigationRail);
     Future<void> tab(String label) async {
       await tester.tap(find.descendant(of: bar, matching: find.text(label)));
       await settle(tester);

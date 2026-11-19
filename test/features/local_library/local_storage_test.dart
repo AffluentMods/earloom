@@ -5,6 +5,11 @@ import 'dart:io';
 
 import 'package:earloom/features/local_library/data/local_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
+
+/// The same path whichever separator the platform uses, so these tests also
+/// pass on Windows, where the code is written.
+Matcher samePath(String expected) => predicate<String>((actual) => p.equals(actual, expected), 'the path $expected');
 
 void main() {
   final storage = LocalStorage(Directory('/support/local'));
@@ -22,9 +27,9 @@ void main() {
   });
 
   test('a book folder is always directly inside the root', () {
-    expect(storage.bookDir(id).path, '/support/local/$id');
-    expect(storage.bookFile(id, 'track_001.mp3').path, '/support/local/$id/track_001.mp3');
-    expect(storage.stagingDir(id).path, '/support/local/.import-$id');
+    expect(storage.bookDir(id).path, samePath('/support/local/$id'));
+    expect(storage.bookFile(id, 'track_001.mp3').path, samePath('/support/local/$id/track_001.mp3'));
+    expect(storage.stagingDir(id).path, samePath('/support/local/.import-$id'));
   });
 
   test('anything that is not a book id is refused', () {

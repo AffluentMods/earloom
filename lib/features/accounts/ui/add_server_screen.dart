@@ -15,6 +15,9 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../data/oidc_login.dart';
 import 'add_server_controller.dart';
 
+/// The widest the form gets on a tablet.
+const _maxFormWidth = 640.0;
+
 /// Connect a new server, or sign in again to an existing account
 /// ([reauthAccountId]). Address first, then the sign-in methods the server
 /// offers.
@@ -87,11 +90,15 @@ class _AddServerScreenState extends ConsumerState<AddServerScreen> {
     final found = state.server;
     final signingIn = state.stage == AddServerStage.signingIn;
 
+    // On tablets the form keeps a readable width instead of spanning the screen.
+    final width = MediaQuery.sizeOf(context).width;
+    final side = width - 2 * Space.xl > _maxFormWidth ? (width - _maxFormWidth) / 2 : Space.xl;
+
     return Scaffold(
       appBar: AppBar(title: Text(reauth == null ? l10n.addServerTitle : l10n.signInAgainTitle)),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(Space.xl, Space.sm, Space.xl, Space.xxl),
+          padding: EdgeInsets.fromLTRB(side, Space.sm, side, Space.xxl),
           children: [
             Text(
               reauth == null ? l10n.addServerIntro : l10n.signInAgainBody(Uri.parse(reauth.serverUrl).host),

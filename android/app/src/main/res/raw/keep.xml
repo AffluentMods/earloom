@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Drawables found by name at runtime: ours, named as strings in the Dart
+     code (notification buttons and icon, the new-episode notification), and
+     audio_service's own (the play, pause, rewind and fast forward of
+     MediaControl). The release resource shrinker sees no use and drops them;
+     without them Android 13 and later reject the playback state, so nothing
+     reaches the notification or the lock screen and the service never runs
+     in the foreground. test/platform/android_keep_resources_test.dart checks
+     this list. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_bookmark,@drawable/ic_speed,@drawable/ic_stat_earloom,@drawable/audio_service_*" />

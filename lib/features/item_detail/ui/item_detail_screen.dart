@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 Affluent Labs LLC
 
+import 'dart:math' as math;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +14,7 @@ import '../../../app/theme/tokens.dart';
 import '../../../core/library/browse_models.dart';
 import '../../../core/library/models.dart';
 import '../../../core/library/source_id.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../core/ui/html_text.dart';
 import '../../../core/ui/states.dart';
 import '../../../core/util/duration_format.dart';
@@ -123,8 +126,6 @@ class _DetailBody extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final book = detail.summary;
     final libraryId = ref.watch(libraryOfItemProvider(book.ref)).value;
-    final width = MediaQuery.sizeOf(context).width;
-    final coverSize = (width * 0.6).clamp(180.0, 280.0);
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: scheme.surface,
@@ -151,51 +152,123 @@ class _DetailBody extends ConsumerWidget {
         child: RefreshIndicator(
           onRefresh: onRefresh,
           edgeOffset: MediaQuery.paddingOf(context).top + kToolbarHeight,
-          // On wide screens the page keeps a readable column in the middle;
-          // the cover tint behind it still fills the screen.
           child: LayoutBuilder(
             builder: (context, box) {
-              final side = ((box.maxWidth - _maxContentWidth) / 2).clamp(0.0, double.infinity);
+              final top = MediaQuery.paddingOf(context).top + kToolbarHeight;
+              final bottom = MediaQuery.paddingOf(context).bottom + Space.xxl;
+              final notice = RefreshNotice(
+                error: refreshError,
+                padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.xl, Space.lg),
+              );
+              List<Widget> summary(double coverSize) => [
+                Center(
+                  child: BookCover(book: book, size: coverSize, heroTag: heroTag, showProgress: false),
+                ),
+                const SizedBox(height: Space.xl),
+                _Pad(
+                  child: _Header(detail: detail, libraryId: libraryId),
+                ),
+                const SizedBox(height: Space.xl),
+                // A button, not a bar, when the column is tablet wide.
+                _Pad(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: _buttonMaxWidth),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _PlayButton(book: book),
+                          _ProgressLine(book: book),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: Space.lg),
+                _Pad(
+                  child: _ActionRow(book: book, libraryId: libraryId),
+                ),
+              ];
+              final more = <Widget>[
+                if (detail.descriptionHtml != null && detail.descriptionHtml!.trim().isNotEmpty) ...[
+                  const SizedBox(height: Space.lg),
+                  _Pad(child: DescriptionText(html: detail.descriptionHtml!)),
+                ],
+                if (detail.chapters.length > 1) _Chapters(detail: detail),
+                BookBookmarks(itemRef: book.ref, chapters: detail.chapters),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(Space.xl, Space.xl, Space.xl, 0),
+                  child: BookListeningCard(itemRef: book.ref),
+                ),
+                _Details(detail: detail, libraryId: libraryId),
+                _MoreInSeries(detail: detail),
+              ];
+              if (box.maxWidth >= _twoPaneFrom) {
+                // Tablets: the cover and the book's actions on the left;
+                // title, play button and everything else on the right, so
+                // the play button is on screen without scrolling.
+                final left = (box.maxWidth * 0.38).clamp(360.0, 460.0);
+                final right = centeredInsets(box.maxWidth - left, maxWidth: _maxContentWidth);
+                final coverSize = math.min(left - 2 * Space.xl, box.maxHeight - top - bottom - 110).clamp(200.0, 340.0);
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: left,
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.fromLTRB(Space.sm, top, 0, bottom),
+                        children: [
+                          Center(
+                            child: BookCover(book: book, size: coverSize, heroTag: heroTag, showProgress: false),
+                          ),
+                          const SizedBox(height: Space.lg),
+                          _Pad(
+                            child: _ActionRow(book: book, libraryId: libraryId),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.fromLTRB(right.left, top, right.right + Space.sm, bottom),
+                        children: [
+                          notice,
+                          _Pad(
+                            child: _Header(detail: detail, libraryId: libraryId, start: true),
+                          ),
+                          const SizedBox(height: Space.xl),
+                          _Pad(
+                            child: Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: _buttonMaxWidth),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    _PlayButton(book: book),
+                                    _ProgressLine(book: book),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          ...more,
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }
+              // Phones and narrow panes: one column, kept readable in the
+              // middle; the cover tint behind it still fills the screen.
+              final sides = centeredInsets(box.maxWidth, maxWidth: _maxContentWidth);
+              final coverSize = (box.maxWidth * 0.6).clamp(180.0, 280.0);
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.fromLTRB(
-                  side,
-                  MediaQuery.paddingOf(context).top + kToolbarHeight,
-                  side,
-                  MediaQuery.paddingOf(context).bottom + Space.xxl,
-                ),
-                children: [
-                  RefreshNotice(
-                    error: refreshError,
-                    padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.xl, Space.lg),
-                  ),
-                  Center(
-                    child: BookCover(book: book, size: coverSize, heroTag: heroTag, showProgress: false),
-                  ),
-                  const SizedBox(height: Space.xl),
-                  _Pad(
-                    child: _Header(detail: detail, libraryId: libraryId),
-                  ),
-                  const SizedBox(height: Space.xl),
-                  _Pad(child: _PlayButton(book: book)),
-                  _Pad(child: _ProgressLine(book: book)),
-                  const SizedBox(height: Space.lg),
-                  _Pad(
-                    child: _ActionRow(book: book, libraryId: libraryId),
-                  ),
-                  if (detail.descriptionHtml != null && detail.descriptionHtml!.trim().isNotEmpty) ...[
-                    const SizedBox(height: Space.lg),
-                    _Pad(child: DescriptionText(html: detail.descriptionHtml!)),
-                  ],
-                  if (detail.chapters.length > 1) _Chapters(detail: detail),
-                  BookBookmarks(itemRef: book.ref, chapters: detail.chapters),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(Space.xl, Space.xl, Space.xl, 0),
-                    child: BookListeningCard(itemRef: book.ref),
-                  ),
-                  _Details(detail: detail, libraryId: libraryId),
-                  _MoreInSeries(detail: detail),
-                ],
+                padding: EdgeInsets.fromLTRB(sides.left, top, sides.right, bottom),
+                children: [notice, ...summary(coverSize), ...more],
               );
             },
           ),
@@ -204,6 +277,11 @@ class _DetailBody extends ConsumerWidget {
     );
   }
 
+  /// Width from which the page splits into two columns.
+  static const _twoPaneFrom = 900.0;
+
+  /// The play button and progress line stop growing here.
+  static const _buttonMaxWidth = 440.0;
   static const _maxContentWidth = 720.0;
 
   Future<void> _showMore(BuildContext context, WidgetRef ref, BookSummary book, String? libraryId) async {
@@ -293,10 +371,14 @@ class _Pad extends StatelessWidget {
 
 /// Title, subtitle, author and narrator links, series link.
 class _Header extends StatelessWidget {
-  const _Header({required this.detail, required this.libraryId});
+  const _Header({required this.detail, required this.libraryId, this.start = false});
 
   final BookDetail detail;
   final String? libraryId;
+
+  /// Aligned to the start, beside the cover on tablets, instead of
+  /// centered under it.
+  final bool start;
 
   @override
   Widget build(BuildContext context) {
@@ -313,27 +395,30 @@ class _Header extends StatelessWidget {
               SeriesMembership(id: book.seriesName!, name: book.seriesName!, sequence: book.seriesSequence),
           ];
     final canLinkSeries = source is LocalSource || detail.series.isNotEmpty;
+    final align = start ? TextAlign.start : TextAlign.center;
     return Column(
+      crossAxisAlignment: start ? CrossAxisAlignment.start : CrossAxisAlignment.center,
       children: [
         Semantics(
           header: true,
           child: Text(
             book.title,
-            textAlign: TextAlign.center,
-            style: text.headlineMedium?.copyWith(color: scheme.onSurface),
+            textAlign: align,
+            style: (start ? text.displaySmall : text.headlineMedium)?.copyWith(color: scheme.onSurface),
           ),
         ),
         if (book.subtitle != null) ...[
           const SizedBox(height: Space.xs),
           Text(
             book.subtitle!,
-            textAlign: TextAlign.center,
+            textAlign: align,
             style: text.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
           ),
         ],
         if (book.authors.isNotEmpty) ...[
           const SizedBox(height: Space.sm),
           _NameLinks(
+            start: start,
             names: book.authors,
             style: text.titleMedium?.copyWith(color: scheme.onSurface),
             onTap: (name) {
@@ -351,6 +436,7 @@ class _Header extends StatelessWidget {
           // One line: "Narrated by" sits in the same wrap as the names, so
           // it only breaks when the names do not fit beside it.
           _NameLinks(
+            start: start,
             leading: l10n.itemNarratorsLabel,
             names: book.narrators,
             style: text.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
@@ -374,18 +460,19 @@ class _Header extends StatelessWidget {
 
 /// Names separated by commas, each one a link.
 class _NameLinks extends StatelessWidget {
-  const _NameLinks({required this.names, required this.style, required this.onTap, this.leading});
+  const _NameLinks({required this.names, required this.style, required this.onTap, this.leading, this.start = false});
 
   /// Plain text before the names ("Narrated by").
   final String? leading;
   final List<String> names;
   final TextStyle? style;
   final void Function(String name)? onTap;
+  final bool start;
 
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      alignment: WrapAlignment.center,
+      alignment: start ? WrapAlignment.start : WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         if (leading != null)

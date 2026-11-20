@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../app/theme/tokens.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../player_controller.dart';
 import '../player_prefs.dart';
@@ -81,7 +82,7 @@ class PlayerSettingsList extends ConsumerWidget {
       ),
     );
 
-    return ListView(
+    return ReadableListView(
       controller: controller,
       padding: EdgeInsets.only(bottom: Space.xl + MediaQuery.paddingOf(context).bottom),
       children: [

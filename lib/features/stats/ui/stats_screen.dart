@@ -14,6 +14,7 @@ import '../../../app/theme/typography.dart';
 import '../../../core/ui/cover_image.dart';
 import '../../../core/ui/states.dart';
 import '../../../core/util/duration_format.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../app/router.dart';
 import '../data/stats_repository.dart';
@@ -28,81 +29,90 @@ class StatsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final stats = ref.watch(statsProvider);
     final serverFailed = ref.watch(serverStatsProvider).hasError;
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () => ref.refresh(serverStatsProvider.future),
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar.large(
-              title: Text(l10n.statsTitle),
-              actions: [
-                IconButton(
-                  tooltip: l10n.yearReviewOpen,
-                  icon: const Icon(Icons.auto_awesome_outlined),
-                  onPressed: () =>
-                      context.push(AppRoutes.yearReview(reviewYearInSeason(DateTime.now()) ?? DateTime.now().year)),
+    return ReadableWidth(
+      maxWidth: 840,
+      builder: (context, sides) => Scaffold(
+        body: RefreshIndicator(
+          onRefresh: () => ref.refresh(serverStatsProvider.future),
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar.large(
+                title: Padding(
+                  padding: EdgeInsetsDirectional.only(start: sides.left),
+                  child: Text(l10n.statsTitle),
                 ),
-              ],
-            ),
-            switch (stats) {
-              AsyncData(:final value) when value.isEmpty => SliverFillRemaining(
-                hasScrollBody: false,
-                child: EmptyState(
-                  icon: Icons.insights_rounded,
-                  title: l10n.statsEmptyTitle,
-                  body: l10n.statsEmptyBody,
-                ),
+                actions: [
+                  IconButton(
+                    tooltip: l10n.yearReviewOpen,
+                    icon: const Icon(Icons.auto_awesome_outlined),
+                    onPressed: () =>
+                        context.push(AppRoutes.yearReview(reviewYearInSeason(DateTime.now()) ?? DateTime.now().year)),
+                  ),
+                ],
               ),
-              AsyncData(:final value) => SliverPadding(
-                padding: const EdgeInsets.fromLTRB(Space.lg, 0, Space.lg, Space.xxl),
-                sliver: SliverList.list(
-                  children: [
-                    if (serverFailed) ...[
-                      InlineNotice(icon: Icons.cloud_off_rounded, message: l10n.statsServerFailed),
-                      const SizedBox(height: Space.lg),
-                    ],
-                    if (reviewYearInSeason(DateTime.now()) case final year?) ...[
-                      _YearReviewBanner(year: year),
-                      const SizedBox(height: Space.lg),
-                    ],
-                    _TodayCard(stats: value),
-                    const SizedBox(height: Space.xl),
-                    _WeekSection(stats: value),
-                    const SizedBox(height: Space.xl),
-                    _CalendarSection(stats: value),
-                    const SizedBox(height: Space.xl),
-                    _TotalsSection(stats: value),
-                    if (value.topBooks.isNotEmpty) ...[
-                      const SizedBox(height: Space.xl),
-                      _TopBooks(stats: value),
-                    ],
-                    if (value.topAuthors.isNotEmpty) ...[
-                      const SizedBox(height: Space.xl),
-                      _RankedList(title: l10n.statsTopAuthors, entries: value.topAuthors),
-                    ],
-                    if (value.topNarrators.isNotEmpty) ...[
-                      const SizedBox(height: Space.xl),
-                      _RankedList(title: l10n.statsTopNarrators, entries: value.topNarrators),
-                    ],
-                    const SizedBox(height: Space.xl),
-                    _WhenSection(stats: value),
-                    if (value.finishedThisYear.isNotEmpty) ...[
-                      const SizedBox(height: Space.xl),
-                      _FinishedSection(stats: value),
-                    ],
-                  ],
+              switch (stats) {
+                AsyncData(:final value) when value.isEmpty => SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: EmptyState(
+                    icon: Icons.insights_rounded,
+                    title: l10n.statsEmptyTitle,
+                    body: l10n.statsEmptyBody,
+                  ),
                 ),
-              ),
-              AsyncError(:final error) => SliverFillRemaining(
-                hasScrollBody: false,
-                child: Padding(
-                  padding: const EdgeInsets.all(Space.xl),
-                  child: ErrorNotice(message: l10n.genericSomethingWentWrong, details: '$error'),
+                AsyncData(:final value) => SliverReadable(
+                  maxWidth: 840,
+                  sliver: SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(Space.lg, 0, Space.lg, Space.xxl),
+                    sliver: SliverList.list(
+                      children: [
+                        if (serverFailed) ...[
+                          InlineNotice(icon: Icons.cloud_off_rounded, message: l10n.statsServerFailed),
+                          const SizedBox(height: Space.lg),
+                        ],
+                        if (reviewYearInSeason(DateTime.now()) case final year?) ...[
+                          _YearReviewBanner(year: year),
+                          const SizedBox(height: Space.lg),
+                        ],
+                        _TodayCard(stats: value),
+                        const SizedBox(height: Space.xl),
+                        _WeekSection(stats: value),
+                        const SizedBox(height: Space.xl),
+                        _CalendarSection(stats: value),
+                        const SizedBox(height: Space.xl),
+                        _TotalsSection(stats: value),
+                        if (value.topBooks.isNotEmpty) ...[
+                          const SizedBox(height: Space.xl),
+                          _TopBooks(stats: value),
+                        ],
+                        if (value.topAuthors.isNotEmpty) ...[
+                          const SizedBox(height: Space.xl),
+                          _RankedList(title: l10n.statsTopAuthors, entries: value.topAuthors),
+                        ],
+                        if (value.topNarrators.isNotEmpty) ...[
+                          const SizedBox(height: Space.xl),
+                          _RankedList(title: l10n.statsTopNarrators, entries: value.topNarrators),
+                        ],
+                        const SizedBox(height: Space.xl),
+                        _WhenSection(stats: value),
+                        if (value.finishedThisYear.isNotEmpty) ...[
+                          const SizedBox(height: Space.xl),
+                          _FinishedSection(stats: value),
+                        ],
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              _ => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
-            },
-          ],
+                AsyncError(:final error) => SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Padding(
+                    padding: const EdgeInsets.all(Space.xl),
+                    child: ErrorNotice(message: l10n.genericSomethingWentWrong, details: '$error'),
+                  ),
+                ),
+                _ => const SliverFillRemaining(child: Center(child: CircularProgressIndicator())),
+              },
+            ],
+          ),
         ),
       ),
     );

@@ -16,6 +16,7 @@ import '../../../app/router.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../core/db/global_db.dart';
 import '../../../core/library/source_id.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../core/ui/cover_image.dart';
 import '../../../core/ui/states.dart';
 import '../../../core/util/size_format.dart';
@@ -199,7 +200,7 @@ class _DownloadsScreenState extends ConsumerState<DownloadsScreen> {
         child: ErrorNotice(message: l10n.genericSomethingWentWrong, details: '${states.error}'),
       );
     } else if (all.isEmpty) {
-      body = ListView(
+      body = ReadableListView(
         children: [
           const SyncStatusTile(),
           EmptyState(
@@ -212,19 +213,25 @@ class _DownloadsScreenState extends ConsumerState<DownloadsScreen> {
     } else {
       body = CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(child: _StorageBar(downloads: all)),
-          const SliverToBoxAdapter(child: SyncStatusTile()),
-          if (active.isNotEmpty) ...[
-            SliverToBoxAdapter(child: _ActiveHeader(active: active)),
-            SliverList.builder(
-              itemCount: active.length,
-              itemBuilder: (_, i) => _ActiveRow(state: active[i]),
+          SliverReadable(
+            sliver: SliverMainAxisGroup(
+              slivers: [
+                SliverToBoxAdapter(child: _StorageBar(downloads: all)),
+                const SliverToBoxAdapter(child: SyncStatusTile()),
+                if (active.isNotEmpty) ...[
+                  SliverToBoxAdapter(child: _ActiveHeader(active: active)),
+                  SliverList.builder(
+                    itemCount: active.length,
+                    itemBuilder: (_, i) => _ActiveRow(state: active[i]),
+                  ),
+                ],
+                if (complete.isNotEmpty) ...[
+                  SliverToBoxAdapter(child: _SectionHeader(label: l10n.downloadsCompleted)),
+                  ..._groups(complete, sort),
+                ],
+              ],
             ),
-          ],
-          if (complete.isNotEmpty) ...[
-            SliverToBoxAdapter(child: _SectionHeader(label: l10n.downloadsCompleted)),
-            ..._groups(complete, sort),
-          ],
+          ),
           const SliverToBoxAdapter(child: SizedBox(height: Space.xxl)),
         ],
       );

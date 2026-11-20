@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../app/debug/debug_routes.dart';
 import '../../../app/router.dart';
 import '../../../app/theme/tokens.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../accounts/data/account_session.dart';
 import '../../accounts/data/accounts_repository.dart';
@@ -25,73 +26,76 @@ class YouScreen extends ConsumerWidget {
     final account = ref.watch(currentAccountProvider).value;
     final accounts = ref.watch(accountsProvider).value ?? const [];
     final scheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.tabYou),
-        actions: [
-          if (kDebugMode)
-            IconButton(
-              icon: const Icon(Icons.bug_report_outlined),
-              tooltip: debugMenuLabel,
-              onPressed: () => context.push(DebugRoutes.hub),
-            ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.only(bottom: Space.xxl),
-        children: [
-          _SectionHeader(label: l10n.youListening),
-          ListTile(
-            leading: const Icon(Icons.insights_rounded),
-            title: Text(l10n.statsTitle),
-            subtitle: Text(l10n.statsYouRowBody),
-            onTap: () => context.push(AppRoutes.stats),
-          ),
-          ListTile(
-            leading: const Icon(Icons.settings_outlined),
-            title: Text(l10n.settingsTitle),
-            subtitle: Text(l10n.settingsYouRowBody),
-            onTap: () => context.push(AppRoutes.settings),
-          ),
-          _SectionHeader(label: l10n.youServers),
-          if (account != null)
-            ListTile(
-              leading: CircleAvatar(
-                backgroundColor: scheme.primaryContainer,
-                foregroundColor: scheme.onPrimaryContainer,
-                child: const Icon(Icons.dns_outlined),
+    return ReadableWidth(
+      builder: (context, sides) => Scaffold(
+        appBar: AppBar(
+          titleSpacing: alignedTitleSpacing(context, sides),
+          title: Text(l10n.tabYou),
+          actions: [
+            if (kDebugMode)
+              IconButton(
+                icon: const Icon(Icons.bug_report_outlined),
+                tooltip: debugMenuLabel,
+                onPressed: () => context.push(DebugRoutes.hub),
               ),
-              title: Text(account.displayName),
-              subtitle: Text(
-                account.needsReauth
-                    ? l10n.sessionExpiredBanner
-                    : l10n.accountsUserOnServer(account.username, account.baseUrl.host),
+          ],
+        ),
+        body: ReadableListView(
+          padding: const EdgeInsets.only(bottom: Space.xxl),
+          children: [
+            _SectionHeader(label: l10n.youListening),
+            ListTile(
+              leading: const Icon(Icons.insights_rounded),
+              title: Text(l10n.statsTitle),
+              subtitle: Text(l10n.statsYouRowBody),
+              onTap: () => context.push(AppRoutes.stats),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: Text(l10n.settingsTitle),
+              subtitle: Text(l10n.settingsYouRowBody),
+              onTap: () => context.push(AppRoutes.settings),
+            ),
+            _SectionHeader(label: l10n.youServers),
+            if (account != null)
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: scheme.primaryContainer,
+                  foregroundColor: scheme.onPrimaryContainer,
+                  child: const Icon(Icons.dns_outlined),
+                ),
+                title: Text(account.displayName),
+                subtitle: Text(
+                  account.needsReauth
+                      ? l10n.sessionExpiredBanner
+                      : l10n.accountsUserOnServer(account.username, account.baseUrl.host),
+                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push(AppRoutes.accounts),
               ),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => context.push(AppRoutes.accounts),
-            ),
-          if (account == null && accounts.isNotEmpty)
+            if (account == null && accounts.isNotEmpty)
+              ListTile(
+                leading: const Icon(Icons.dns_outlined),
+                title: Text(l10n.accountsTitle),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push(AppRoutes.accounts),
+              ),
+            if (accounts.isEmpty)
+              ListTile(
+                leading: const Icon(Icons.add_rounded),
+                title: Text(l10n.onboardingConnectServer),
+                onTap: () => context.push(AppRoutes.addServer),
+              ),
+            _SectionHeader(label: l10n.youOnThisDevice),
+            if (accounts.isNotEmpty) const DownloadsEntryTile(),
             ListTile(
-              leading: const Icon(Icons.dns_outlined),
-              title: Text(l10n.accountsTitle),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => context.push(AppRoutes.accounts),
+              leading: const Icon(Icons.library_add_outlined),
+              title: Text(l10n.youImportFiles),
+              subtitle: Text(l10n.youImportFilesBody),
+              onTap: () => context.push(AppRoutes.importFiles),
             ),
-          if (accounts.isEmpty)
-            ListTile(
-              leading: const Icon(Icons.add_rounded),
-              title: Text(l10n.onboardingConnectServer),
-              onTap: () => context.push(AppRoutes.addServer),
-            ),
-          _SectionHeader(label: l10n.youOnThisDevice),
-          if (accounts.isNotEmpty) const DownloadsEntryTile(),
-          ListTile(
-            leading: const Icon(Icons.library_add_outlined),
-            title: Text(l10n.youImportFiles),
-            subtitle: Text(l10n.youImportFilesBody),
-            onTap: () => context.push(AppRoutes.importFiles),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

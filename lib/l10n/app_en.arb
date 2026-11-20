@@ -605,6 +605,22 @@
   "@playerQueue": {
     "description": "Button and sheet title for the play queue."
   },
+  "playerSpeedShort": "Speed",
+  "@playerSpeedShort": {
+    "description": "Short label under the playback speed button on tablets."
+  },
+  "playerSleepShort": "Sleep",
+  "@playerSleepShort": {
+    "description": "Short label under the sleep timer button on tablets."
+  },
+  "playerBookmarkShort": "Bookmark",
+  "@playerBookmarkShort": {
+    "description": "Short label under the add bookmark button on tablets."
+  },
+  "playerOutputShort": "Output",
+  "@playerOutputShort": {
+    "description": "Short label under the audio output button on tablets."
+  },
   "playerClose": "Close player",
   "@playerClose": {
     "description": "Button that hides Now Playing."

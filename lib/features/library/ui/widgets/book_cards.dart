@@ -27,7 +27,14 @@ String bookSemantics(AppLocalizations l10n, BookSummary book) {
 
 /// A cover with title and author under it, for grids and shelves.
 class BookGridCard extends ConsumerWidget {
-  const BookGridCard({super.key, required this.book, required this.width, required this.place, this.subtitle});
+  const BookGridCard({
+    super.key,
+    required this.book,
+    required this.width,
+    required this.place,
+    this.subtitle,
+    this.selected = false,
+  });
 
   final BookSummary book;
   final double width;
@@ -38,6 +45,9 @@ class BookGridCard extends ConsumerWidget {
   /// Replaces the author line, for example "Book 2" in a series.
   final String? subtitle;
 
+  /// The book open beside the list on tablets: ringed in the accent color.
+  final bool selected;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final text = Theme.of(context).textTheme;
@@ -45,10 +55,12 @@ class BookGridCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final tag = coverHeroTag(book.ref, place);
     final secondLine = subtitle ?? (book.authors.isEmpty ? null : book.authorLine);
+    final cover = BookCover(book: book, size: width, heroTag: tag);
     return SizedBox(
       width: width,
       child: Semantics(
         button: true,
+        selected: selected,
         label: bookSemantics(l10n, book),
         excludeSemantics: true,
         child: InkWell(
@@ -58,7 +70,17 @@ class BookGridCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              BookCover(book: book, size: width, heroTag: tag),
+              if (selected)
+                DecoratedBox(
+                  position: DecorationPosition.foreground,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: scheme.primary, width: 3),
+                    borderRadius: BorderRadius.circular(coverRadius(width)),
+                  ),
+                  child: cover,
+                )
+              else
+                cover,
               const SizedBox(height: Space.sm),
               // Flexible: with large text the lines give way, never the
               // cover.
@@ -70,7 +92,7 @@ class BookGridCard extends ConsumerWidget {
                   book.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: text.titleSmall?.copyWith(height: 1.25),
+                  style: text.titleSmall?.copyWith(height: 1.25, color: selected ? scheme.primary : null),
                 ),
               ),
               if (secondLine != null) ...[
@@ -101,6 +123,7 @@ class BookListRow extends ConsumerWidget {
     this.leadingLabel,
     this.trailing,
     this.onTap,
+    this.selected = false,
   });
 
   final BookSummary book;
@@ -110,6 +133,9 @@ class BookListRow extends ConsumerWidget {
   final String? leadingLabel;
   final Widget? trailing;
   final VoidCallback? onTap;
+
+  /// The book open beside the list on tablets: on a tinted background.
+  final bool selected;
 
   static const coverSize = 64.0;
 
@@ -131,46 +157,50 @@ class BookListRow extends ConsumerWidget {
       button: true,
       label: bookSemantics(l10n, book),
       excludeSemantics: trailing == null,
-      child: InkWell(
-        onTap: onTap ?? () => BrowseNav.open(context, book, heroTag: tag),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 88),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Space.lg, vertical: Space.md),
-            child: Row(
-              children: [
-                BookCover(book: book, size: coverSize, heroTag: tag, shadow: false, showProgress: false),
-                const SizedBox(width: Space.lg),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (leadingLabel != null)
-                        Text(leadingLabel!, style: text.labelMedium?.copyWith(color: scheme.primary)),
-                      Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: text.titleMedium),
-                      if (details.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          details,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-                        ),
+      selected: selected,
+      child: Material(
+        color: selected ? scheme.secondaryContainer : Colors.transparent,
+        child: InkWell(
+          onTap: onTap ?? () => BrowseNav.open(context, book, heroTag: tag),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 88),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Space.lg, vertical: Space.md),
+              child: Row(
+                children: [
+                  BookCover(book: book, size: coverSize, heroTag: tag, shadow: false, showProgress: false),
+                  const SizedBox(width: Space.lg),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (leadingLabel != null)
+                          Text(leadingLabel!, style: text.labelMedium?.copyWith(color: scheme.primary)),
+                        Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: text.titleMedium),
+                        if (details.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            details,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                          ),
+                        ],
+                        if (progress != null && progress.isStarted && !progress.isFinished) ...[
+                          const SizedBox(height: Space.sm),
+                          SizedBox(width: 120, child: ThinProgressBar(value: progress.fraction, height: 3)),
+                        ],
                       ],
-                      if (progress != null && progress.isStarted && !progress.isFinished) ...[
-                        const SizedBox(height: Space.sm),
-                        SizedBox(width: 120, child: ThinProgressBar(value: progress.fraction, height: 3)),
-                      ],
-                    ],
+                    ),
                   ),
-                ),
-                if (progress != null && progress.isFinished) ...[
-                  const SizedBox(width: Space.sm),
-                  Icon(Icons.check_circle_rounded, color: scheme.primary, size: 20),
+                  if (progress != null && progress.isFinished) ...[
+                    const SizedBox(width: Space.sm),
+                    Icon(Icons.check_circle_rounded, color: scheme.primary, size: 20),
+                  ],
+                  if (trailing != null) ...[const SizedBox(width: Space.xs), trailing!],
                 ],
-                if (trailing != null) ...[const SizedBox(width: Space.xs), trailing!],
-              ],
+              ),
             ),
           ),
         ),

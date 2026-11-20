@@ -20,9 +20,13 @@ import '../../player/player_controller.dart';
 /// button that plays right here. The card takes the cover's colors and
 /// cross-fades when the book changes.
 class HeroCard extends ConsumerWidget {
-  const HeroCard({super.key, required this.book, this.onOpen, this.cover});
+  const HeroCard({super.key, required this.book, this.onOpen, this.cover, this.wide = false});
 
   final BookSummary book;
+
+  /// Tablet layout: a bigger cover with everything else beside it, so the
+  /// card does not stretch a phone's layout across the screen.
+  final bool wide;
 
   /// What the cover shows, when it is not [book] itself (an episode shows
   /// its show's cover).
@@ -41,20 +45,22 @@ class HeroCard extends ConsumerWidget {
         duration: reduceMotion ? Duration.zero : Motion.normal,
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
-        child: _HeroContent(key: ValueKey(book.ref), book: book, onOpen: onOpen, cover: cover),
+        child: _HeroContent(key: ValueKey(book.ref), book: book, onOpen: onOpen, cover: cover, wide: wide),
       ),
     );
   }
 }
 
 class _HeroContent extends ConsumerWidget {
-  const _HeroContent({super.key, required this.book, this.onOpen, this.cover});
+  const _HeroContent({super.key, required this.book, this.onOpen, this.cover, this.wide = false});
 
   final BookSummary book;
   final VoidCallback? onOpen;
   final BookSummary? cover;
+  final bool wide;
 
   static const coverSize = 116.0;
+  static const wideCoverSize = 184.0;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -73,6 +79,125 @@ class _HeroContent extends ConsumerWidget {
         ? (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0)
         : 0.0;
     final tag = coverHeroTag(book.ref, 'home-hero');
+    final titleLines = <Widget>[
+      Text(
+        l10n.homeContinueListening,
+        style: text.labelMedium?.copyWith(color: scheme.onSurfaceVariant),
+      ),
+      const SizedBox(height: Space.xs),
+      Text(
+        book.title,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: (wide ? text.headlineMedium : text.titleLarge)?.copyWith(color: scheme.onSurface),
+      ),
+      if (book.authors.isNotEmpty) ...[
+        SizedBox(height: wide ? Space.xs : 2),
+        Text(
+          book.authorLine,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: (wide ? text.bodyLarge : text.bodyMedium)?.copyWith(color: scheme.onSurface),
+        ),
+      ],
+      if (chapter != null && chapter.isNotEmpty) ...[
+        const SizedBox(height: Space.xs),
+        Text(
+          chapter,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: (wide ? text.bodyMedium : text.bodySmall)?.copyWith(color: scheme.onSurfaceVariant),
+        ),
+      ],
+    ];
+    final progressRow = Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ThinProgressBar(value: fraction, height: 5),
+              const SizedBox(height: Space.sm),
+              Text(
+                formatTimeLeft(l10n, duration - position),
+                style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: Space.lg),
+        FilledButton.icon(
+          onPressed: () => isCurrent ? BookActions.playOrPause(ref, book.ref) : BookActions.play(ref, book.ref),
+          icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 26),
+          label: Text(playing ? l10n.homePause : l10n.homeResume),
+          style: FilledButton.styleFrom(minimumSize: const Size(132, 52)),
+        ),
+      ],
+    );
+    final Widget content;
+    if (wide) {
+      // Cover on the left; title on top and the progress row at the bottom
+      // of the column beside it, however tall the card ends up.
+      content = Padding(
+        padding: const EdgeInsets.all(Space.xl - Space.xs),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Semantics(
+              label: bookSemantics(l10n, book),
+              button: true,
+              excludeSemantics: true,
+              child: BookCover(book: cover ?? book, size: wideCoverSize, heroTag: tag, showProgress: false),
+            ),
+            const SizedBox(width: Space.xl),
+            Expanded(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: wideCoverSize),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ExcludeSemantics(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: titleLines),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: Space.lg),
+                      child: progressRow,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      content = Padding(
+        padding: const EdgeInsets.all(Space.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Semantics(
+              label: bookSemantics(l10n, book),
+              button: true,
+              excludeSemantics: true,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  BookCover(book: cover ?? book, size: coverSize, heroTag: tag, showProgress: false),
+                  const SizedBox(width: Space.lg),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: titleLines),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: Space.lg),
+            progressRow,
+          ],
+        ),
+      );
+    }
     return AnimatedContainer(
       duration: Motion.normal,
       decoration: BoxDecoration(
@@ -89,88 +214,7 @@ class _HeroContent extends ConsumerWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onOpen ?? () => BrowseNav.open(context, book, heroTag: tag),
-          child: Padding(
-            padding: const EdgeInsets.all(Space.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Semantics(
-                  label: bookSemantics(l10n, book),
-                  button: true,
-                  excludeSemantics: true,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      BookCover(book: cover ?? book, size: coverSize, heroTag: tag, showProgress: false),
-                      const SizedBox(width: Space.lg),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.homeContinueListening,
-                              style: text.labelMedium?.copyWith(color: scheme.onSurfaceVariant),
-                            ),
-                            const SizedBox(height: Space.xs),
-                            Text(
-                              book.title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: text.titleLarge?.copyWith(color: scheme.onSurface),
-                            ),
-                            if (book.authors.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                book.authorLine,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: text.bodyMedium?.copyWith(color: scheme.onSurface),
-                              ),
-                            ],
-                            if (chapter != null && chapter.isNotEmpty) ...[
-                              const SizedBox(height: Space.xs),
-                              Text(
-                                chapter,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: Space.lg),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ThinProgressBar(value: fraction, height: 5),
-                          const SizedBox(height: Space.sm),
-                          Text(
-                            formatTimeLeft(l10n, duration - position),
-                            style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: Space.lg),
-                    FilledButton.icon(
-                      onPressed: () =>
-                          isCurrent ? BookActions.playOrPause(ref, book.ref) : BookActions.play(ref, book.ref),
-                      icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded, size: 26),
-                      label: Text(playing ? l10n.homePause : l10n.homeResume),
-                      style: FilledButton.styleFrom(minimumSize: const Size(132, 52)),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          child: content,
         ),
       ),
     );

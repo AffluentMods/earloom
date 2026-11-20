@@ -46,6 +46,9 @@ class _Bar extends ConsumerWidget {
     if (now == null) return const SizedBox.shrink();
     final engine = ref.read(playerEngineProvider);
     final skipBack = ref.watch(playerPrefsProvider.select((p) => p.skipBack.inSeconds));
+    final skipForward = ref.watch(playerPrefsProvider.select((p) => p.skipForward.inSeconds));
+    // Tablets have room for skip forward too.
+    final wide = MediaQuery.sizeOf(context).width >= Breakpoints.medium;
     final subtitle = (chapter != null && now.chapters.length > 1) ? chapter.title : now.author;
     return Dismissible(
       key: const ValueKey('mini-player'),
@@ -116,6 +119,16 @@ class _Bar extends ConsumerWidget {
                           child: SkipButton(seconds: skipBack, forward: false, size: 30, onPressed: engine.skipBack),
                         ),
                         const PlayPauseButton(size: 52, filled: false),
+                        if (wide)
+                          IconTheme(
+                            data: IconThemeData(color: scheme.onSecondaryContainer),
+                            child: SkipButton(
+                              seconds: skipForward,
+                              forward: true,
+                              size: 30,
+                              onPressed: engine.skipForward,
+                            ),
+                          ),
                         const SizedBox(width: Space.xs),
                       ],
                     ),

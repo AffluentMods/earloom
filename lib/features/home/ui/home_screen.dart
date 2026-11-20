@@ -10,15 +10,23 @@ import 'package:material_ui/material_ui.dart';
 import '../../../app/providers.dart';
 import '../../../app/router.dart';
 import '../../../app/theme/tokens.dart';
+import '../../../app/theme/typography.dart';
 import '../../../core/library/models.dart';
 import '../../../core/library/source_id.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../core/ui/states.dart';
+import '../../../core/util/duration_format.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../accounts/data/account_session.dart';
 import '../../library/data/library_providers.dart';
+import '../../library/ui/book_actions.dart';
+import '../../library/ui/browse_nav.dart';
 import '../../library/ui/library_switcher.dart';
 import '../../library/ui/widgets/book_cards.dart';
+import '../../library/ui/widgets/book_cover.dart';
 import '../../library/ui/widgets/browse_layout.dart';
+import '../../library/ui/widgets/progress_badge.dart';
+import '../../player/player_controller.dart';
 import '../../podcasts/ui/podcast_home.dart';
 import '../data/home_repository.dart';
 import 'hero_card.dart';
@@ -95,7 +103,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RefreshingState {
           slivers: [
             SliverAppBar(
               floating: true,
-              titleSpacing: Space.sm,
+              // Lines the title up with the cards under it.
+              titleSpacing: context.gutter - Space.sm,
               title: library != null && libraries.length > 1
                   ? LibrarySwitcherButton(library: library, large: true)
                   : Padding(
@@ -111,22 +120,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RefreshingState {
             else if (library.isPodcast && library.source is AbsSource)
               PodcastHome(key: ValueKey(library.id), library: library)
             else ...[
-              if (continuing.isNotEmpty) ...[
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(Space.lg, Space.sm, Space.lg, 0),
-                    child: HeroCard(book: continuing.first),
-                  ),
-                ),
-                if (continuing.length > 1)
-                  SliverToBoxAdapter(
-                    child: _BookShelf(
-                      title: l10n.homeShelfAlsoInProgress,
-                      books: continuing.skip(1).toList(),
-                      place: 'home-continue',
-                    ),
-                  ),
-              ] else
+              if (continuing.isNotEmpty)
+                SliverToBoxAdapter(child: _ContinueListening(books: continuing))
+              else
                 SliverToBoxAdapter(child: _NothingInProgress(hasBooks: local.isNotEmpty || hasAccount)),
               if (library.source is AbsSource) _ServerShelves(libraryId: library.id) else ..._localShelves(l10n, local),
               if (library.source is AbsSource && local.isNotEmpty)
@@ -171,12 +167,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RefreshingState {
         ),
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(Space.lg, Space.xl, Space.lg, 0),
-          child: OutlinedButton.icon(
-            onPressed: () => context.push(AppRoutes.importFiles),
-            icon: const Icon(Icons.library_add_outlined),
-            label: Text(l10n.homeAddFiles),
-            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          padding: EdgeInsets.fromLTRB(context.gutter, Space.xl, context.gutter, 0),
+          // Full width on a phone; a normal button, not a bar, on a tablet.
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: ContentWidth.form),
+              child: OutlinedButton.icon(
+                onPressed: () => context.push(AppRoutes.importFiles),
+                icon: const Icon(Icons.library_add_outlined),
+                label: Text(l10n.homeAddFiles),
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+              ),
+            ),
           ),
         ),
       ),
@@ -225,9 +228,9 @@ class _ServerShelves extends ConsumerWidget {
           ),
           ShelfKind.series => Shelf(
             title: title,
-            height: cardShelfHeight(context, 136),
+            height: cardShelfHeight(context, shelfCoverWidth(context)),
             itemCount: shelf.series.length,
-            itemBuilder: (_, j) => SeriesCard(series: shelf.series[j], width: 136),
+            itemBuilder: (_, j) => SeriesCard(series: shelf.series[j], width: shelfCoverWidth(context)),
           ),
           ShelfKind.authors => Shelf(
             title: title,
@@ -275,12 +278,11 @@ class _BookShelf extends StatelessWidget {
   /// Under the cover, "Book 3 of The Example Saga" instead of the author.
   final bool showSeries;
 
-  static const width = 136.0;
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     if (books.isEmpty) return const SizedBox.shrink();
+    final width = shelfCoverWidth(context);
     return Shelf(
       title: title,
       action: action,
@@ -301,6 +303,169 @@ class _BookShelf extends StatelessWidget {
   }
 }
 
+/// The book to go back to, and the other books in progress. Phones get the
+/// hero card and a shelf under it. Tablets get the wide hero card, and on
+/// wide screens the other books sit in a panel beside it, as tall as the
+/// card.
+class _ContinueListening extends StatelessWidget {
+  const _ContinueListening({required this.books});
+
+  final List<BookSummary> books;
+
+  /// Content width from which the others move into a side panel.
+  static const _panelFrom = 900.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final gutter = context.gutter;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final wide = box.maxWidth - 2 * gutter >= ContentWidth.form;
+        final others = books.skip(1).toList();
+        final panel = others.isNotEmpty && box.maxWidth >= _panelFrom;
+        final hero = HeroCard(book: books.first, wide: wide);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(gutter, Space.sm, gutter, 0),
+              child: panel
+                  ? IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(flex: 3, child: hero),
+                          const SizedBox(width: Space.lg),
+                          Expanded(
+                            flex: 2,
+                            child: NoIntrinsicHeight(child: _InProgressPanel(books: others)),
+                          ),
+                        ],
+                      ),
+                    )
+                  : hero,
+            ),
+            if (!panel && others.isNotEmpty)
+              _BookShelf(title: l10n.homeShelfAlsoInProgress, books: others, place: 'home-continue'),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// Other books in progress, beside the hero card on wide screens: a short
+/// scrolling list with a Resume button on each.
+class _InProgressPanel extends StatelessWidget {
+  const _InProgressPanel({required this.books});
+
+  final List<BookSummary> books;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(Radii.card),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Space.lg, Space.lg, Space.lg, Space.xs),
+            child: Semantics(
+              header: true,
+              child: Text(l10n.homeShelfAlsoInProgress, style: theme.textTheme.sectionTitle),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.only(bottom: Space.sm),
+              itemCount: books.length,
+              itemBuilder: (context, i) => _InProgressRow(book: books[i]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InProgressRow extends ConsumerWidget {
+  const _InProgressRow({required this.book});
+
+  final BookSummary book;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final tag = coverHeroTag(book.ref, 'home-panel');
+    final progress = book.progress;
+    final details = [
+      if (book.authors.isNotEmpty) book.authorLine,
+      if (progress != null && progress.duration > Duration.zero) formatTimeLeft(l10n, progress.remaining),
+    ].join(' · ');
+    final isCurrent = ref.watch(playerProvider.select((s) => s.now?.ref == book.ref));
+    final playing = ref.watch(playerProvider.select((s) => s.now?.ref == book.ref && s.playing));
+    return InkWell(
+      onTap: () => BrowseNav.open(context, book, heroTag: tag),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(Space.lg, Space.sm, Space.xs, Space.sm),
+        child: Row(
+          children: [
+            Expanded(
+              child: Semantics(
+                button: true,
+                label: bookSemantics(l10n, book),
+                excludeSemantics: true,
+                child: Row(
+                  children: [
+                    BookCover(book: book, size: 52, heroTag: tag, showProgress: false),
+                    const SizedBox(width: Space.md),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            book.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleSmall,
+                          ),
+                          if (details.isNotEmpty)
+                            Text(
+                              details,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                            ),
+                          if (progress != null) ...[
+                            const SizedBox(height: Space.sm),
+                            ThinProgressBar(value: progress.fraction, height: 3),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            IconButton(
+              icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
+              tooltip: playing ? l10n.homePause : l10n.homeResume,
+              onPressed: () => isCurrent ? BookActions.playOrPause(ref, book.ref) : BookActions.play(ref, book.ref),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _NothingInProgress extends StatelessWidget {
   const _NothingInProgress({required this.hasBooks});
 
@@ -312,8 +477,9 @@ class _NothingInProgress extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Space.lg, Space.sm, Space.lg, 0),
+      padding: EdgeInsets.fromLTRB(context.gutter, Space.sm, context.gutter, 0),
       child: Container(
+        constraints: const BoxConstraints(maxWidth: ContentWidth.reading),
         padding: const EdgeInsets.all(Space.xl),
         decoration: BoxDecoration(
           color: scheme.surfaceContainerLow,
@@ -345,42 +511,49 @@ class _Welcome extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    // A phone-width column in the middle on tablets: buttons stretched
+    // across a whole tablet read as bars, not buttons.
     return Padding(
       padding: const EdgeInsets.all(Space.xl),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            width: 96,
-            height: 96,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: scheme.secondaryContainer, shape: BoxShape.circle),
-            child: Icon(Icons.headphones_rounded, size: 44, color: scheme.onSecondaryContainer),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: ContentWidth.form),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width: 96,
+                height: 96,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: scheme.secondaryContainer, shape: BoxShape.circle),
+                child: Icon(Icons.headphones_rounded, size: 44, color: scheme.onSecondaryContainer),
+              ),
+              const SizedBox(height: Space.xl),
+              Text(l10n.homeWelcomeTitle, textAlign: TextAlign.center, style: text.headlineMedium),
+              const SizedBox(height: Space.md),
+              Text(
+                l10n.homeWelcomeBody,
+                textAlign: TextAlign.center,
+                style: text.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: Space.xxl),
+              FilledButton.icon(
+                onPressed: () => context.push(AppRoutes.addServer),
+                icon: const Icon(Icons.dns_outlined),
+                label: Text(l10n.onboardingConnectServer),
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              ),
+              const SizedBox(height: Space.md),
+              OutlinedButton.icon(
+                onPressed: () => context.push(AppRoutes.importFiles),
+                icon: const Icon(Icons.library_add_outlined),
+                label: Text(l10n.homeAddFiles),
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              ),
+            ],
           ),
-          const SizedBox(height: Space.xl),
-          Text(l10n.homeWelcomeTitle, textAlign: TextAlign.center, style: text.headlineMedium),
-          const SizedBox(height: Space.md),
-          Text(
-            l10n.homeWelcomeBody,
-            textAlign: TextAlign.center,
-            style: text.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
-          ),
-          const SizedBox(height: Space.xxl),
-          FilledButton.icon(
-            onPressed: () => context.push(AppRoutes.addServer),
-            icon: const Icon(Icons.dns_outlined),
-            label: Text(l10n.onboardingConnectServer),
-            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-          ),
-          const SizedBox(height: Space.md),
-          OutlinedButton.icon(
-            onPressed: () => context.push(AppRoutes.importFiles),
-            icon: const Icon(Icons.library_add_outlined),
-            label: Text(l10n.homeAddFiles),
-            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -391,14 +564,14 @@ class _HomeSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         Padding(
-          padding: EdgeInsets.fromLTRB(Space.lg, Space.sm, Space.lg, 0),
-          child: SkeletonBox(height: 196, radius: Radii.card),
+          padding: EdgeInsets.fromLTRB(context.gutter, Space.sm, context.gutter, 0),
+          child: SkeletonBox(height: context.windowSize.atLeast(WindowSize.medium) ? 232 : 196, radius: Radii.card),
         ),
-        ShelfSkeleton(),
-        ShelfSkeleton(),
+        const ShelfSkeleton(),
+        const ShelfSkeleton(),
       ],
     );
   }

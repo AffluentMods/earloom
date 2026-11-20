@@ -12,6 +12,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../app/theme/tokens.dart';
 import '../../../core/db/global_db.dart';
+import '../../../core/ui/adaptive.dart';
 import '../../../core/ui/states.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../data/account_session.dart';
@@ -28,28 +29,30 @@ class AccountsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final accounts = ref.watch(accountsProvider).value ?? const [];
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.accountsTitle)),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: Space.sm),
-        children: [
-          if (accounts.isEmpty)
+    return ReadableWidth(
+      builder: (context, sides) => Scaffold(
+        appBar: AppBar(titleSpacing: alignedTitleSpacing(context, sides), title: Text(l10n.accountsTitle)),
+        body: ReadableListView(
+          padding: const EdgeInsets.symmetric(vertical: Space.sm),
+          children: [
+            if (accounts.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(Space.xl),
+                child: Text(l10n.accountsEmpty, style: Theme.of(context).textTheme.bodyLarge),
+              ),
+            for (final account in accounts) _AccountTile(account: account),
+            const SizedBox(height: Space.md),
             Padding(
-              padding: const EdgeInsets.all(Space.xl),
-              child: Text(l10n.accountsEmpty, style: Theme.of(context).textTheme.bodyLarge),
+              padding: const EdgeInsets.symmetric(horizontal: Space.lg),
+              child: OutlinedButton.icon(
+                onPressed: () => context.push('/accounts/add'),
+                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                icon: const Icon(Icons.add_rounded),
+                label: Text(l10n.accountsAdd),
+              ),
             ),
-          for (final account in accounts) _AccountTile(account: account),
-          const SizedBox(height: Space.md),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Space.lg),
-            child: OutlinedButton.icon(
-              onPressed: () => context.push('/accounts/add'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-              icon: const Icon(Icons.add_rounded),
-              label: Text(l10n.accountsAdd),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

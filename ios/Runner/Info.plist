@@ -37,8 +37,6 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
@@ -108,6 +106,20 @@
 	     Mirrors iosLocalNetworkUsage in lib/l10n/app_en.arb. -->
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Earloom connects to your Audiobookshelf server when it is on your home network.</string>
+	<!-- Shaking the phone adds time to the sleep timer (sensors_plus). iOS does
+	     not ask for this, but App Store upload checks want the text because the
+	     plugin can also read the barometer. Mirrors iosMotionUsage in
+	     lib/l10n/app_en.arb. -->
+	<key>NSMotionUsageDescription</key>
+	<string>Earloom notices when you shake your phone, so a shake can add time to the sleep timer.</string>
+	<!-- Choosing a cover opens the system photo picker, which needs no
+	     permission. Upload checks want both texts because file_picker and
+	     background_downloader link the Photos framework. Mirror
+	     iosPhotoLibraryUsage and iosPhotoLibraryAddUsage in lib/l10n/app_en.arb. -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Earloom opens your photos only when you pick a cover for a book, and sees only the picture you choose.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Earloom does not save anything to your photo library.</string>
 	<!-- The sleep timer on the lock screen and in the Dynamic Island. -->
 	<key>NSSupportsLiveActivities</key>
 	<true/>

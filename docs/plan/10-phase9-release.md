@@ -92,11 +92,12 @@ Same conventions as ZestSSH. Obfuscation on every release build.
 flutter build appbundle --release \
   --obfuscate --split-debug-info=build/debug-symbols/<version>
 
-# iOS
-flutter build ipa --release \
+# iOS: compiled without signing, then archived and signed by Xcode
+flutter build ios --release --no-codesign \
   --obfuscate --split-debug-info=build/debug-symbols/<version>
 ```
 
+- The scripts that run these: `tool/release_android.sh`, and on the Mac `tool/ios/build_ipa.sh` (signing with App Store profiles made by `tool/ios/profiles.rb`; see `tool/ios/README.md`). `flutter build ipa` with automatic signing is not used: it needs an Apple ID signed in to Xcode on the build Mac.
 - Version from `pubspec.yaml` (`x.y.z+build`).
 - Archive `build/debug-symbols/<version>` for every release (needed to read obfuscated stack traces). Not committed to the repo.
 - `tool/release_checklist.md`: version bump, changelog, `tool/check.sh`, full test suite, smoke test on real devices (phone and tablet, both platforms), CarPlay Simulator and DHU smoke test, store notes.

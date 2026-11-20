@@ -1855,6 +1855,18 @@
   "@iosLocalNetworkUsage": {
     "description": "iOS local network permission text. Mirrored in ios/Runner/Info.plist NSLocalNetworkUsageDescription."
   },
+  "iosMotionUsage": "Earloom notices when you shake your phone, so a shake can add time to the sleep timer.",
+  "@iosMotionUsage": {
+    "description": "iOS motion permission text. Mirrored in ios/Runner/Info.plist NSMotionUsageDescription."
+  },
+  "iosPhotoLibraryAddUsage": "Earloom does not save anything to your photo library.",
+  "@iosPhotoLibraryAddUsage": {
+    "description": "iOS text for saving to the photo library, which Earloom never does. Mirrored in ios/Runner/Info.plist NSPhotoLibraryAddUsageDescription."
+  },
+  "iosPhotoLibraryUsage": "Earloom opens your photos only when you pick a cover for a book, and sees only the picture you choose.",
+  "@iosPhotoLibraryUsage": {
+    "description": "iOS photo library permission text. Mirrored in ios/Runner/Info.plist NSPhotoLibraryUsageDescription."
+  },
   "itemYourListening": "Your listening",
   "@itemYourListening": {
     "description": "Heading on a book page."

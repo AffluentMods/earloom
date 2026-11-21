@@ -15,9 +15,12 @@
    (`build/screenshots/store/ios_*`), privacy answers "Data Not Collected",
    review notes from the demo server README.
 5. Play Console: new app, upload key signing (Play App Signing on), store
-   listing from `fastlane/metadata/android/en-US/`, Data safety "no data
+   listing from `fastlane/metadata/android/en-US/` (after a change to the
+   screens: render with `STORE=1` as above, then
+   `python3 tool/screenshots/update_listing.py`), Data safety "no data
    collected or shared", content rating, app access from the demo server
-   README.
+   README. The foreground service declaration asks for a short video of
+   each use: playback going on outside the app, and a download.
 
 ## Every release
 

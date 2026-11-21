@@ -9,7 +9,9 @@
 //   flutter test tool/screenshots/app_screens.dart
 //
 // With STORE=1 it renders the store listing set instead, at the sizes the
-// App Store and Google Play ask for, to build/screenshots/store/.
+// App Store and Google Play ask for, to build/screenshots/store/. After
+// that, tool/screenshots/update_listing.py copies them into the repo's
+// Google Play listing and the README.
 //
 // Rendering differs a little between operating systems, so these images are
 // for looking at, never for pixel comparison.
@@ -245,7 +247,8 @@ void main() {
       'ios_phone_6.9': (size: Size(440, 956), ratio: 3), // 1320 x 2868
       'ios_ipad_13': (size: Size(1032, 1376), ratio: 2), // 2064 x 2752
       'play_phone': (size: Size(414, 736), ratio: 3), // 1242 x 2208
-      'play_tablet_10': (size: Size(1280, 800), ratio: 2), // 2560 x 1600
+      // 16:9: Google Play takes no other shape for tablet screenshots.
+      'play_tablet_10': (size: Size(1280, 720), ratio: 2), // 2560 x 1440
     };
     final screens = <String, String>{
       '1_home': AppRoutes.home,

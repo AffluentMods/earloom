@@ -51,6 +51,7 @@ ImageProvider? coverSample(CoverSource? source) => switch (source) {
   NetworkCover(:final itemCoverUrl, :final cacheKey, :final headers) => CachedNetworkImageProvider(
     itemCoverUrl.replace(queryParameters: {'width': '128', 'format': 'webp'}).toString(),
     cacheKey: '$cacheKey-128',
+    cacheManager: CoverCache.manager,
     headers: headers,
   ),
   null => null,

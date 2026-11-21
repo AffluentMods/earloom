@@ -2,7 +2,9 @@
 // Copyright (c) 2026 Affluent Labs LLC
 
 import 'package:earloom/app/theme/app_theme.dart';
+import 'package:earloom/core/ui/cover_image.dart';
 import 'package:earloom/features/settings/ui/settings_screen.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -78,4 +80,38 @@ void main() {
     await _open(tester, l10n.settingsPrivacy);
     expect(find.text(l10n.privacyStatement), findsOneWidget);
   });
+
+  testWidgets('Privacy links to the full policy', (tester) async {
+    final l10n = await loadL10n();
+    await _open(tester, l10n.settingsPrivacy);
+    expect(find.text(l10n.privacyPolicy), findsOneWidget);
+    expect(find.text(l10n.privacyPolicyBody), findsOneWidget);
+    // The address the store listings give: a web page anyone can open.
+    expect(PrivacySettingsScreen.policy.scheme, 'https');
+    expect(PrivacySettingsScreen.policy.path, endsWith('docs/privacy-policy.md'));
+  });
+
+  testWidgets('clearing saved covers empties every store that holds covers', (tester) async {
+    final l10n = await loadL10n();
+    await _open(tester, l10n.settingsPrivacy);
+    final covers = _CountingCache();
+    final older = _CountingCache();
+    CoverCache.manager = covers;
+    CoverCache.older = older;
+    addTearDown(() => CoverCache.older = null);
+
+    await tester.tap(find.text(l10n.privacyClearImageCache));
+    await settle(tester);
+    expect(covers.emptied, 1, reason: 'the store nearly all covers are in');
+    expect(older.emptied, 1, reason: 'what earlier builds saved elsewhere');
+    expect(find.text(l10n.privacyImageCacheCleared), findsOneWidget);
+  });
+}
+
+/// A cover store that only counts how often it was emptied.
+class _CountingCache extends Fake implements BaseCacheManager {
+  int emptied = 0;
+
+  @override
+  Future<void> emptyCache() async => emptied++;
 }

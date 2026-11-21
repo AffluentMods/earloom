@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 Affluent Labs LLC
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -13,6 +12,7 @@ import '../../../app/router.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../core/ui/adaptive.dart';
+import '../../../core/ui/cover_image.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../player/ui/player_settings_sheet.dart';
 import '../../stats/ui/stats_screen.dart';
@@ -159,6 +159,10 @@ class AppearanceSettingsScreen extends ConsumerWidget {
 class PrivacySettingsScreen extends StatelessWidget {
   const PrivacySettingsScreen({super.key});
 
+  /// The full privacy policy: the address the store listings give too.
+  /// Change it there as well when the page moves to affluentlabs.dev.
+  static final policy = Uri.parse('https://github.com/AffluentMods/earloom/blob/main/docs/privacy-policy.md');
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -193,12 +197,20 @@ class PrivacySettingsScreen extends StatelessWidget {
             ),
             ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
+              leading: const Icon(Icons.policy_outlined),
+              title: Text(l10n.privacyPolicy),
+              subtitle: Text(l10n.privacyPolicyBody),
+              trailing: const Icon(Icons.open_in_new_rounded),
+              onTap: () => launchUrl(policy, mode: LaunchMode.externalApplication),
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
               leading: const Icon(Icons.image_not_supported_outlined),
               title: Text(l10n.privacyClearImageCache),
               subtitle: Text(l10n.privacyClearImageCacheBody),
               onTap: () async {
                 final messenger = ScaffoldMessenger.of(context);
-                await CachedNetworkImageProvider.defaultCacheManager.emptyCache();
+                await CoverCache.clear();
                 PaintingBinding.instance.imageCache
                   ..clear()
                   ..clearLiveImages();

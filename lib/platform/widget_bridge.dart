@@ -4,7 +4,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 
@@ -118,7 +117,7 @@ class WidgetBridge {
 
   static Future<String?> _download(Uri url, Map<String, String> headers) async {
     try {
-      final file = await CachedNetworkImageProvider.defaultCacheManager.getSingleFile(
+      final file = await CoverCache.manager.getSingleFile(
         url.replace(queryParameters: {'width': '256', 'format': 'jpeg'}).toString(),
         headers: headers,
       );

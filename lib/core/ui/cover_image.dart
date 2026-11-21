@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (c) 2026 Affluent Labs LLC
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -19,6 +20,18 @@ abstract final class CoverCache {
   static BaseCacheManager manager = CacheManager(
     Config(key, stalePeriod: const Duration(days: 90), maxNrOfCacheObjects: 3000),
   );
+
+  /// The general image store. Builds up to 1.0.0 (2) kept two kinds of
+  /// cover there: the one the home screen widget shows, and the small
+  /// copies colors are picked from. Nothing is written to it any more; it
+  /// is only emptied, for people who update. Null in tests.
+  static BaseCacheManager? older = DefaultCacheManager();
+
+  /// Deletes every saved cover.
+  static Future<void> clear() async {
+    await manager.emptyCache();
+    await older?.emptyCache();
+  }
 }
 
 /// Where a cover comes from.
@@ -70,14 +83,22 @@ class CoverImage extends StatelessWidget {
   final Object? heroTag;
   final bool shadow;
 
+  static const _buckets = [128, 256, 512, 1024];
+
   /// Server covers are requested pre-sized from a few buckets, so the cache
   /// stays small and no list cell ever downloads a full-resolution original.
   static int bucketFor(double logicalSize, double pixelRatio) {
     final px = logicalSize * pixelRatio;
-    for (final bucket in const [128, 256, 512, 1024]) {
+    for (final bucket in _buckets) {
       if (px <= bucket) return bucket;
     }
-    return 1024;
+    return _buckets.last;
+  }
+
+  /// The next smaller bucket, or null below the smallest.
+  static int? bucketBelow(int bucket) {
+    final i = _buckets.indexOf(bucket);
+    return i > 0 ? _buckets[i - 1] : null;
   }
 
   @override
@@ -106,38 +127,11 @@ class CoverImage extends StatelessWidget {
           ),
         ],
       ),
-      NetworkCover(:final itemCoverUrl, :final cacheKey, :final headers) => () {
-        final width = bucketFor(size, pixelRatio);
-        final url = itemCoverUrl.replace(queryParameters: {'width': '$width', 'format': 'webp'}).toString();
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            _Backdrop(
-              image: CachedNetworkImage(
-                imageUrl: url,
-                cacheKey: '$cacheKey-$width',
-                cacheManager: CoverCache.manager,
-                httpHeaders: headers,
-                memCacheWidth: _Backdrop.pixels,
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.medium,
-                fadeInDuration: Motion.fast,
-                errorWidget: (_, _, _) => const SizedBox.shrink(),
-              ),
-            ),
-            CachedNetworkImage(
-              imageUrl: url,
-              cacheKey: '$cacheKey-$width',
-              cacheManager: CoverCache.manager,
-              httpHeaders: headers,
-              fit: BoxFit.contain,
-              fadeInDuration: Motion.fast,
-              placeholder: (_, _) => ColoredBox(color: scheme.surfaceContainerHigh),
-              errorWidget: (_, _, _) => placeholder,
-            ),
-          ],
-        );
-      }(),
+      final NetworkCover cover => _NetworkCoverImage(
+        cover: cover,
+        bucket: bucketFor(size, pixelRatio),
+        placeholder: placeholder,
+      ),
       null => placeholder,
     };
     Widget cover = Semantics(
@@ -165,6 +159,116 @@ class CoverImage extends StatelessWidget {
     );
     if (heroTag != null) cover = Hero(tag: heroTag!, child: cover);
     return cover;
+  }
+}
+
+/// A server cover that gets over a failed download. One lost request (a
+/// busy server, a network blip) used to leave the placeholder on screen for
+/// as long as the page stayed open. Now the wanted size is asked for again a
+/// few times, further apart each time, and meanwhile the next smaller size
+/// shows, which a list has usually cached already. A cover the server says
+/// it does not have (404) is not asked for again.
+class _NetworkCoverImage extends StatefulWidget {
+  const _NetworkCoverImage({required this.cover, required this.bucket, required this.placeholder});
+
+  final NetworkCover cover;
+
+  /// The pre-sized width to ask the server for.
+  final int bucket;
+
+  /// Shown when no size of the cover can be had.
+  final Widget placeholder;
+
+  /// How long to wait before each new try.
+  static const retryAfter = [Duration(seconds: 2), Duration(seconds: 6), Duration(seconds: 20)];
+
+  @override
+  State<_NetworkCoverImage> createState() => _NetworkCoverImageState();
+}
+
+class _NetworkCoverImageState extends State<_NetworkCoverImage> {
+  int _tries = 0;
+  Timer? _retry;
+
+  @override
+  void didUpdateWidget(_NetworkCoverImage old) {
+    super.didUpdateWidget(old);
+    final cover = widget.cover, before = old.cover;
+    if (cover.cacheKey != before.cacheKey || cover.itemCoverUrl != before.itemCoverUrl || widget.bucket != old.bucket) {
+      _retry?.cancel();
+      _retry = null;
+      _tries = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _retry?.cancel();
+    super.dispose();
+  }
+
+  void _tryAgainLater() {
+    if (_retry != null || _tries >= _NetworkCoverImage.retryAfter.length) return;
+    _retry = Timer(_NetworkCoverImage.retryAfter[_tries], () {
+      _retry = null;
+      if (mounted) setState(() => _tries++);
+    });
+  }
+
+  String _url(int width) =>
+      widget.cover.itemCoverUrl.replace(queryParameters: {'width': '$width', 'format': 'webp'}).toString();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final cover = widget.cover;
+    final bucket = widget.bucket;
+    final smaller = CoverImage.bucketBelow(bucket);
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _Backdrop(
+          // A new key makes a new image, which is what asks the server again.
+          image: CachedNetworkImage(
+            key: ValueKey('backdrop-$_tries'),
+            imageUrl: _url(bucket),
+            cacheKey: '${cover.cacheKey}-$bucket',
+            cacheManager: CoverCache.manager,
+            httpHeaders: cover.headers,
+            memCacheWidth: _Backdrop.pixels,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.medium,
+            fadeInDuration: Motion.fast,
+            errorWidget: (_, _, _) => const SizedBox.shrink(),
+          ),
+        ),
+        CachedNetworkImage(
+          key: ValueKey('cover-$_tries'),
+          imageUrl: _url(bucket),
+          cacheKey: '${cover.cacheKey}-$bucket',
+          cacheManager: CoverCache.manager,
+          httpHeaders: cover.headers,
+          fit: BoxFit.contain,
+          fadeInDuration: Motion.fast,
+          placeholder: (_, _) => ColoredBox(color: scheme.surfaceContainerHigh),
+          errorWidget: (_, _, error) {
+            if (error is HttpExceptionWithStatus && error.statusCode == 404) return widget.placeholder;
+            _tryAgainLater();
+            if (smaller == null) return widget.placeholder;
+            return CachedNetworkImage(
+              imageUrl: _url(smaller),
+              cacheKey: '${cover.cacheKey}-$smaller',
+              cacheManager: CoverCache.manager,
+              httpHeaders: cover.headers,
+              fit: BoxFit.contain,
+              fadeInDuration: Motion.fast,
+              placeholder: (_, _) => ColoredBox(color: scheme.surfaceContainerHigh),
+              errorWidget: (_, _, _) => widget.placeholder,
+            );
+          },
+        ),
+      ],
+    );
   }
 }
 

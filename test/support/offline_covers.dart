@@ -17,4 +17,5 @@ void useOfflineCoverCache() {
   CoverCache.manager = CacheManager(
     Config('test-covers', repo: NonStoringObjectProvider(), fileSystem: MemoryCacheSystem(), fileService: _NoNetwork()),
   );
+  CoverCache.older = null;
 }

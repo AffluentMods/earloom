@@ -1301,6 +1301,14 @@
   "@privacyImageCacheCleared": {
     "description": "Snackbar."
   },
+  "privacyPolicy": "Privacy policy",
+  "@privacyPolicy": {
+    "description": "Row on the privacy settings page. Opens the full privacy policy in the browser."
+  },
+  "privacyPolicyBody": "The full policy, in your browser",
+  "@privacyPolicyBody": {
+    "description": "Row description."
+  },
   "settingsAbout": "About",
   "@settingsAbout": {
     "description": "Settings section."

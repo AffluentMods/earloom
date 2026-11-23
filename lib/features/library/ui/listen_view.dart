@@ -83,8 +83,11 @@ class _ListenViewState extends ConsumerState<ListenView> with RefreshingState, A
     super.build(context);
     final l10n = AppLocalizations.of(context);
     final offline = ref.watch(isOfflineProvider);
-    final downloadedOnly = !offline && (ref.watch(listenDownloadedOnlyProvider).value ?? false);
     final source = ref.watch(absLibraryRepositoryProvider.select((r) => r?.source));
+    // Without a server, or while it cannot be reached, everything listed
+    // is on this phone: the switch would change nothing.
+    final canFilter = source != null && !offline;
+    final downloadedOnly = canFilter && (ref.watch(listenDownloadedOnlyProvider).value ?? false);
     // Counts and keys, so progress ticks of a running download rebuild only
     // the Downloading rows below.
     final running = ref.watch(downloadStatesProvider.select((v) => unfinishedDownloads(v.value).length));
@@ -128,7 +131,7 @@ class _ListenViewState extends ConsumerState<ListenView> with RefreshingState, A
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(child: RefreshNotice(error: refreshError)),
-          if (!offline)
+          if (canFilter)
             SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.fromLTRB(context.gutter, Space.sm, context.gutter, 0),

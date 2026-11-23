@@ -197,8 +197,10 @@ void main() {
       await tester.tap(find.text(l10n.tabLibrary));
       await settle(tester);
 
-      // Listen comes first: nothing started or downloaded yet.
+      // Listen comes first: nothing started or downloaded yet. Without a
+      // server everything is on this phone, so no Downloaded only switch.
       expect(find.text(l10n.listenEmptyTitle), findsOneWidget);
+      expect(find.text(l10n.filterDownloadedOnly), findsNothing);
       await tester.tap(find.text(l10n.listenBrowse));
       await settle(tester);
 

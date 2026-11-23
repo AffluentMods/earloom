@@ -7,8 +7,12 @@ import 'package:drift/drift.dart' show Value;
 import 'package:earloom/core/db/local_db.dart';
 import 'package:earloom/core/library/source_id.dart';
 import 'package:earloom/features/accounts/data/account_session.dart';
+import 'package:earloom/features/downloads/data/download_manager.dart';
+import 'package:earloom/features/downloads/data/offline_providers.dart';
 import 'package:earloom/features/home/ui/home_screen.dart';
 import 'package:earloom/features/item_detail/ui/item_detail_screen.dart';
+import 'package:earloom/features/library/ui/listen_view.dart';
+import 'package:earloom/features/library/ui/lists_view.dart';
 import 'package:earloom/features/library/ui/series_screen.dart';
 import 'package:earloom/features/search/ui/search_screen.dart';
 import 'package:earloom/features/local_library/data/local_search_text.dart';
@@ -21,10 +25,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../support/fake_downloads.dart';
 import '../../support/test_app.dart';
 import 'abs_support.dart';
 
 const clockmaker = '695b9eb3-1a88-4320-b033-95089797f205';
+const ashHarbor = '6957113a-8be3-4a90-88da-cf2e0e342ed9';
 
 /// Records what the screens ask the player to play, without playing.
 class PlayRecorder {
@@ -181,7 +187,9 @@ void main() {
       expect(find.byType(ItemDetailScreen), findsNothing);
     });
 
-    testWidgets('Library lists local books, grid and list, with On this device as the library', (tester) async {
+    testWidgets('Library without a server: Listen first, Audiobooks as grid and list, series under Lists', (
+      tester,
+    ) async {
       final setup = await pumpLocal(tester);
       await addLocalBook(tester, setup.local, id: 'b1', title: 'Book 10', series: 'Saga', sequence: '10');
       await addLocalBook(tester, setup.local, id: 'b2', title: 'Book 2', series: 'Saga', sequence: '2');
@@ -189,18 +197,29 @@ void main() {
       await tester.tap(find.text(l10n.tabLibrary));
       await settle(tester);
 
-      expect(find.text(l10n.sourceOnThisDevice), findsWidgets);
+      // Listen comes first: nothing started or downloaded yet.
+      expect(find.text(l10n.listenEmptyTitle), findsOneWidget);
+      await tester.tap(find.text(l10n.listenBrowse));
+      await settle(tester);
+
       // Natural order by title: 2 before 10.
       expect(tester.getTopLeft(find.text('Book 2')).dx, lessThan(tester.getTopLeft(find.text('Book 10')).dx));
+      // Without a server every book is on this phone: no download chips.
+      expect(find.widgetWithText(FilterChip, l10n.filterNotDownloaded), findsNothing);
+      expect(find.widgetWithText(FilterChip, l10n.filterInProgress), findsOneWidget);
 
       await tester.tap(find.byTooltip(l10n.libraryList));
       await settle(tester);
       expect(tester.getTopLeft(find.text('Book 2')).dy, lessThan(tester.getTopLeft(find.text('Book 10')).dy));
 
-      // Series section groups them in sequence order.
+      // Lists: no collections or playlists without a server.
+      await tester.tap(find.text(l10n.libraryTabLists));
+      await settle(tester);
+      expect(find.text(l10n.libraryPlaylists), findsNothing);
+      expect(find.text(l10n.listsSeriesCount(1)), findsOneWidget);
       await tester.tap(find.text(l10n.librarySeries));
       await settle(tester);
-      expect(find.text('Saga'), findsOneWidget);
+      expect(find.byType(LibraryListScreen), findsOneWidget);
       await tester.tap(find.text('Saga'));
       await settle(tester);
       expect(find.byType(SeriesScreen), findsOneWidget);
@@ -260,6 +279,7 @@ void main() {
       WidgetTester tester, {
       void Function(FakeAbsServer server)? configure,
       bool withLocal = false,
+      List<Override> extra = const [],
     }) async {
       usePhoneSize(tester);
       final server = FakeAbsServer();
@@ -272,7 +292,7 @@ void main() {
       await pumpEarloom(
         tester,
         localDb: local,
-        overrides: [...playerOverrides(player), accountSessionProvider.overrideWithValue(session)],
+        overrides: [...playerOverrides(player), accountSessionProvider.overrideWithValue(session), ...extra],
       );
       await settle(tester, rounds: 10);
       return (server: server, player: player, local: local);
@@ -318,14 +338,16 @@ void main() {
       expect(find.text(l10n.itemListenAgain), findsOneWidget);
     });
 
-    serverTest('Library: synced books in a grid, filters as removable chips', (tester) async {
+    serverTest('Library: synced books in a grid, more filters as removable chips', (tester) async {
       await pumpServer(tester);
       await tester.tap(find.text(l10n.tabLibrary));
+      await settle(tester, rounds: 8);
+      await tester.tap(find.text(l10n.libraryTabAudiobooks));
       await settle(tester, rounds: 8);
       expect(find.text('Ash Harbor'), findsOneWidget);
       expect(find.text('Cinder Interlude'), findsOneWidget);
 
-      await tester.tap(find.byTooltip(l10n.libraryFilter));
+      await tester.tap(find.byTooltip(l10n.libraryMoreFilters));
       await settle(tester);
       final chip = find.widgetWithText(FilterChip, 'Jonah Pryce');
       await tester.scrollUntilVisible(
@@ -349,6 +371,121 @@ void main() {
       await tester.tap(find.text(l10n.filterClearAll));
       await settle(tester);
       expect(find.text('A Field Guide to Quiet Places'), findsOneWidget);
+    });
+
+    serverTest('Audiobooks mixes in the books on this phone; the download chips filter both', (tester) async {
+      const ash = ItemRef(testSource, ashHarbor);
+      final downloads = FakeDownloadManager({
+        ash.key: const DownloadState(ref: ash, phase: DownloadPhase.complete, title: 'Ash Harbor'),
+      });
+      await pumpServer(tester, withLocal: true, extra: [downloadManagerProvider.overrideWithValue(downloads)]);
+      await tester.tap(find.text(l10n.tabLibrary));
+      await settle(tester, rounds: 8);
+      await tester.tap(find.text(l10n.libraryTabAudiobooks));
+      await settle(tester, rounds: 8);
+      expect(find.text('Pocket Atlas'), findsOneWidget);
+      expect(find.text('Ash Harbor'), findsOneWidget);
+      expect(find.text('Cinder Interlude'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('Pocket Atlas.*${l10n.sourceOnThisDevice}')), findsOneWidget);
+
+      Future<void> chip(String label) async {
+        final finder = find.widgetWithText(FilterChip, label);
+        await tester.ensureVisible(finder);
+        await tester.pumpAndSettle();
+        await tester.tap(finder);
+        await settle(tester);
+      }
+
+      await chip(l10n.filterNotDownloaded);
+      expect(find.text('Cinder Interlude'), findsOneWidget);
+      expect(find.text('Ash Harbor'), findsNothing);
+      expect(find.text('Pocket Atlas'), findsNothing, reason: 'books on this phone are downloaded');
+
+      await chip(l10n.filterDownloaded);
+      expect(find.text('Ash Harbor'), findsOneWidget);
+      expect(find.text('Pocket Atlas'), findsOneWidget);
+      expect(find.text('Cinder Interlude'), findsNothing);
+    });
+
+    serverTest('Offline, Home and Audiobooks show only what plays without the server', (tester) async {
+      await pumpServer(tester, withLocal: true, extra: [isOfflineProvider.overrideWithValue(true)]);
+      // The book in progress on the server is not on this phone.
+      expect(find.text("The Clockmaker's Tide"), findsNothing);
+      expect(find.text(l10n.offlineBanner), findsOneWidget);
+
+      await tester.tap(find.text(l10n.tabLibrary));
+      await settle(tester, rounds: 8);
+      await tester.tap(find.text(l10n.libraryTabAudiobooks));
+      await settle(tester, rounds: 8);
+      expect(find.text('Pocket Atlas'), findsOneWidget);
+      expect(find.text('Ash Harbor'), findsNothing);
+      expect(find.widgetWithText(FilterChip, l10n.filterDownloaded), findsNothing);
+    });
+
+    serverTest('a running download can be paused and cancelled from Listen and from the book', (tester) async {
+      const book = ItemRef(testSource, clockmaker);
+      DownloadState state(DownloadPhase phase) =>
+          DownloadState(ref: book, phase: phase, title: "The Clockmaker's Tide", bytesDone: 45, bytesTotal: 100);
+      final downloads = FakeDownloadManager({book.key: state(DownloadPhase.downloading)});
+      await pumpServer(tester, extra: [downloadManagerProvider.overrideWithValue(downloads)]);
+      await tester.tap(find.text(l10n.tabLibrary));
+      await settle(tester, rounds: 8);
+
+      // Listen is the first tab: the download, with its buttons in words.
+      expect(find.text(l10n.listenDownloading), findsOneWidget);
+      expect(find.textContaining(l10n.downloadDownloadingPercent(45)), findsOneWidget);
+      await tester.tap(find.text(l10n.downloadPause));
+      await settle(tester);
+      expect(downloads.calls, contains('pause ${book.key}'));
+
+      downloads.put(state(DownloadPhase.paused));
+      await settle(tester);
+      expect(find.textContaining(l10n.downloadPausedPercent(45)), findsOneWidget);
+      await tester.tap(find.text(l10n.downloadResume));
+      await settle(tester);
+      expect(downloads.calls, contains('resume ${book.key}'));
+      await tester.tap(find.text(l10n.downloadCancel));
+      await settle(tester);
+      expect(downloads.calls, contains('cancel ${book.key}'));
+
+      // The book's own screen shows the download and the same buttons,
+      // under its actions.
+      final router = GoRouter.of(tester.element(find.byType(ListenView)));
+      unawaited(router.push('/library/book/${Uri.encodeComponent(testSource.key)}/$clockmaker'));
+      await settle(tester, rounds: 8);
+      Finder onBook(String text) => find.descendant(of: find.byType(ItemDetailScreen), matching: find.text(text));
+      await tester.scrollUntilVisible(onBook(l10n.downloadCancel), 200, scrollable: mainScroll(ItemDetailScreen));
+      expect(onBook(l10n.downloadResume), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(ItemDetailScreen),
+          matching: find.textContaining(l10n.downloadPausedPercent(45)),
+        ),
+        findsOneWidget,
+      );
+      // Covers that failed to load try again a few times: let them.
+      await tester.pump(const Duration(seconds: 30));
+    });
+
+    serverTest('the heart keeps a book in Favorites, on this phone', (tester) async {
+      await pumpServer(tester);
+      final router = GoRouter.of(tester.element(find.byType(HomeScreen)));
+      unawaited(router.push('/home/book/${Uri.encodeComponent(testSource.key)}/$clockmaker'));
+      await settle(tester, rounds: 8);
+      await tester.tap(find.byTooltip(l10n.favoriteAdd));
+      await settle(tester);
+      expect(find.text(l10n.favoriteAdded), findsOneWidget);
+      expect(find.byTooltip(l10n.favoriteRemove), findsOneWidget);
+
+      router.go('/library');
+      await settle(tester, rounds: 8);
+      await tester.tap(find.text(l10n.libraryTabLists));
+      await settle(tester, rounds: 6);
+      expect(find.text(l10n.bookCountLabel(1)), findsOneWidget);
+      await tester.tap(find.text(l10n.listsFavorites));
+      await settle(tester, rounds: 6);
+      expect(find.byType(LibraryListScreen), findsOneWidget);
+      expect(find.text("The Clockmaker's Tide"), findsOneWidget);
     });
 
     serverTest('Search: a newer query wins over a slower older one', (tester) async {

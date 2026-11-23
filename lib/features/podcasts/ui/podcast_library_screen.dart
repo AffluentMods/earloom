@@ -20,19 +20,37 @@ import 'add_podcast_screen.dart';
 import 'episode_widgets.dart';
 import 'podcast_home.dart';
 
-/// The Library tab for a podcast library: the shows as a grid, each with
-/// how many episodes are unplayed, sorted by title, recent episodes or
-/// when they were added. Admins can add a show here.
-class PodcastLibraryScreen extends ConsumerStatefulWidget {
-  const PodcastLibraryScreen({super.key, required this.library});
+/// The Podcasts tab of the Library: the shows of the server's podcast
+/// library (the selected one when there are several).
+class PodcastsTab extends ConsumerWidget {
+  const PodcastsTab({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final library = ref.watch(podcastsLibraryProvider);
+    if (library == null) return const SizedBox.shrink();
+    // A new library starts with its own sort and scroll position.
+    return PodcastShowsView(key: ValueKey(selectionKey(library)), library: library);
+  }
+}
+
+/// The shows of one podcast library as a grid, each with how many episodes
+/// are unplayed, sorted by title, recent episodes or when they were added.
+/// Admins can add a show here.
+class PodcastShowsView extends ConsumerStatefulWidget {
+  const PodcastShowsView({super.key, required this.library});
 
   final LibraryInfo library;
 
   @override
-  ConsumerState<PodcastLibraryScreen> createState() => _PodcastLibraryScreenState();
+  ConsumerState<PodcastShowsView> createState() => _PodcastShowsViewState();
 }
 
-class _PodcastLibraryScreenState extends ConsumerState<PodcastLibraryScreen> with RefreshingState {
+class _PodcastShowsViewState extends ConsumerState<PodcastShowsView>
+    with RefreshingState, AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   ShowSort _sort = ShowSort.title;
 
   @override
@@ -90,7 +108,15 @@ class _PodcastLibraryScreenState extends ConsumerState<PodcastLibraryScreen> wit
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final libraries = ref.watch(podcastLibrariesProvider);
+    final sortLabel = switch (_sort) {
+      ShowSort.title => l10n.librarySortTitle,
+      ShowSort.recentlyUpdated => l10n.podcastSortUpdated,
+      ShowSort.addedAt => l10n.librarySortAdded,
+    };
     final shows = ref.watch(
       podcastShowsProvider((source: widget.library.source, libraryId: widget.library.id, sort: _sort)),
     );
@@ -126,31 +152,43 @@ class _PodcastLibraryScreenState extends ConsumerState<PodcastLibraryScreen> wit
         ),
       );
     }
-    return Scaffold(
-      appBar: AppBar(
-        titleSpacing: Space.sm,
-        title: LibrarySwitcherButton(library: widget.library, large: true),
-        actions: [
-          IconButton(icon: const Icon(Icons.swap_vert_rounded), tooltip: l10n.librarySort, onPressed: _pickSort),
-          if (admin)
-            IconButton(
-              icon: const Icon(Icons.add_rounded),
-              tooltip: l10n.podcastAdminAdd,
-              onPressed: () => openAddPodcast(context, widget.library.id),
+    return RefreshIndicator(
+      onRefresh: () => _sync(force: true),
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(child: RefreshNotice(error: refreshError)),
+          // Sort, the library when there are several, and Add for admins.
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(Space.lg, Space.sm, Space.lg, 0),
+              child: Wrap(
+                spacing: Space.sm,
+                runSpacing: Space.sm,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  if (libraries.length > 1) LibrarySwitcherButton(library: widget.library, only: (l) => l.isPodcast),
+                  ActionChip(
+                    side: BorderSide(color: scheme.outline),
+                    avatar: const Icon(Icons.swap_vert_rounded),
+                    label: Text(sortLabel),
+                    tooltip: l10n.librarySort,
+                    onPressed: _pickSort,
+                  ),
+                  if (admin)
+                    ActionChip(
+                      side: BorderSide(color: scheme.outline),
+                      avatar: const Icon(Icons.add_rounded),
+                      label: Text(l10n.podcastAdminAdd),
+                      onPressed: () => openAddPodcast(context, widget.library.id),
+                    ),
+                ],
+              ),
             ),
-          const SizedBox(width: Space.xs),
+          ),
+          body,
+          SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + Space.xl)),
         ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => _sync(force: true),
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(child: RefreshNotice(error: refreshError)),
-            body,
-            SliverToBoxAdapter(child: SizedBox(height: MediaQuery.paddingOf(context).bottom + Space.xl)),
-          ],
-        ),
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../app/theme/tokens.dart';
 import '../../../../core/library/browse_models.dart';
 import '../../../../core/library/models.dart';
+import '../../../../core/library/source_id.dart';
 import '../../../../core/util/duration_format.dart';
 import '../../../../l10n/gen/app_localizations.dart';
 import '../browse_nav.dart';
@@ -34,10 +35,14 @@ class BookGridCard extends ConsumerWidget {
     required this.place,
     this.subtitle,
     this.selected = false,
+    this.markPhoneBook = false,
   });
 
   final BookSummary book;
   final double width;
+
+  /// Marks a book from the On this device library (see [BookCover]).
+  final bool markPhoneBook;
 
   /// Where the card sits, to keep the cover's hero tag unique.
   final String place;
@@ -55,13 +60,14 @@ class BookGridCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final tag = coverHeroTag(book.ref, place);
     final secondLine = subtitle ?? (book.authors.isEmpty ? null : book.authorLine);
-    final cover = BookCover(book: book, size: width, heroTag: tag);
+    final cover = BookCover(book: book, size: width, heroTag: tag, markPhoneBook: markPhoneBook);
+    final onPhone = markPhoneBook && book.ref.source is LocalSource;
     return SizedBox(
       width: width,
       child: Semantics(
         button: true,
         selected: selected,
-        label: bookSemantics(l10n, book),
+        label: onPhone ? '${bookSemantics(l10n, book)}, ${l10n.sourceOnThisDevice}' : bookSemantics(l10n, book),
         excludeSemantics: true,
         child: InkWell(
           onTap: () => BrowseNav.open(context, book, heroTag: tag),
@@ -124,10 +130,14 @@ class BookListRow extends ConsumerWidget {
     this.trailing,
     this.onTap,
     this.selected = false,
+    this.markPhoneBook = false,
   });
 
   final BookSummary book;
   final String place;
+
+  /// Says "On this device" for a book from the On this device library.
+  final bool markPhoneBook;
 
   /// A short label above the title, like "Book 2".
   final String? leadingLabel;
@@ -147,6 +157,7 @@ class BookListRow extends ConsumerWidget {
     final tag = coverHeroTag(book.ref, place);
     final progress = book.progress;
     final details = [
+      if (markPhoneBook && book.ref.source is LocalSource) l10n.sourceOnThisDevice,
       if (book.authors.isNotEmpty) book.authorLine,
       if (book.duration > Duration.zero)
         progress != null && progress.isStarted && !progress.isFinished

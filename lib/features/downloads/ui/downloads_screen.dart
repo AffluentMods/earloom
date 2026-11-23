@@ -10,14 +10,12 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:path/path.dart' as p;
 
 import '../../../app/router.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../core/db/global_db.dart';
 import '../../../core/library/source_id.dart';
 import '../../../core/ui/adaptive.dart';
-import '../../../core/ui/cover_image.dart';
 import '../../../core/ui/states.dart';
 import '../../../core/util/size_format.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -26,6 +24,7 @@ import '../../player/player_controller.dart';
 import '../data/download_manager.dart';
 import '../data/offline_providers.dart';
 import 'download_button.dart';
+import 'download_rows.dart';
 import 'sync_status.dart';
 
 enum DownloadSort { date, title, size }
@@ -222,7 +221,10 @@ class _DownloadsScreenState extends ConsumerState<DownloadsScreen> {
                   SliverToBoxAdapter(child: _ActiveHeader(active: active)),
                   SliverList.builder(
                     itemCount: active.length,
-                    itemBuilder: (_, i) => _ActiveRow(state: active[i]),
+                    itemBuilder: (context, i) => ActiveDownloadRow(
+                      state: active[i],
+                      onTap: () => unawaited(showDownloadOptions(context, ref, active[i], title: active[i].title)),
+                    ),
                   ),
                 ],
                 if (complete.isNotEmpty) ...[
@@ -388,86 +390,6 @@ class _ActiveHeader extends ConsumerWidget {
   }
 }
 
-/// The cover saved with a download, or the placeholder.
-class _DownloadCover extends ConsumerWidget {
-  const _DownloadCover({required this.state});
-  final DownloadState state;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final support = ref.watch(supportPathProvider).value;
-    final cover = state.coverPath;
-    return CoverImage(
-      source: support == null || cover == null ? null : FileCover(p.join(support, cover)),
-      title: state.title,
-      size: 52,
-      radius: Radii.cover / 1.5,
-    );
-  }
-}
-
-class _ActiveRow extends ConsumerWidget {
-  const _ActiveRow({required this.state});
-  final DownloadState state;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    final text = Theme.of(context).textTheme;
-    final failed = state.phase == DownloadPhase.failed;
-    final phaseText = switch (state.phase) {
-      DownloadPhase.queued => l10n.downloadQueued,
-      DownloadPhase.waitingForWifi => l10n.downloadWaitingWifi,
-      DownloadPhase.paused => l10n.downloadPaused,
-      DownloadPhase.failed => downloadErrorText(l10n, state.error),
-      _ => null,
-    };
-    final bytes = state.bytesTotal > 0
-        ? l10n.downloadsBytesOf(formatBytes(l10n, state.bytesDone), formatBytes(l10n, state.bytesTotal))
-        : null;
-    return InkWell(
-      onLongPress: () => unawaited(showDownloadOptions(context, ref, state, title: state.title)),
-      onTap: () => unawaited(showDownloadOptions(context, ref, state, title: state.title)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(Space.lg, Space.sm, Space.sm, Space.sm),
-        child: Row(
-          children: [
-            _DownloadCover(state: state),
-            const SizedBox(width: Space.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(state.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: text.titleSmall),
-                  const SizedBox(height: Space.xs),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(Radii.pill),
-                    child: LinearProgressIndicator(
-                      value: state.fraction,
-                      minHeight: 4,
-                      color: failed ? scheme.error : scheme.primary,
-                      backgroundColor: scheme.surfaceContainerHighest,
-                    ),
-                  ),
-                  const SizedBox(height: Space.xs),
-                  Text(
-                    [?bytes, ?phaseText].join('  '),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: text.bodySmall?.copyWith(color: failed ? scheme.error : scheme.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            ),
-            DownloadButton(itemRef: state.ref, title: state.title, compact: true),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _CompleteRow extends ConsumerWidget {
   const _CompleteRow({required this.state, required this.selected, required this.onSelect});
 
@@ -506,7 +428,7 @@ class _CompleteRow extends ConsumerWidget {
                 padding: const EdgeInsets.only(right: Space.sm),
                 child: Checkbox(value: selected, onChanged: (_) => onSelect()),
               ),
-            _DownloadCover(state: state),
+            DownloadCover(state: state),
             const SizedBox(width: Space.md),
             Expanded(
               child: Column(

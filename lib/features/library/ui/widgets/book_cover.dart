@@ -13,6 +13,7 @@ import '../../../../core/library/browse_models.dart';
 import '../../../../core/library/models.dart';
 import '../../../../core/library/source_id.dart';
 import '../../../../core/ui/cover_image.dart';
+import '../../../../l10n/gen/app_localizations.dart';
 import '../../../downloads/ui/download_button.dart';
 import '../../../local_library/data/providers.dart';
 import '../../data/library_providers.dart';
@@ -61,6 +62,7 @@ class BookCover extends ConsumerWidget {
     this.heroTag,
     this.shadow = true,
     this.showProgress = true,
+    this.markPhoneBook = false,
   });
 
   final BookSummary book;
@@ -68,6 +70,10 @@ class BookCover extends ConsumerWidget {
   final Object? heroTag;
   final bool shadow;
   final bool showProgress;
+
+  /// Marks a book from the On this device library, for lists that mix them
+  /// with server books.
+  final bool markPhoneBook;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -83,7 +89,8 @@ class BookCover extends ConsumerWidget {
     final showRing = showProgress && progress != null && progress.isStarted;
     // Only server books download; books on this phone are always here.
     final showBadge = showProgress && book.ref.source is AbsSource;
-    if (!showRing && !showBadge) return cover;
+    final showPhone = showProgress && markPhoneBook && book.ref.source is LocalSource;
+    if (!showRing && !showBadge && !showPhone) return cover;
     return SizedBox(
       width: size,
       height: size,
@@ -95,6 +102,12 @@ class BookCover extends ConsumerWidget {
               left: Space.sm,
               bottom: Space.sm,
               child: DownloadedBadge(itemRef: book.ref, size: (size * 0.15).clamp(18.0, 24.0)),
+            ),
+          if (showPhone)
+            Positioned(
+              left: Space.sm,
+              bottom: Space.sm,
+              child: PhoneBookBadge(size: (size * 0.15).clamp(18.0, 24.0)),
             ),
           // Finished: a check in the corner. In progress: a thin bar along
           // the bottom of the cover, which reads at a glance (a small ring
@@ -166,6 +179,31 @@ class AuthorAvatar extends ConsumerWidget {
         title: semanticLabel ?? author.name,
         size: size,
         radius: size / 2,
+      ),
+    );
+  }
+}
+
+/// A small mark for covers: the book is in the On this device library.
+class PhoneBookBadge extends StatelessWidget {
+  const PhoneBookBadge({super.key, this.size = 20});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      label: AppLocalizations.of(context).sourceOnThisDevice,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: scheme.secondary,
+          shape: BoxShape.circle,
+          border: Border.all(color: scheme.surface, width: 1.5),
+        ),
+        child: Icon(Icons.smartphone_rounded, size: size * 0.62, color: scheme.onSecondary),
       ),
     );
   }

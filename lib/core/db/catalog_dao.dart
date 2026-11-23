@@ -134,7 +134,14 @@ class CatalogDao extends DatabaseAccessor<AccountDb> with _$CatalogDaoMixin {
   ItemWithProgress _read(TypedResult row) => (item: row.readTable(items), progress: row.readTableOrNull(progress));
 
   /// One page (from the top) of a library's books for [query].
-  Stream<List<ItemWithProgress>> watchBooks(String libraryId, LibraryQuery query, {int? limit}) {
+  /// [downloadedIds] are the books fully on this phone, for the downloaded
+  /// filter: downloads live in another database, so the caller passes them.
+  Stream<List<ItemWithProgress>> watchBooks(
+    String libraryId,
+    LibraryQuery query, {
+    int? limit,
+    Set<String> downloadedIds = const {},
+  }) {
     final seriesFilter = query.filterOf(FilterKind.series);
     final statement = _itemsWithProgress([
       if (seriesFilter != null)
@@ -144,7 +151,7 @@ class CatalogDao extends DatabaseAccessor<AccountDb> with _$CatalogDaoMixin {
         ),
     ])..where(items.libraryId.equals(libraryId));
     for (final filter in query.filters) {
-      final condition = _condition(filter);
+      final condition = _condition(filter, downloadedIds);
       if (condition != null) statement.where(condition);
     }
     final mode = query.descending ? OrderingMode.desc : OrderingMode.asc;
@@ -181,7 +188,7 @@ class CatalogDao extends DatabaseAccessor<AccountDb> with _$CatalogDaoMixin {
     return statement.watch().map((rows) => [for (final r in rows) _read(r)]);
   }
 
-  Expression<bool>? _condition(LibraryFilter filter) {
+  Expression<bool>? _condition(LibraryFilter filter, Set<String> downloadedIds) {
     switch (filter.kind) {
       case FilterKind.progress:
         return switch (filter.value) {
@@ -203,7 +210,9 @@ class CatalogDao extends DatabaseAccessor<AccountDb> with _$CatalogDaoMixin {
       case FilterKind.language:
         return items.language.equals(filter.value);
       case FilterKind.downloaded:
-        return items.isDownloaded.equals(true);
+        final wanted = filter.value != DownloadFilterValue.notDownloaded;
+        if (downloadedIds.isEmpty) return wanted ? const Constant(false) : null;
+        return wanted ? items.id.isIn(downloadedIds) : items.id.isNotIn(downloadedIds);
       case FilterKind.series:
         return null; // A join, see watchBooks.
     }

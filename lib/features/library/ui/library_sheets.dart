@@ -6,7 +6,6 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../app/theme/tokens.dart';
 import '../../../core/library/browse_models.dart';
-import '../../../core/library/source_id.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../data/library_providers.dart';
 
@@ -140,7 +139,6 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final choices = ref.watch(filterChoicesProvider(widget.libraryKey)).value ?? FilterChoices.empty;
-    final isLocal = widget.libraryKey.source is LocalSource;
 
     Widget group(String title, List<LibraryFilter> filters) {
       if (filters.isEmpty) return const SizedBox.shrink();
@@ -174,11 +172,13 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
           padding: const EdgeInsets.fromLTRB(Space.xl, 0, Space.sm, 0),
           child: Row(
             children: [
-              Expanded(child: Text(l10n.libraryFilter, style: text.titleLarge)),
+              Expanded(child: Text(l10n.libraryMoreFilters, style: text.titleLarge)),
+              // Clears what this sheet sets; the quick chips above the
+              // books keep theirs.
               TextButton(
-                onPressed: _query.filters.isEmpty
+                onPressed: _query.moreFilters.isEmpty
                     ? null
-                    : () => setState(() => _query = _query.copyWith(filters: const [])),
+                    : () => setState(() => _query = _query.withoutMoreFilters()),
                 child: Text(l10n.filterClearAll),
               ),
             ],
@@ -189,20 +189,7 @@ class _FilterSheetState extends ConsumerState<_FilterSheet> {
             controller: widget.controller,
             padding: const EdgeInsets.only(bottom: Space.xl),
             children: [
-              group(l10n.filterProgress, [
-                LibraryFilter(FilterKind.progress, ProgressFilterValue.notStarted, label: l10n.filterNotStarted),
-                LibraryFilter(FilterKind.progress, ProgressFilterValue.inProgress, label: l10n.filterInProgress),
-                LibraryFilter(FilterKind.progress, ProgressFilterValue.finished, label: l10n.filterFinished),
-              ]),
-              if (!isLocal)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(Space.sm, Space.md, Space.sm, 0),
-                  child: SwitchListTile(
-                    title: Text(l10n.filterDownloadedOnly),
-                    value: _query.filterOf(FilterKind.downloaded) != null,
-                    onChanged: (_) => _toggle(const LibraryFilter(FilterKind.downloaded, 'true')),
-                  ),
-                ),
+              // Progress and downloads are one-tap chips above the books.
               group(l10n.filterGenres, [for (final g in choices.genres) LibraryFilter(FilterKind.genre, g)]),
               group(l10n.filterTags, [for (final t in choices.tags) LibraryFilter(FilterKind.tag, t)]),
               group(l10n.librarySeries, [

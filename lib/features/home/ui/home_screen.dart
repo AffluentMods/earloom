@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../../app/providers.dart';
 import '../../../app/router.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../app/theme/typography.dart';
@@ -18,9 +17,11 @@ import '../../../core/ui/states.dart';
 import '../../../core/util/duration_format.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../accounts/data/account_session.dart';
+import '../../downloads/data/offline_providers.dart';
 import '../../library/data/library_providers.dart';
 import '../../library/ui/book_actions.dart';
 import '../../library/ui/browse_nav.dart';
+import '../../library/ui/library_screen.dart' show LibraryTab, libraryTabProvider;
 import '../../library/ui/library_switcher.dart';
 import '../../library/ui/widgets/book_cards.dart';
 import '../../library/ui/widgets/book_cover.dart';
@@ -131,11 +132,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RefreshingState {
                     title: l10n.homeShelfOnThisDevice,
                     books: local.take(12).toList(),
                     place: 'home-local',
+                    // The books on this phone are mixed into Audiobooks.
                     action: TextButton(
-                      onPressed: () async {
-                        final router = GoRouter.of(context);
-                        await selectLibrary(ref.read(globalDbProvider), localLibrary);
-                        router.go(AppRoutes.library);
+                      onPressed: () {
+                        ref.read(libraryTabProvider.notifier).set(LibraryTab.audiobooks);
+                        context.go(AppRoutes.library);
                       },
                       child: Text(l10n.genericSeeAll),
                     ),
@@ -201,7 +202,23 @@ class _ServerShelves extends ConsumerWidget {
     final shelves = ref.watch(homeShelvesProvider(libraryId));
     final list = shelves.value;
     if (list == null) return const SliverToBoxAdapter(child: ShelfSkeleton());
-    final shown = list.where((s) => s.id != 'continue-listening').toList();
+    var shown = list.where((s) => s.id != 'continue-listening').toList();
+    // While the server cannot be reached, only books that play without it:
+    // downloaded ones, on book shelves.
+    if (ref.watch(isOfflineProvider)) {
+      final onPhone = ref.watch(downloadedBookIdsProvider);
+      shown = [
+        for (final s in shown)
+          if (s.kind == ShelfKind.books)
+            HomeShelf(
+              id: s.id,
+              kind: s.kind,
+              serverLabel: s.serverLabel,
+              books: [...s.books.where((b) => onPhone.contains(b.ref.itemId))],
+            ),
+      ]..removeWhere((s) => s.isEmpty);
+      if (shown.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
     if (shown.isEmpty) {
       final libraries = ref.watch(absLibrariesProvider).value ?? const [];
       return SliverToBoxAdapter(

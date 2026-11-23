@@ -22,6 +22,8 @@ void main() {
     await settle(tester);
     await tester.tap(find.text(l10n.tabLibrary));
     await settle(tester);
+    await tester.tap(find.text(l10n.libraryTabAudiobooks));
+    await settle(tester);
     expect(find.text(l10n.libraryPickBook), findsOneWidget);
 
     await tester.tap(find.text('The Glass Orchard').first);

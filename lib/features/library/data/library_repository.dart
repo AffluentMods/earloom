@@ -156,9 +156,21 @@ class AbsLibraryRepository {
 
   // --- Items ---
 
-  Stream<List<BookSummary>> watchBooks(String libraryId, LibraryQuery query, {int? limit}) => _dao
-      .watchBooks(libraryId, query, limit: limit)
+  /// [downloadedIds]: the books fully on this phone, for the downloaded
+  /// filter.
+  Stream<List<BookSummary>> watchBooks(
+    String libraryId,
+    LibraryQuery query, {
+    int? limit,
+    Set<String> downloadedIds = const {},
+  }) => _dao
+      .watchBooks(libraryId, query, limit: limit, downloadedIds: downloadedIds)
       .map((rows) => [for (final r in rows) AbsJson.summary(source, r.item, r.progress)]);
+
+  /// Cached books by id, in the order of [ids]. Ids not in the cache are
+  /// left out.
+  Stream<List<BookSummary>> watchBooksByIds(List<String> ids) =>
+      _dao.watchItemsByIds(ids).map((rows) => [for (final r in rows) AbsJson.summary(source, r.item, r.progress)]);
 
   /// Pages through the whole library so browsing, filters and offline
   /// search work on everything. At most once per [Freshness.fullSync]

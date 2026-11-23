@@ -10,13 +10,32 @@ import 'source_id.dart';
 enum LibrarySort { title, author, addedAt, duration, progress, publishedYear }
 
 /// What kind of value a filter matches.
-enum FilterKind { progress, genre, tag, series, author, narrator, language, downloaded }
+enum FilterKind {
+  progress,
+  genre,
+  tag,
+  series,
+  author,
+  narrator,
+  language,
+  downloaded;
+
+  /// Progress and downloads: one tap each, as chips above the books.
+  bool get isQuick => this == progress || this == downloaded;
+}
 
 /// The values of a [FilterKind.progress] filter.
 abstract final class ProgressFilterValue {
   static const notStarted = 'not-started';
   static const inProgress = 'in-progress';
   static const finished = 'finished';
+}
+
+/// The values of a [FilterKind.downloaded] filter. Books in the On this
+/// device library are always downloaded.
+abstract final class DownloadFilterValue {
+  static const downloaded = 'true';
+  static const notDownloaded = 'false';
 }
 
 /// One active filter. [value] is what is matched (an id for series, a name
@@ -58,6 +77,12 @@ final class LibraryQuery {
       copyWith(filters: [...filters.where((f) => f.kind != filter.kind), filter]);
 
   LibraryQuery without(LibraryFilter filter) => copyWith(filters: [...filters.where((f) => f != filter)]);
+
+  /// The filters set in the More filters sheet: everything but progress and
+  /// downloads, which have their own chips.
+  List<LibraryFilter> get moreFilters => [...filters.where((f) => !f.kind.isQuick)];
+
+  LibraryQuery withoutMoreFilters() => copyWith(filters: [...filters.where((f) => f.kind.isQuick)]);
 
   LibraryFilter? filterOf(FilterKind kind) {
     for (final f in filters) {

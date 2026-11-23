@@ -236,6 +236,38 @@ final downloadStateProvider = Provider.family<DownloadState, ItemRef>(
   (ref, item) => ref.watch(downloadStatesProvider.select((v) => v.value?[item.key])) ?? DownloadState.none(item),
 );
 
+/// The ids of the current account's books (not episodes) that are fully on
+/// this phone. Changes only when that set changes, not on every progress
+/// tick, so book lists that filter on it do not query again while a
+/// download runs.
+final downloadedBookIdsProvider = Provider<DownloadedIds>((ref) {
+  final accountId = ref.watch(accountSessionProvider.select((s) => s?.accountId));
+  if (accountId == null) return const DownloadedIds({});
+  final source = AbsSource(accountId);
+  final states = ref.watch(downloadStatesProvider).value ?? const <String, DownloadState>{};
+  return DownloadedIds({
+    for (final s in states.values)
+      if (s.isComplete && s.ref.episodeId == null && s.ref.source == source) s.ref.itemId,
+  });
+});
+
+/// A set of item ids that compares by content, so a provider holding it
+/// only notifies when the set really changes.
+final class DownloadedIds {
+  const DownloadedIds(this.ids);
+
+  final Set<String> ids;
+
+  bool contains(String itemId) => ids.contains(itemId);
+
+  @override
+  bool operator ==(Object other) =>
+      other is DownloadedIds && other.ids.length == ids.length && other.ids.containsAll(ids);
+
+  @override
+  int get hashCode => Object.hashAllUnordered(ids);
+}
+
 final downloadSettingsProvider = NotifierProvider<DownloadSettingsController, DownloadSettings>(
   DownloadSettingsController.new,
 );

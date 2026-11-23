@@ -20,12 +20,15 @@ String libraryName(AppLocalizations l10n, LibraryInfo library) =>
 
 /// A pill with the current library's name; opens [showLibrarySwitcher].
 class LibrarySwitcherButton extends ConsumerWidget {
-  const LibrarySwitcherButton({super.key, required this.library, this.large = false});
+  const LibrarySwitcherButton({super.key, required this.library, this.large = false, this.only});
 
   final LibraryInfo library;
 
   /// The serif title form, for the top of a screen.
   final bool large;
+
+  /// Limits the choice, for example to book libraries.
+  final bool Function(LibraryInfo library)? only;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,7 +42,7 @@ class LibrarySwitcherButton extends ConsumerWidget {
       excludeSemantics: true,
       child: InkWell(
         borderRadius: BorderRadius.circular(Radii.pill),
-        onTap: () => showLibrarySwitcher(context, ref),
+        onTap: () => showLibrarySwitcher(context, ref, only: only),
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 44),
           child: Padding(
@@ -67,25 +70,28 @@ class LibrarySwitcherButton extends ConsumerWidget {
 }
 
 /// Lets the user pick a server library or On this device.
-Future<void> showLibrarySwitcher(BuildContext context, WidgetRef ref) {
+Future<void> showLibrarySwitcher(BuildContext context, WidgetRef ref, {bool Function(LibraryInfo library)? only}) {
   return showModalBottomSheet<void>(
     context: context,
     useRootNavigator: true,
     useSafeArea: true,
     isScrollControlled: true,
-    builder: (_) => const _SwitcherSheet(),
+    builder: (_) => _SwitcherSheet(only: only),
   );
 }
 
 class _SwitcherSheet extends ConsumerWidget {
-  const _SwitcherSheet();
+  const _SwitcherSheet({this.only});
+
+  final bool Function(LibraryInfo library)? only;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
-    final libraries = ref.watch(availableLibrariesProvider).value ?? const [localLibrary];
+    final all = ref.watch(availableLibrariesProvider).value ?? const [localLibrary];
+    final libraries = only == null ? all : [...all.where(only!)];
     final current = ref.watch(currentLibraryProvider).value;
     final account = ref.watch(currentAccountProvider).value;
     return SafeArea(

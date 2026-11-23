@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../app/providers.dart';
 import '../../../app/theme/cover_surfaces.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../core/library/browse_models.dart';
@@ -21,6 +22,7 @@ import '../../../core/util/duration_format.dart';
 import '../../../core/util/size_format.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../accounts/data/account_session.dart';
+import '../../library/data/favorites.dart';
 import '../../library/data/library_providers.dart';
 import '../../library/ui/book_actions.dart';
 import '../../library/ui/browse_nav.dart';
@@ -29,6 +31,7 @@ import '../../library/ui/widgets/book_cover.dart';
 import '../../library/ui/widgets/browse_layout.dart';
 import '../../library/ui/widgets/progress_badge.dart';
 import '../../downloads/ui/download_button.dart';
+import '../../downloads/ui/download_rows.dart';
 import '../../local_library/ui/edit_book_sheet.dart';
 import '../../player/player_controller.dart';
 import '../../podcasts/ui/show_screen.dart';
@@ -132,6 +135,7 @@ class _DetailBody extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         actions: [
+          _FavoriteButton(book: book),
           IconButton(
             icon: const Icon(Icons.more_horiz_rounded),
             tooltip: l10n.itemMoreActions,
@@ -188,6 +192,9 @@ class _DetailBody extends ConsumerWidget {
                 _Pad(
                   child: _ActionRow(book: book, libraryId: libraryId),
                 ),
+                // While the book downloads, its progress and the buttons to
+                // pause or cancel it, right where it was started.
+                _Pad(child: DownloadProgressPanel(itemRef: book.ref)),
               ];
               final more = <Widget>[
                 if (detail.descriptionHtml != null && detail.descriptionHtml!.trim().isNotEmpty) ...[
@@ -597,6 +604,29 @@ class _ProgressLine extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The heart: keeps the book in Favorites, on this phone only.
+class _FavoriteButton extends ConsumerWidget {
+  const _FavoriteButton({required this.book});
+
+  final BookSummary book;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final favorite = ref.watch(isFavoriteProvider(book.ref));
+    return IconButton(
+      isSelected: favorite,
+      icon: const Icon(Icons.favorite_border_rounded),
+      selectedIcon: Icon(Icons.favorite_rounded, color: Theme.of(context).colorScheme.primary),
+      tooltip: favorite ? l10n.favoriteRemove : l10n.favoriteAdd,
+      onPressed: () async {
+        await setFavorite(ref.read(globalDbProvider), book.ref, favorite: !favorite);
+        if (context.mounted) showMessage(context, favorite ? l10n.favoriteRemoved : l10n.favoriteAdded);
+      },
     );
   }
 }

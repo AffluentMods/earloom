@@ -18,6 +18,7 @@ import '../features/library/ui/author_screen.dart';
 import '../features/library/ui/book_list_screen.dart';
 import '../features/library/ui/browse_not_found.dart';
 import '../features/library/ui/library_screen.dart';
+import '../features/library/ui/lists_view.dart';
 import '../features/library/ui/filtered_books_screen.dart';
 import '../features/library/ui/series_screen.dart';
 import '../features/local_library/ui/import_books_screen.dart';
@@ -55,6 +56,9 @@ abstract final class AppRoutes {
   static const downloads = '/you/downloads';
   static const downloadSettings = '/you/downloads/settings';
   static const importFiles = '/local/import';
+
+  /// A list of the Library's Lists tab (`favorites`, `series`, ...).
+  static String libraryList(String name) => '$library/lists/$name';
   static String item(String id) => '/item/${Uri.encodeComponent(id)}';
 
   /// The browse routes below exist inside the Home, Library and Search tabs
@@ -197,7 +201,18 @@ GoRouter buildRouter({
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: AppRoutes.library, builder: (_, _) => const LibraryScreen(), routes: browseRoutes()),
+              GoRoute(
+                path: AppRoutes.library,
+                builder: (_, _) => const LibraryScreen(),
+                routes: [
+                  ...browseRoutes(),
+                  // Favorites, series, authors, collections, playlists.
+                  GoRoute(
+                    path: 'lists/:list',
+                    builder: (_, state) => LibraryListScreen(name: state.pathParameters['list'] ?? ''),
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(

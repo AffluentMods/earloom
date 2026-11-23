@@ -152,6 +152,36 @@ void main() {
       expect(await titles(ProgressFilterValue.finished), ['A Field Guide to Quiet Places']);
       expect(await titles(ProgressFilterValue.notStarted), ['Cinder Interlude', "The Clockmaker's Tide"]);
     });
+
+    test('the download filters follow the books on this phone', () async {
+      await repository.syncLibrary(testLibraryId);
+      Future<List<String>> titles(String value, Set<String> onPhone) async =>
+          (await repository
+                  .watchBooks(
+                    testLibraryId,
+                    LibraryQuery(filters: [LibraryFilter(FilterKind.downloaded, value)]),
+                    downloadedIds: onPhone,
+                  )
+                  .first)
+              .map((b) => b.title)
+              .toList();
+      expect(await titles(DownloadFilterValue.downloaded, {ashHarbor}), ['Ash Harbor']);
+      // By title the way the server sorts, without a leading "The" or "A".
+      expect(await titles(DownloadFilterValue.notDownloaded, {ashHarbor}), [
+        'Cinder Interlude',
+        "The Clockmaker's Tide",
+        'A Field Guide to Quiet Places',
+      ]);
+      // Nothing downloaded: nothing is, everything is not.
+      expect(await titles(DownloadFilterValue.downloaded, {}), isEmpty);
+      expect(await titles(DownloadFilterValue.notDownloaded, {}), hasLength(4));
+    });
+
+    test('books by id come back in the order asked, unknown ids left out', () async {
+      await repository.syncLibrary(testLibraryId);
+      final books = await repository.watchBooksByIds([fieldGuide, 'gone', ashHarbor]).first;
+      expect(books.map((b) => b.title), ['A Field Guide to Quiet Places', 'Ash Harbor']);
+    });
   });
 
   group('item detail', () {

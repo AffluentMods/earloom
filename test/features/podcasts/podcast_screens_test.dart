@@ -109,7 +109,9 @@ void main() {
     await pumpPodcasts(tester);
     await tester.tap(find.text(l10n.tabLibrary));
     await settle(tester, rounds: 10);
-    expect(find.byType(PodcastLibraryScreen), findsOneWidget);
+    await tester.tap(find.text(l10n.libraryTabPodcasts));
+    await settle(tester, rounds: 6);
+    expect(find.byType(PodcastShowsView), findsOneWidget);
     expect(find.text('Shelf Talk'), findsOneWidget);
     // Three episodes, none finished (the pilot is only started).
     expect(find.descendant(of: find.byType(UnplayedBadge), matching: find.text('3')), findsOneWidget);
@@ -192,8 +194,10 @@ void main() {
       );
       GoRouter.of(tester.element(find.byType(ShowScreen))).go('/library');
       await settle(tester, rounds: 8);
-      expect(find.byType(PodcastLibraryScreen), findsOneWidget);
-      expect(find.byTooltip(l10n.podcastAdminAdd), findsNothing);
+      await tester.tap(find.text(l10n.libraryTabPodcasts));
+      await settle(tester, rounds: 6);
+      expect(find.byType(PodcastShowsView), findsOneWidget);
+      expect(find.text(l10n.podcastAdminAdd), findsNothing);
     });
 
     serverTest('an admin sees them, and each asks first', (tester) async {
@@ -234,7 +238,9 @@ void main() {
 
       GoRouter.of(tester.element(find.byType(ShowScreen))).go('/library');
       await settle(tester, rounds: 8);
-      expect(find.byTooltip(l10n.podcastAdminAdd), findsOneWidget);
+      await tester.tap(find.text(l10n.libraryTabPodcasts));
+      await settle(tester, rounds: 6);
+      expect(find.text(l10n.podcastAdminAdd), findsOneWidget);
     });
   });
 }

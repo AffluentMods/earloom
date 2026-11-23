@@ -14,6 +14,7 @@ import '../../../core/library/source_id.dart';
 import '../../../core/util/natural_sort.dart';
 import '../../../core/util/streams.dart';
 import '../../accounts/data/account_session.dart';
+import '../../downloads/data/offline_providers.dart';
 import '../../home/data/home_repository.dart';
 import '../../local_library/data/local_library_repository.dart';
 import '../../local_library/data/providers.dart';
@@ -119,6 +120,41 @@ final currentLibraryProvider = Provider<AsyncValue<LibraryInfo>>((ref) {
   return const AsyncData(localLibrary);
 });
 
+/// The server book libraries of the current account.
+final bookLibrariesProvider = Provider<List<LibraryInfo>>(
+  (ref) => [...?ref.watch(absLibrariesProvider).value?.where((l) => !l.isPodcast)],
+);
+
+/// The server podcast libraries of the current account.
+final podcastLibrariesProvider = Provider<List<LibraryInfo>>(
+  (ref) => [...?ref.watch(absLibrariesProvider).value?.where((l) => l.isPodcast)],
+);
+
+/// The server book library the Audiobooks tab shows next to the books on
+/// this phone: the selected one when it is a book library, else the first.
+/// Null without a server book library.
+final audiobooksLibraryProvider = Provider<LibraryInfo?>((ref) {
+  final libraries = ref.watch(bookLibrariesProvider);
+  if (libraries.isEmpty) return null;
+  final current = ref.watch(currentLibraryProvider).value;
+  for (final l in libraries) {
+    if (current != null && selectionKey(l) == selectionKey(current)) return l;
+  }
+  return libraries.first;
+});
+
+/// The podcast library the Podcasts tab shows: the selected one when it is
+/// a podcast library, else the first. Null without one.
+final podcastsLibraryProvider = Provider<LibraryInfo?>((ref) {
+  final libraries = ref.watch(podcastLibrariesProvider);
+  if (libraries.isEmpty) return null;
+  final current = ref.watch(currentLibraryProvider).value;
+  for (final l in libraries) {
+    if (current != null && selectionKey(l) == selectionKey(current)) return l;
+  }
+  return libraries.first;
+});
+
 String selectionKey(LibraryInfo library) => switch (library.source) {
   LocalSource() => localLibraryId,
   AbsSource(:final accountId) => 'abs:$accountId/${library.id}',
@@ -139,22 +175,71 @@ LibraryKey libraryKeyOf(LibraryInfo library) => (source: library.source, library
 /// Arguments of [libraryBooksProvider]. [limit] grows as the user scrolls.
 typedef BooksArgs = ({SourceId source, String libraryId, LibraryQuery query, int limit});
 
-final libraryBooksProvider = StreamProvider.autoDispose.family<List<BookSummary>, BooksArgs>((ref, args) {
-  switch (args.source) {
+final libraryBooksProvider = StreamProvider.autoDispose.family<List<BookSummary>, BooksArgs>(
+  (ref, args) => _watchBooks(ref, args.source, args.libraryId, args.query, args.limit),
+);
+
+/// The books of one library for [query], at most [limit]. Server books
+/// filtered on downloads follow the downloads as they finish.
+Stream<List<BookSummary>> _watchBooks(Ref ref, SourceId source, String libraryId, LibraryQuery query, int limit) {
+  switch (source) {
     case LocalSource():
       return ref
           .watch(localLibraryRepositoryProvider)
           .watchBooks(sort: LocalBookSort.title)
-          .map((books) => applyLocalQuery(books, args.query).take(args.limit).toList());
+          .map((books) => applyLocalQuery(books, query).take(limit).toList());
     case AbsSource():
-      final repository = absRepositoryFor(ref, args.source);
+      final repository = absRepositoryFor(ref, source);
       if (repository == null) return Stream.value(const []);
-      return repository.watchBooks(args.libraryId, args.query, limit: args.limit);
+      final downloaded = query.filterOf(FilterKind.downloaded) == null
+          ? const <String>{}
+          : ref.watch(downloadedBookIdsProvider).ids;
+      return repository.watchBooks(libraryId, query, limit: limit, downloadedIds: downloaded);
   }
+}
+
+/// Arguments of [audiobooksProvider]: the server book library to show (null
+/// without a server), mixed with the books on this phone.
+typedef AudiobooksArgs = ({LibraryKey? server, LibraryQuery query, int limit});
+
+/// The Audiobooks list: a server library's books and the books on this
+/// phone in one list, sorted and filtered alike. While the server cannot
+/// be reached only what plays without it is listed.
+final audiobooksProvider = StreamProvider.autoDispose.family<List<BookSummary>, AudiobooksArgs>((ref, args) {
+  final query = ref.watch(isOfflineProvider) ? offlineQuery(args.query) : args.query;
+  final local = _watchBooks(ref, const LocalSource(), localLibraryId, query, args.limit);
+  final server = args.server;
+  if (server == null || server.source is LocalSource) return local;
+  return combineLatest2(
+    _watchBooks(ref, server.source, server.libraryId, query, args.limit),
+    local,
+    (List<BookSummary> s, List<BookSummary> l) => mergeBooks(s, l, query, args.limit),
+  );
 });
 
+/// [query] limited to books on this phone, for while the server cannot be
+/// reached.
+LibraryQuery offlineQuery(LibraryQuery query) =>
+    query.withFilter(const LibraryFilter(FilterKind.downloaded, DownloadFilterValue.downloaded));
+
+/// Server books (in the server's order) and books on this phone (sorted by
+/// the same [query]) as one list of at most [limit].
+List<BookSummary> mergeBooks(List<BookSummary> server, List<BookSummary> local, LibraryQuery query, int limit) {
+  if (local.isEmpty) return server.take(limit).toList();
+  final compare = bookComparator(query);
+  final merged = <BookSummary>[];
+  var i = 0;
+  var j = 0;
+  while (merged.length < limit && (i < server.length || j < local.length)) {
+    final takeServer = j >= local.length || (i < server.length && compare(server[i], local[j]) <= 0);
+    merged.add(takeServer ? server[i++] : local[j++]);
+  }
+  return merged;
+}
+
 /// Sort and filters for local books, which are few enough to sort in
-/// memory.
+/// memory. Genres, tags and languages come from server libraries only, so
+/// those filters match no local book.
 List<BookSummary> applyLocalQuery(List<BookSummary> books, LibraryQuery query) {
   bool matches(BookSummary b) {
     for (final f in query.filters) {
@@ -167,16 +252,33 @@ List<BookSummary> applyLocalQuery(List<BookSummary> books, LibraryQuery query) {
         FilterKind.author => b.authors.contains(f.value),
         FilterKind.narrator => b.narrators.contains(f.value),
         FilterKind.series => b.seriesName == f.value,
-        FilterKind.downloaded => true,
-        FilterKind.genre || FilterKind.tag || FilterKind.language => true,
+        // Books on this phone are always downloaded.
+        FilterKind.downloaded => f.value != DownloadFilterValue.notDownloaded,
+        FilterKind.genre || FilterKind.tag || FilterKind.language => false,
       };
       if (!ok) return false;
     }
     return true;
   }
 
-  int byTitle(BookSummary a, BookSummary b) => compareNatural(a.title, b.title);
-  final sorted = books.where(matches).toList();
+  return books.where(matches).toList()..sort(bookComparator(query));
+}
+
+/// A title without a leading "The", "A" or "An", the way Audiobookshelf
+/// sorts titles by default, so books on this phone fall in among server
+/// books where a reader expects them.
+String titleSortKey(String title) {
+  final lower = title.trimLeft().toLowerCase();
+  for (final prefix in const ['the ', 'a ', 'an ']) {
+    if (lower.startsWith(prefix) && lower.length > prefix.length) return lower.substring(prefix.length);
+  }
+  return lower;
+}
+
+/// How [query] orders books, for sorting local books and for mixing them
+/// with server books.
+int Function(BookSummary, BookSummary) bookComparator(LibraryQuery query) {
+  int byTitle(BookSummary a, BookSummary b) => compareNatural(titleSortKey(a.title), titleSortKey(b.title));
   int compare(BookSummary a, BookSummary b) => switch (query.sort) {
     LibrarySort.title || LibrarySort.publishedYear => byTitle(a, b),
     LibrarySort.author => compareNatural(a.authorLine, b.authorLine),
@@ -184,16 +286,16 @@ List<BookSummary> applyLocalQuery(List<BookSummary> books, LibraryQuery query) {
     LibrarySort.duration => a.duration.compareTo(b.duration),
     LibrarySort.progress => (b.progress?.updatedAt ?? DateTime(0)).compareTo(a.progress?.updatedAt ?? DateTime(0)),
   };
-  sorted.sort((a, b) {
-    if (query.filterOf(FilterKind.series) != null) {
+  final bySeries = query.filterOf(FilterKind.series) != null;
+  return (a, b) {
+    if (bySeries) {
       final bySequence = compareNatural(a.seriesSequence ?? '~', b.seriesSequence ?? '~');
       if (bySequence != 0) return bySequence;
     }
     final c = compare(a, b);
     final directed = query.descending ? -c : c;
     return directed != 0 ? directed : byTitle(a, b);
-  });
-  return sorted;
+  };
 }
 
 /// Choices for the filter sheet.
@@ -251,6 +353,24 @@ List<SeriesSummary> localSeries(List<BookSummary> books) {
       ),
   ];
 }
+
+/// The series of a server library and of this phone in one list, by name.
+final mixedSeriesProvider = Provider.autoDispose.family<AsyncValue<List<SeriesSummary>>, LibraryKey?>((ref, server) {
+  final local = ref.watch(seriesListProvider(libraryKeyOf(localLibrary)));
+  if (server == null) return local;
+  final remote = ref.watch(seriesListProvider(server));
+  if (!local.hasValue || !remote.hasValue) return const AsyncLoading();
+  return AsyncData([...remote.value!, ...local.value!]..sort((a, b) => compareNatural(a.name, b.name)));
+});
+
+/// The authors of a server library and of this phone in one list, by name.
+final mixedAuthorsProvider = Provider.autoDispose.family<AsyncValue<List<AuthorSummary>>, LibraryKey?>((ref, server) {
+  final local = ref.watch(authorsListProvider(libraryKeyOf(localLibrary)));
+  if (server == null) return local;
+  final remote = ref.watch(authorsListProvider(server));
+  if (!local.hasValue || !remote.hasValue) return const AsyncLoading();
+  return AsyncData([...remote.value!, ...local.value!]..sort((a, b) => compareNatural(a.name, b.name)));
+});
 
 typedef ItemKey = ({SourceId source, String id});
 
@@ -398,14 +518,20 @@ final libraryOfItemProvider = FutureProvider.autoDispose.family<String?, ItemRef
 
 // --- Home ---
 
-/// In-progress books of both sources, most recent first.
+/// In-progress books of both sources, most recent first. While the server
+/// cannot be reached, only the ones on this phone.
 final continueListeningProvider = StreamProvider.autoDispose<List<BookSummary>>((ref) {
   final local = ref
       .watch(localLibraryRepositoryProvider)
       .watchBooks(sort: LocalBookSort.recentlyPlayed)
       .map((books) => books.where((b) => (b.progress?.isStarted ?? false) && !(b.progress?.isFinished ?? false)));
   final repository = ref.watch(absLibraryRepositoryProvider);
-  final server = repository == null ? Stream.value(const <BookSummary>[]) : repository.watchContinueListening();
+  final onPhone = ref.watch(isOfflineProvider) ? ref.watch(downloadedBookIdsProvider) : null;
+  final server = repository == null
+      ? Stream.value(const <BookSummary>[])
+      : repository.watchContinueListening().map(
+          (books) => onPhone == null ? books : [...books.where((b) => onPhone.contains(b.ref.itemId))],
+        );
   return combineLatest2(local, server, (Iterable<BookSummary> l, List<BookSummary> s) {
     final all = [...l, ...s]
       ..sort((a, b) => (b.progress?.updatedAt ?? DateTime(0)).compareTo(a.progress?.updatedAt ?? DateTime(0)));

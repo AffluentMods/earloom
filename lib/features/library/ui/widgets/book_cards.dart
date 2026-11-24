@@ -317,6 +317,169 @@ class SeriesCard extends StatelessWidget {
   }
 }
 
+/// What a group's card says under its name: "Author, 729 books".
+String bookGroupLine(AppLocalizations l10n, BookGroup group, int count) => switch (group.kind) {
+  BookGroupKind.author => l10n.groupCardAuthor(count),
+  BookGroupKind.series => l10n.groupCardSeries(count),
+};
+
+/// Opens the author or the series a group card stands for.
+void openBookGroup(BuildContext context, BookGroup group) => switch (group.kind) {
+  BookGroupKind.author => BrowseNav.author(context, group.source, group.id),
+  BookGroupKind.series => BrowseNav.series(context, group.source, group.id),
+};
+
+/// An author or a series the user keeps together, as one card in a grid:
+/// fanned covers, the name, what it is and how many books.
+class BookGroupCard extends StatelessWidget {
+  const BookGroupCard({super.key, required this.group, required this.books, required this.count, required this.width});
+
+  final BookGroup group;
+  final List<BookSummary> books;
+  final int count;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final line = bookGroupLine(AppLocalizations.of(context), group, count);
+    return SizedBox(
+      width: width,
+      child: Semantics(
+        button: true,
+        label: [group.name, line].join(', '),
+        excludeSemantics: true,
+        child: InkWell(
+          onTap: () => openBookGroup(context, group),
+          borderRadius: BorderRadius.circular(coverRadius(width)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CoverStack(books: books, size: width),
+              const SizedBox(height: Space.sm),
+              // Laid out like a book's card, so the grid stays even.
+              Flexible(
+                flex: 3,
+                child: Text(
+                  group.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: text.titleSmall?.copyWith(height: 1.25),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Flexible(
+                child: Text(
+                  line,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A group as a list row, for the list layout of Audiobooks.
+class BookGroupRow extends StatelessWidget {
+  const BookGroupRow({super.key, required this.group, required this.books, required this.count});
+
+  final BookGroup group;
+  final List<BookSummary> books;
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final line = bookGroupLine(AppLocalizations.of(context), group, count);
+    return Semantics(
+      button: true,
+      label: [group.name, line].join(', '),
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: () => openBookGroup(context, group),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 88),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Space.lg, vertical: Space.md),
+            child: Row(
+              children: [
+                CoverStack(books: books, size: BookListRow.coverSize),
+                const SizedBox(width: Space.lg),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(group.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: text.titleMedium),
+                      const SizedBox(height: 2),
+                      Text(line, style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// An author as a row: photo, the whole name however long, how many books.
+class AuthorRow extends StatelessWidget {
+  const AuthorRow({super.key, required this.author});
+
+  final AuthorSummary author;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final count = author.bookCount > 0 ? l10n.bookCountLabel(author.bookCount) : null;
+    return Semantics(
+      button: true,
+      label: [author.name, ?count].join(', '),
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: () => BrowseNav.author(context, author.source, author.id),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 72),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Space.lg, vertical: Space.sm),
+            child: Row(
+              children: [
+                AuthorAvatar(author: author, size: 56),
+                const SizedBox(width: Space.lg),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(author.name, style: text.titleMedium),
+                      if (count != null) Text(count, style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: scheme.onSurfaceVariant),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// An author as a round photo with name and count.
 class AuthorCard extends StatelessWidget {
   const AuthorCard({super.key, required this.author, required this.width});

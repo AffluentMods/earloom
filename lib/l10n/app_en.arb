@@ -3487,5 +3487,13 @@
   "favoritesEmpty": "No favorites yet",
   "@favoritesEmpty": {"description": "Favorites screen with no books."},
   "favoritesEmptyBody": "Tap the heart on a book to keep it here. Favorites stay on this phone.",
-  "@favoritesEmptyBody": {"description": "Body under favoritesEmpty."}
+  "@favoritesEmptyBody": {"description": "Body under favoritesEmpty."},
+  "groupSwitchTitle": "Show as one card in Audiobooks",
+  "@groupSwitchTitle": {"description": "Switch on an author's or a series' screen: its books show together as one card in the Audiobooks tab."},
+  "groupSwitchBody": "Its books stay together instead of a card each. Saved on this phone.",
+  "@groupSwitchBody": {"description": "Explains groupSwitchTitle."},
+  "groupCardAuthor": "{count, plural, =1{Author, 1 book} other{Author, {count} books}}",
+  "@groupCardAuthor": {"description": "Under an author's name on its one card in Audiobooks.", "placeholders": {"count": {"type": "int"}}},
+  "groupCardSeries": "{count, plural, =1{Series, 1 book} other{Series, {count} books}}",
+  "@groupCardSeries": {"description": "Under a series' name on its one card in Audiobooks.", "placeholders": {"count": {"type": "int"}}}
 }

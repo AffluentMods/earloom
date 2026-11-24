@@ -163,9 +163,25 @@ class AbsLibraryRepository {
     LibraryQuery query, {
     int? limit,
     Set<String> downloadedIds = const {},
+    GroupMembers? hidden,
   }) => _dao
-      .watchBooks(libraryId, query, limit: limit, downloadedIds: downloadedIds)
+      .watchBooks(libraryId, query, limit: limit, downloadedIds: downloadedIds, hidden: hidden)
       .map((rows) => [for (final r in rows) AbsJson.summary(source, r.item, r.progress)]);
+
+  /// The first books of a group that match [query] and how many match, for
+  /// its card in Audiobooks. Null when none match.
+  Stream<({List<BookSummary> first, int count})?> watchGroupHead(
+    String libraryId,
+    LibraryQuery query,
+    GroupMembers members, {
+    Set<String> downloadedIds = const {},
+  }) => _dao
+      .watchGroupHead(libraryId, query, members, downloadedIds: downloadedIds)
+      .map(
+        (head) => head == null
+            ? null
+            : (first: [for (final r in head.first) AbsJson.summary(source, r.item, r.progress)], count: head.count),
+      );
 
   /// Cached books by id, in the order of [ids]. Ids not in the cache are
   /// left out.
@@ -312,6 +328,7 @@ class AbsLibraryRepository {
     description: s.series.description,
     books: [for (final b in s.books) AbsJson.summary(source, b.item, b.progress)],
     bookCount: s.books.length,
+    libraryId: s.series.libraryId,
   );
 
   Future<void> refreshSeriesList(String libraryId, {bool force = false}) =>

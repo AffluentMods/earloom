@@ -260,19 +260,12 @@ class _AuthorsListState extends ConsumerState<_AuthorsList> with RefreshingState
               child: EmptyState(icon: Icons.person_outline_rounded, title: l10n.libraryEmptyAuthors),
             )
           else
+            // Rows, not a grid: names get the whole width and are never cut.
             SliverPadding(
-              padding: EdgeInsets.fromLTRB(context.gutter, Space.lg, context.gutter, Space.xl),
-              sliver: SliverGrid.builder(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 140,
-                  mainAxisSpacing: Space.lg,
-                  crossAxisSpacing: Space.md,
-                  childAspectRatio: 0.7,
-                ),
+              padding: const EdgeInsets.only(top: Space.sm, bottom: Space.xl),
+              sliver: SliverList.builder(
                 itemCount: list.length,
-                itemBuilder: (context, i) => LayoutBuilder(
-                  builder: (context, c) => AuthorCard(author: list[i], width: c.maxWidth),
-                ),
+                itemBuilder: (_, i) => AuthorRow(author: list[i]),
               ),
             ),
         ],

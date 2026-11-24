@@ -182,6 +182,38 @@ void main() {
       final books = await repository.watchBooksByIds([fieldGuide, 'gone', ashHarbor]).first;
       expect(books.map((b) => b.title), ['A Field Guide to Quiet Places', 'Ash Harbor']);
     });
+
+    test("a grouped author's or series' books leave the list; the card counts those that match", () async {
+      await repository.syncLibrary(testLibraryId);
+      Future<List<String>> titles(GroupMembers hidden) async => [
+        for (final b in await repository.watchBooks(testLibraryId, const LibraryQuery(), hidden: hidden).first) b.title,
+      ];
+      // "covers (count)", or null for no card.
+      Future<String?> head(GroupMembers members, [LibraryQuery query = const LibraryQuery()]) async {
+        final h = await repository.watchGroupHead(testLibraryId, query, members).first;
+        return h == null ? null : '${h.first.map((b) => b.title).join(', ')} (${h.count})';
+      }
+
+      const theo = (seriesIds: <String>{}, authorNames: {'Theo Vance'});
+      expect(await titles(theo), ["The Clockmaker's Tide", 'A Field Guide to Quiet Places']);
+      expect(await head(theo), 'Ash Harbor, Cinder Interlude (2)');
+
+      // The count follows the filters; with none left there is no card.
+      await db.catalogDao.upsertProgress(
+        AbsJson.progress({'libraryItemId': ashHarbor, 'currentTime': 100, 'duration': 1000, 'lastUpdate': 5}),
+      );
+      const started = LibraryQuery(filters: [LibraryFilter(FilterKind.progress, ProgressFilterValue.inProgress)]);
+      expect(await head(theo, started), 'Ash Harbor (1)');
+      const finished = LibraryQuery(filters: [LibraryFilter(FilterKind.progress, ProgressFilterValue.finished)]);
+      expect(await head(theo, finished), isNull);
+
+      // A series by its members: two more of its books arrive with it. The
+      // card shows three covers and counts all four.
+      await repository.refreshSeries(exampleSaga);
+      const saga = (seriesIds: {exampleSaga}, authorNames: <String>{});
+      expect(await titles(saga), ["The Clockmaker's Tide", 'A Field Guide to Quiet Places']);
+      expect(await head(saga), 'Ash Harbor, Cinder Interlude, Ember Road (4)');
+    });
   });
 
   group('item detail', () {

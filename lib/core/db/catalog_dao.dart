@@ -136,12 +136,61 @@ class CatalogDao extends DatabaseAccessor<AccountDb> with _$CatalogDaoMixin {
   /// One page (from the top) of a library's books for [query].
   /// [downloadedIds] are the books fully on this phone, for the downloaded
   /// filter: downloads live in another database, so the caller passes them.
+  /// Books in [hidden] are left out: they show as their group's card.
   Stream<List<ItemWithProgress>> watchBooks(
     String libraryId,
     LibraryQuery query, {
     int? limit,
     Set<String> downloadedIds = const {},
+    GroupMembers? hidden,
   }) {
+    final statement = _books(libraryId, query, downloadedIds);
+    final inGroups = hidden == null ? null : _inGroups(hidden);
+    if (inGroups != null) statement.where(inGroups.not());
+    if (limit != null) statement.limit(limit);
+    return statement.watch().map((rows) => [for (final r in rows) _read(r)]);
+  }
+
+  /// The first [take] books of a group that match [query], in the order of
+  /// [query], and how many match in all: where the group's card goes, the
+  /// covers it shows and the count under it. Null when none match.
+  Stream<({List<ItemWithProgress> first, int count})?> watchGroupHead(
+    String libraryId,
+    LibraryQuery query,
+    GroupMembers members, {
+    int take = 3,
+    Set<String> downloadedIds = const {},
+  }) {
+    final inGroup = _inGroups(members);
+    if (inGroup == null) return Stream.value(null);
+    // Counted before the limit applies: one query for both.
+    const total = CustomExpression<int>('COUNT(*) OVER ()');
+    final statement = _books(libraryId, query, downloadedIds)
+      ..where(inGroup)
+      ..addColumns([total])
+      ..limit(take);
+    return statement.watch().map(
+      (rows) =>
+          rows.isEmpty ? null : (first: [for (final r in rows) _read(r)], count: rows.first.read(total) ?? rows.length),
+    );
+  }
+
+  /// The books of the groups in [members], or null for no group.
+  Expression<bool>? _inGroups(GroupMembers members) {
+    final parts = <Expression<bool>>[
+      for (final name in members.authorNames) items.authors.like(jsonListPattern(name), escapeChar: r'\'),
+      if (members.seriesIds.isNotEmpty)
+        items.id.isInQuery(
+          selectOnly(seriesItems)
+            ..addColumns([seriesItems.itemId])
+            ..where(seriesItems.seriesId.isIn(members.seriesIds)),
+        ),
+    ];
+    return parts.isEmpty ? null : parts.reduce((a, b) => a | b);
+  }
+
+  /// A library's books for [query], ordered, without a limit.
+  JoinedSelectStatement<HasResultSet, dynamic> _books(String libraryId, LibraryQuery query, Set<String> downloadedIds) {
     final seriesFilter = query.filterOf(FilterKind.series);
     final statement = _itemsWithProgress([
       if (seriesFilter != null)
@@ -184,8 +233,7 @@ class CatalogDao extends DatabaseAccessor<AccountDb> with _$CatalogDaoMixin {
       OrderingTerm.asc(items.sortTitle),
       OrderingTerm.asc(items.id),
     ]);
-    if (limit != null) statement.limit(limit);
-    return statement.watch().map((rows) => [for (final r in rows) _read(r)]);
+    return statement;
   }
 
   Expression<bool>? _condition(LibraryFilter filter, Set<String> downloadedIds) {

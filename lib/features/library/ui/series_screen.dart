@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../app/theme/tokens.dart';
+import '../../../core/library/browse_models.dart';
 import '../../../core/library/models.dart';
 import '../../../core/library/source_id.dart';
 import '../../../core/ui/html_text.dart';
@@ -16,6 +17,7 @@ import 'book_actions.dart';
 import 'widgets/book_cards.dart';
 import 'widgets/browse_layout.dart';
 import 'widgets/collection_scaffold.dart';
+import 'widgets/group_switch.dart';
 
 /// The book a "Continue series" button plays: the first one not finished.
 /// Null when every book is finished.
@@ -73,6 +75,17 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> with RefreshingStat
       l10n.countAndDuration(l10n.seriesBooksCount(books.length), formatDurationShort(l10n, total)),
       if (finished > 0) l10n.seriesProgress(finished, books.length),
     ].join('\n');
+    // Server series only: the books on this phone are few.
+    final libraryId = value.libraryId;
+    final group = widget.source is AbsSource && libraryId != null
+        ? BookGroup(
+            source: widget.source,
+            libraryId: libraryId,
+            kind: BookGroupKind.series,
+            id: value.id,
+            name: value.name,
+          )
+        : null;
     final (label, target, startAt) = next == null
         ? (l10n.seriesListenAgain, books.isEmpty ? null : books.first, Duration.zero)
         : (started ? l10n.seriesContinue : l10n.seriesStart, next, null);
@@ -91,7 +104,15 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> with RefreshingStat
               label: Text(label),
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
             ),
-      below: value.description == null ? null : DescriptionText(html: value.description!, maxLines: 4),
+      below: value.description == null && group == null
+          ? null
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (group != null) GroupSwitch(group: group),
+                if (value.description != null) DescriptionText(html: value.description!, maxLines: 4),
+              ],
+            ),
       slivers: [
         SliverList.builder(
           itemCount: books.length,

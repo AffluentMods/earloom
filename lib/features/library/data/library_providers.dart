@@ -18,6 +18,7 @@ import '../../downloads/data/offline_providers.dart';
 import '../../home/data/home_repository.dart';
 import '../../local_library/data/local_library_repository.dart';
 import '../../local_library/data/providers.dart';
+import 'book_groups.dart';
 import 'library_repository.dart';
 
 // The source-agnostic layer the screens use. Every provider here answers
@@ -202,39 +203,130 @@ Stream<List<BookSummary>> _watchBooks(Ref ref, SourceId source, String libraryId
 /// without a server), mixed with the books on this phone.
 typedef AudiobooksArgs = ({LibraryKey? server, LibraryQuery query, int limit});
 
+/// One card of the Audiobooks list.
+sealed class AudiobooksEntry {
+  const AudiobooksEntry();
+}
+
+final class BookEntry extends AudiobooksEntry {
+  const BookEntry(this.book);
+
+  final BookSummary book;
+}
+
+/// The books of an author or a series the user keeps together.
+final class GroupEntry extends AudiobooksEntry {
+  const GroupEntry({required this.group, required this.books, required this.count});
+
+  final BookGroup group;
+
+  /// The first books that match the list's filters, in its order: the
+  /// covers on the card. Never empty.
+  final List<BookSummary> books;
+
+  /// How many of its books match the list's filters.
+  final int count;
+}
+
 /// The Audiobooks list: a server library's books and the books on this
-/// phone in one list, sorted and filtered alike. While the server cannot
-/// be reached only what plays without it is listed.
-final audiobooksProvider = StreamProvider.autoDispose.family<List<BookSummary>, AudiobooksArgs>((ref, args) {
+/// phone in one list, sorted and filtered alike, with the authors and
+/// series the user groups as one card each. While the server cannot be
+/// reached only what plays without it is listed.
+final audiobooksProvider = StreamProvider.autoDispose.family<List<AudiobooksEntry>, AudiobooksArgs>((ref, args) {
   final query = ref.watch(isOfflineProvider) ? offlineQuery(args.query) : args.query;
-  final local = _watchBooks(ref, const LocalSource(), localLibraryId, query, args.limit);
+  final local = _watchBooks(
+    ref,
+    const LocalSource(),
+    localLibraryId,
+    query,
+    args.limit,
+  ).map((books) => [for (final b in books) BookEntry(b)]);
   final server = args.server;
-  if (server == null || server.source is LocalSource) return local;
+  final repository = server == null ? null : absRepositoryFor(ref, server.source);
+  if (server == null || repository == null) return local;
+  final saved = ref.watch(bookGroupsProvider);
+  // Wait for them, so books never turn into a card a moment after showing.
+  if (!saved.hasValue) return const Stream.empty();
+  final groups = groupingApplies(query)
+      ? [
+          for (final g in saved.value!)
+            if (g.source == server.source && g.libraryId == server.libraryId) g,
+        ]
+      : const <BookGroup>[];
+  final downloaded = query.filterOf(FilterKind.downloaded) == null
+      ? const <String>{}
+      : ref.watch(downloadedBookIdsProvider).ids;
+  final books = repository.watchBooks(
+    server.libraryId,
+    query,
+    limit: args.limit,
+    downloadedIds: downloaded,
+    hidden: groups.isEmpty ? null : groupMembers(groups),
+  );
+  final cards = combineLatestAll([
+    for (final g in groups)
+      repository
+          .watchGroupHead(server.libraryId, query, groupMembers([g]), downloadedIds: downloaded)
+          .map((head) => head == null ? null : GroupEntry(group: g, books: head.first, count: head.count)),
+  ]);
   return combineLatest2(
-    _watchBooks(ref, server.source, server.libraryId, query, args.limit),
+    combineLatest2(books, cards, (List<BookSummary> s, List<GroupEntry?> c) => (books: s, cards: c.nonNulls)),
     local,
-    (List<BookSummary> s, List<BookSummary> l) => mergeBooks(s, l, query, args.limit),
+    (fromServer, List<BookEntry> onPhone) =>
+        mergeEntries(fromServer.books, [...onPhone, ...fromServer.cards], query, args.limit),
   );
 });
+
+/// Groups show as cards unless the user is looking at one author or one
+/// series already: then their books are what they asked for.
+bool groupingApplies(LibraryQuery query) =>
+    query.filterOf(FilterKind.series) == null && query.filterOf(FilterKind.author) == null;
 
 /// [query] limited to books on this phone, for while the server cannot be
 /// reached.
 LibraryQuery offlineQuery(LibraryQuery query) =>
     query.withFilter(const LibraryFilter(FilterKind.downloaded, DownloadFilterValue.downloaded));
 
-/// Server books (in the server's order) and books on this phone (sorted by
-/// the same [query]) as one list of at most [limit].
-List<BookSummary> mergeBooks(List<BookSummary> server, List<BookSummary> local, LibraryQuery query, int limit) {
-  if (local.isEmpty) return server.take(limit).toList();
+/// Server books (in the server's order) and [extras] (books on this phone
+/// and group cards, sorted here by the same [query]) as one list of at most
+/// [limit]. Extras that sort after a full page wait for the next one.
+List<AudiobooksEntry> mergeEntries(
+  List<BookSummary> server,
+  List<AudiobooksEntry> extras,
+  LibraryQuery query,
+  int limit,
+) {
   final compare = bookComparator(query);
-  final merged = <BookSummary>[];
+  BookSummary key(AudiobooksEntry e) => switch (e) {
+    BookEntry(:final book) => book,
+    final GroupEntry g => groupSortKey(g, query),
+  };
+  final sorted = [...extras]..sort((a, b) => compare(key(a), key(b)));
+  final merged = <AudiobooksEntry>[];
   var i = 0;
   var j = 0;
-  while (merged.length < limit && (i < server.length || j < local.length)) {
-    final takeServer = j >= local.length || (i < server.length && compare(server[i], local[j]) <= 0);
-    merged.add(takeServer ? server[i++] : local[j++]);
+  while (merged.length < limit && (i < server.length || j < sorted.length)) {
+    final takeServer = j >= sorted.length || (i < server.length && compare(server[i], key(sorted[j])) <= 0);
+    merged.add(takeServer ? BookEntry(server[i++]) : sorted[j++]);
   }
   return merged;
+}
+
+/// Where a group's card sorts: by its name when the list is by title or
+/// author, else where its first book would be (its newest when newest
+/// come first, and so on).
+BookSummary groupSortKey(GroupEntry entry, LibraryQuery query) {
+  final first = entry.books.first;
+  final name = entry.group.name;
+  return switch (query.sort) {
+    LibrarySort.title || LibrarySort.publishedYear => BookSummary(ref: first.ref, title: name),
+    LibrarySort.author => BookSummary(
+      ref: first.ref,
+      title: name,
+      authors: entry.group.kind == BookGroupKind.author ? [name] : first.authors,
+    ),
+    LibrarySort.addedAt || LibrarySort.duration || LibrarySort.progress => first,
+  };
 }
 
 /// Sort and filters for local books, which are few enough to sort in

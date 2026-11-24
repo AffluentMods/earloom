@@ -42,6 +42,15 @@ extension StreamSwitch<T> on Stream<T> {
   }
 }
 
+/// The latest value of every stream in [streams], in their order, once all
+/// have emitted, and again whenever one changes. No streams: one empty list.
+Stream<List<T>> combineLatestAll<T>(List<Stream<T>> streams) {
+  if (streams.isEmpty) return Stream.value(<T>[]);
+  return streams
+      .skip(1)
+      .fold(streams.first.map((v) => [v]), (all, next) => combineLatest2(all, next, (List<T> a, T b) => [...a, b]));
+}
+
 /// Emits [combine] of the latest values of [a] and [b] once both have
 /// emitted, and again whenever either changes.
 Stream<R> combineLatest2<A, B, R>(Stream<A> a, Stream<B> b, R Function(A a, B b) combine) {

@@ -11,9 +11,11 @@ import 'package:earloom/features/downloads/data/download_manager.dart';
 import 'package:earloom/features/downloads/data/offline_providers.dart';
 import 'package:earloom/features/home/ui/home_screen.dart';
 import 'package:earloom/features/item_detail/ui/item_detail_screen.dart';
+import 'package:earloom/features/library/ui/author_screen.dart';
 import 'package:earloom/features/library/ui/listen_view.dart';
 import 'package:earloom/features/library/ui/lists_view.dart';
 import 'package:earloom/features/library/ui/series_screen.dart';
+import 'package:earloom/features/library/ui/widgets/book_cards.dart';
 import 'package:earloom/features/search/ui/search_screen.dart';
 import 'package:earloom/features/local_library/data/local_search_text.dart';
 import 'package:earloom/features/player/player_controller.dart';
@@ -488,6 +490,46 @@ void main() {
       await settle(tester, rounds: 6);
       expect(find.byType(LibraryListScreen), findsOneWidget);
       expect(find.text("The Clockmaker's Tide"), findsOneWidget);
+    });
+
+    serverTest('an author kept as one card in Audiobooks; Lists > Authors shows whole names', (tester) async {
+      await pumpServer(tester);
+      await tester.tap(find.text(l10n.tabLibrary));
+      await settle(tester, rounds: 8);
+      await tester.tap(find.text(l10n.libraryTabLists));
+      await settle(tester, rounds: 6);
+      await tester.tap(find.text(l10n.libraryAuthors));
+      await settle(tester, rounds: 8);
+      expect(find.byType(AuthorRow), findsWidgets);
+      await tester.tap(find.text('Theo Vance'));
+      await settle(tester, rounds: 8);
+      expect(find.byType(AuthorScreen), findsOneWidget);
+
+      final toggle = find.widgetWithText(SwitchListTile, l10n.groupSwitchTitle);
+      await tester.scrollUntilVisible(toggle, 100, scrollable: mainScroll(AuthorScreen));
+      expect(tester.widget<SwitchListTile>(toggle).value, isFalse);
+      await tester.tap(toggle);
+      await settle(tester);
+      expect(tester.widget<SwitchListTile>(toggle).value, isTrue);
+
+      // Audiobooks: Theo Vance's books are one card (the author screen
+      // brought two more of them), the rest as before.
+      GoRouter.of(tester.element(find.byType(AuthorScreen))).go('/library');
+      await settle(tester, rounds: 8);
+      await tester.tap(find.text(l10n.libraryTabAudiobooks));
+      await settle(tester, rounds: 8);
+      for (final title in ['Ash Harbor', 'Cinder Interlude', 'Ember Road', 'Kindling Sky']) {
+        expect(find.text(title), findsNothing);
+      }
+      expect(find.text("The Clockmaker's Tide"), findsOneWidget);
+      expect(find.byType(BookGroupCard), findsOneWidget);
+      expect(find.text(l10n.groupCardAuthor(4)), findsOneWidget);
+
+      // Looking at one author shows the books themselves.
+      await tester.tap(find.byType(BookGroupCard));
+      await settle(tester, rounds: 8);
+      expect(find.byType(AuthorScreen), findsOneWidget);
+      expect(find.text('Ash Harbor'), findsOneWidget);
     });
 
     serverTest('Search: a newer query wins over a slower older one', (tester) async {

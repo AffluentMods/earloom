@@ -16,6 +16,7 @@ import 'widgets/book_cards.dart';
 import 'widgets/book_cover.dart';
 import 'widgets/browse_layout.dart';
 import 'widgets/collection_scaffold.dart';
+import 'widgets/group_switch.dart';
 
 /// An author: photo, biography, books grouped by series (in sequence), then
 /// the rest.
@@ -62,6 +63,16 @@ class _AuthorScreenState extends ConsumerState<AuthorScreen> with RefreshingStat
         ? null
         : ref.watch(authorBooksProvider((source: widget.source, libraryId: libraryId, name: value.name))).value;
     final all = [...?books?.series.expand((s) => s.books), ...?books?.standalone];
+    // Server authors only: the books on this phone are few.
+    final group = widget.source is AbsSource && libraryId != null
+        ? BookGroup(
+            source: widget.source,
+            libraryId: libraryId,
+            kind: BookGroupKind.author,
+            id: value.id,
+            name: value.name,
+          )
+        : null;
     return CollectionScaffold(
       title: value.name,
       subtitle: all.isEmpty ? null : l10n.bookCountLabel(all.length),
@@ -69,11 +80,14 @@ class _AuthorScreenState extends ConsumerState<AuthorScreen> with RefreshingStat
       artwork: AuthorAvatar(author: value, size: 148, semanticLabel: l10n.authorPhotoLabel(value.name)),
       refreshError: refreshError,
       onRefresh: () => _refresh(force: true),
-      below: value.description == null
+      below: value.description == null && group == null
           ? null
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [DescriptionText(html: value.description!, maxLines: 4)],
+              children: [
+                if (group != null) GroupSwitch(group: group),
+                if (value.description != null) DescriptionText(html: value.description!, maxLines: 4),
+              ],
             ),
       slivers: [
         if (books == null) const SliverToBoxAdapter(child: ShelfSkeleton()),

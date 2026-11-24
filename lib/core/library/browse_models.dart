@@ -102,6 +102,83 @@ final class LibraryQuery {
   int get hashCode => Object.hash(sort, descending, Object.hashAll(filters));
 }
 
+/// What a [BookGroup] gathers.
+enum BookGroupKind { author, series }
+
+/// An author or a series of a server library whose books the Audiobooks
+/// list shows as one card instead of one card each. The user picks them;
+/// the choice stays on this phone.
+@immutable
+final class BookGroup {
+  const BookGroup({
+    required this.source,
+    required this.libraryId,
+    required this.kind,
+    required this.id,
+    required this.name,
+  });
+
+  final SourceId source;
+  final String libraryId;
+  final BookGroupKind kind;
+
+  /// The server id of the author or the series.
+  final String id;
+
+  /// The name when it was picked: what an author's books are matched on,
+  /// and what the card shows.
+  final String name;
+
+  Map<String, Object?> toJson() => {
+    'source': source.key,
+    'library': libraryId,
+    'kind': kind.name,
+    'id': id,
+    'name': name,
+  };
+
+  /// Null for anything that is not a group written by [toJson].
+  static BookGroup? fromJson(Object? json) {
+    if (json is! Map) return null;
+    final source = SourceId.tryParse('${json['source']}');
+    final kind = BookGroupKind.values.asNameMap()[json['kind']];
+    final library = json['library'];
+    final id = json['id'];
+    final name = json['name'];
+    if (source == null || kind == null || library is! String || id is! String || name is! String || id.isEmpty) {
+      return null;
+    }
+    return BookGroup(source: source, libraryId: library, kind: kind, id: id, name: name);
+  }
+
+  /// The same author or series, whatever name it had when picked.
+  @override
+  bool operator ==(Object other) =>
+      other is BookGroup &&
+      other.source == source &&
+      other.libraryId == libraryId &&
+      other.kind == kind &&
+      other.id == id;
+
+  @override
+  int get hashCode => Object.hash(source, libraryId, kind, id);
+}
+
+/// The books that belong to some groups: the members of these series and
+/// the books by these authors.
+typedef GroupMembers = ({Set<String> seriesIds, Set<String> authorNames});
+
+GroupMembers groupMembers(Iterable<BookGroup> groups) => (
+  seriesIds: {
+    for (final g in groups)
+      if (g.kind == BookGroupKind.series) g.id,
+  },
+  authorNames: {
+    for (final g in groups)
+      if (g.kind == BookGroupKind.author) g.name,
+  },
+);
+
 /// A series in a list: its name, how many books, and the first covers.
 final class SeriesSummary {
   const SeriesSummary({
@@ -111,6 +188,7 @@ final class SeriesSummary {
     this.books = const [],
     this.bookCount = 0,
     this.description,
+    this.libraryId,
   });
 
   final SourceId source;
@@ -119,6 +197,9 @@ final class SeriesSummary {
   final String id;
   final String name;
   final String? description;
+
+  /// The server library the series is in, when known.
+  final String? libraryId;
 
   /// The books in order, as far as they are known.
   final List<BookSummary> books;

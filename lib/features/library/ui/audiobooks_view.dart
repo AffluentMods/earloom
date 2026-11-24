@@ -14,6 +14,7 @@ import '../../../core/ui/adaptive.dart';
 import '../../../core/ui/states.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../downloads/data/offline_providers.dart';
+import '../data/book_groups.dart';
 import '../data/library_providers.dart';
 import 'library_screen.dart' show libraryPaneProvider;
 import 'library_sheets.dart';
@@ -79,6 +80,13 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
     await runRefresh(() async {
       await repository.syncLibrary(library.id, force: force);
       if (force) await repository.refreshProgress();
+      // A grouped series' card needs to know its books, also new ones.
+      // (An author's books are known from the library sync itself.)
+      for (final g in ref.read(bookGroupsProvider).value ?? const <BookGroup>[]) {
+        if (g.kind == BookGroupKind.series && g.source == library.source && g.libraryId == library.id) {
+          await repository.refreshSeries(g.id, force: force);
+        }
+      }
     });
     if (mounted) setState(() => _syncing = false);
   }
@@ -151,25 +159,40 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
           gridDelegate: bookGridDelegate(context),
           itemCount: list.length,
           itemBuilder: (context, i) => LayoutBuilder(
-            builder: (context, c) => BookGridCard(
-              book: list[i],
-              width: c.maxWidth,
-              place: 'library',
-              selected: list[i].ref == open,
-              markPhoneBook: library != null,
-            ),
+            builder: (context, c) => switch (list[i]) {
+              BookEntry(:final book) => BookGridCard(
+                book: book,
+                width: c.maxWidth,
+                place: 'library',
+                selected: book.ref == open,
+                markPhoneBook: library != null,
+              ),
+              GroupEntry(:final group, :final books, :final count) => BookGroupCard(
+                group: group,
+                books: books,
+                count: count,
+                width: c.maxWidth,
+              ),
+            },
           ),
         ),
       );
     } else {
       body = SliverList.builder(
         itemCount: list.length,
-        itemBuilder: (context, i) => BookListRow(
-          book: list[i],
-          place: 'library',
-          selected: list[i].ref == open,
-          markPhoneBook: library != null,
-        ),
+        itemBuilder: (context, i) => switch (list[i]) {
+          BookEntry(:final book) => BookListRow(
+            book: book,
+            place: 'library',
+            selected: book.ref == open,
+            markPhoneBook: library != null,
+          ),
+          GroupEntry(:final group, :final books, :final count) => BookGroupRow(
+            group: group,
+            books: books,
+            count: count,
+          ),
+        },
       );
     }
     return RefreshIndicator(

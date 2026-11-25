@@ -14,6 +14,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../accounts/data/account_session.dart';
 import '../../item_detail/ui/item_detail_screen.dart';
 import '../../podcasts/ui/podcast_library_screen.dart';
+import '../data/book_groups.dart';
 import '../data/library_providers.dart';
 import 'audiobooks_view.dart';
 import 'listen_view.dart';
@@ -25,8 +26,9 @@ enum LibraryTab { listen, audiobooks, podcasts, lists }
 
 /// The Library tab: Listen (in progress, downloading, downloaded),
 /// Audiobooks (the server's books and the books on this phone in one list),
-/// Podcasts (when the server has a podcast library) and Lists (favorites,
-/// series, authors, collections, playlists).
+/// Podcasts (when the server has a podcast library, or the user moved an
+/// author's or a series' books there) and Lists (favorites, series,
+/// authors, collections, playlists).
 class LibraryScreen extends ConsumerWidget {
   const LibraryScreen({super.key});
 
@@ -34,7 +36,10 @@ class LibraryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hasAccount = ref.watch(accountSessionProvider) != null;
     final libraries = ref.watch(absLibrariesProvider);
-    if (hasAccount && !libraries.hasValue) {
+    // The saved groups decide the Podcasts tab too: wait for them as well,
+    // so the tabs do not change a moment after showing.
+    final groups = ref.watch(bookGroupsProvider);
+    if (hasAccount && (!libraries.hasValue || !groups.hasValue)) {
       return Scaffold(
         appBar: AppBar(title: Text(AppLocalizations.of(context).tabLibrary)),
         body: const CustomScrollView(slivers: [SliverGridSkeleton()]),
@@ -43,11 +48,11 @@ class LibraryScreen extends ConsumerWidget {
     final tabs = [
       LibraryTab.listen,
       LibraryTab.audiobooks,
-      if (ref.watch(podcastLibrariesProvider).isNotEmpty) LibraryTab.podcasts,
+      if (ref.watch(hasPodcastsTabProvider)) LibraryTab.podcasts,
       LibraryTab.lists,
     ];
-    // A podcast library that appears or goes away changes the tabs: start
-    // over with the new set.
+    // A podcast library (or books moved to Podcasts) that appears or goes
+    // away changes the tabs: start over with the new set.
     final view = _LibraryTabs(key: ValueKey(tabs.join(',')), tabs: tabs);
     if (MediaQuery.sizeOf(context).width < Breakpoints.expanded) return view;
     // Wide screens: the books on the left, the chosen book on the right.

@@ -150,6 +150,41 @@ void main() {
       expect(decodeBookGroups('not json'), isEmpty);
       expect(decodeBookGroups(null), isEmpty);
     });
+
+    test('a group saved before it could move to Podcasts shows in Audiobooks; the place reads back', () {
+      const old =
+          '[{"source":"abs:acct-affluent","library":"lib-audiobooks","kind":"author",'
+          '"id":"author-night-tales","name":"The Night Tales Hour"}]';
+      expect(decodeBookGroups(old).single.place, BookGroupPlace.audiobooks);
+      final moved = nightTales.copyWith(place: BookGroupPlace.podcasts);
+      expect(moved, nightTales, reason: 'the same author wherever it shows');
+      final read = BookGroup.fromJson(moved.toJson());
+      expect(read?.place, BookGroupPlace.podcasts);
+      expect(BookGroup.fromJson({...moved.toJson(), 'place': 'attic'})?.place, BookGroupPlace.audiobooks);
+    });
+
+    test("Podcasts lists this account's moved groups of libraries it still has", () {
+      final moved = nightTales.copyWith(place: BookGroupPlace.podcasts);
+      const otherAccount = BookGroup(
+        source: AbsSource('acct-other'),
+        libraryId: 'lib-audiobooks',
+        kind: BookGroupKind.author,
+        id: 'a',
+        name: 'A',
+        place: BookGroupPlace.podcasts,
+      );
+      const goneLibrary = BookGroup(
+        source: account,
+        libraryId: 'lib-gone',
+        kind: BookGroupKind.series,
+        id: 's',
+        name: 'S',
+        place: BookGroupPlace.podcasts,
+      );
+      const libraries = [LibraryInfo(source: account, id: 'lib-audiobooks', name: 'Audiobooks')];
+      expect(podcastGroupsOf([moved, nightTales, otherAccount, goneLibrary], account, libraries), [moved]);
+      expect(podcastGroupsOf([nightTales], account, libraries), isEmpty, reason: 'kept in Audiobooks');
+    });
   });
 
   group('filters on books from this phone', () {

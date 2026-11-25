@@ -17,7 +17,7 @@ import 'book_actions.dart';
 import 'widgets/book_cards.dart';
 import 'widgets/browse_layout.dart';
 import 'widgets/collection_scaffold.dart';
-import 'widgets/group_switch.dart';
+import 'widgets/group_place.dart';
 
 /// The book a "Continue series" button plays: the first one not finished.
 /// Null when every book is finished.
@@ -109,7 +109,7 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> with RefreshingStat
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (group != null) GroupSwitch(group: group),
+                if (group != null) GroupPlaceTile(group: group),
                 if (value.description != null) DescriptionText(html: value.description!, maxLines: 4),
               ],
             ),

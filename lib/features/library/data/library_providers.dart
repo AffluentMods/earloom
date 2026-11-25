@@ -131,6 +131,21 @@ final podcastLibrariesProvider = Provider<List<LibraryInfo>>(
   (ref) => [...?ref.watch(absLibrariesProvider).value?.where((l) => l.isPodcast)],
 );
 
+/// The authors and series of the current account the user moved to
+/// Podcasts. Empty without an account, and while the saved groups load.
+final podcastGroupsOfAccountProvider = Provider<List<BookGroup>>((ref) {
+  final repository = ref.watch(absLibraryRepositoryProvider);
+  final saved = ref.watch(bookGroupsProvider).value;
+  if (repository == null || saved == null) return const [];
+  return podcastGroupsOf(saved, repository.source, ref.watch(bookLibrariesProvider));
+});
+
+/// Whether the Library has a Podcasts tab: a server podcast library, or
+/// books the user moved there.
+final hasPodcastsTabProvider = Provider<bool>(
+  (ref) => ref.watch(podcastLibrariesProvider).isNotEmpty || ref.watch(podcastGroupsOfAccountProvider).isNotEmpty,
+);
+
 /// The server book library the Audiobooks tab shows next to the books on
 /// this phone: the selected one when it is a book library, else the first.
 /// Null without a server book library.
@@ -247,12 +262,18 @@ final audiobooksProvider = StreamProvider.autoDispose.family<List<AudiobooksEntr
   final saved = ref.watch(bookGroupsProvider);
   // Wait for them, so books never turn into a card a moment after showing.
   if (!saved.hasValue) return const Stream.empty();
+  // Every group's books leave the list; only those kept in Audiobooks get
+  // a card here (the others have theirs in Podcasts).
   final groups = groupingApplies(query)
       ? [
           for (final g in saved.value!)
             if (g.source == server.source && g.libraryId == server.libraryId) g,
         ]
       : const <BookGroup>[];
+  final cardGroups = [
+    for (final g in groups)
+      if (g.place == BookGroupPlace.audiobooks) g,
+  ];
   final downloaded = query.filterOf(FilterKind.downloaded) == null
       ? const <String>{}
       : ref.watch(downloadedBookIdsProvider).ids;
@@ -264,7 +285,7 @@ final audiobooksProvider = StreamProvider.autoDispose.family<List<AudiobooksEntr
     hidden: groups.isEmpty ? null : groupMembers(groups),
   );
   final cards = combineLatestAll([
-    for (final g in groups)
+    for (final g in cardGroups)
       repository
           .watchGroupHead(server.libraryId, query, groupMembers([g]), downloadedIds: downloaded)
           .map((head) => head == null ? null : GroupEntry(group: g, books: head.first, count: head.count)),

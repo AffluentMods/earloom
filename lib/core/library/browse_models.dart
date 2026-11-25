@@ -105,9 +105,13 @@ final class LibraryQuery {
 /// What a [BookGroup] gathers.
 enum BookGroupKind { author, series }
 
-/// An author or a series of a server library whose books the Audiobooks
-/// list shows as one card instead of one card each. The user picks them;
-/// the choice stays on this phone.
+/// Where a [BookGroup]'s one card shows. Its books leave the Audiobooks
+/// list either way.
+enum BookGroupPlace { audiobooks, podcasts }
+
+/// An author or a series of a server library whose books show as one card
+/// instead of one card each, in Audiobooks or in Podcasts. The user picks
+/// them; the choice stays on this phone.
 @immutable
 final class BookGroup {
   const BookGroup({
@@ -116,6 +120,7 @@ final class BookGroup {
     required this.kind,
     required this.id,
     required this.name,
+    this.place = BookGroupPlace.audiobooks,
   });
 
   final SourceId source;
@@ -129,15 +134,22 @@ final class BookGroup {
   /// and what the card shows.
   final String name;
 
+  final BookGroupPlace place;
+
+  BookGroup copyWith({BookGroupPlace? place}) =>
+      BookGroup(source: source, libraryId: libraryId, kind: kind, id: id, name: name, place: place ?? this.place);
+
   Map<String, Object?> toJson() => {
     'source': source.key,
     'library': libraryId,
     'kind': kind.name,
     'id': id,
     'name': name,
+    'place': place.name,
   };
 
-  /// Null for anything that is not a group written by [toJson].
+  /// Null for anything that is not a group written by [toJson]. Groups
+  /// saved before they could move to Podcasts show in Audiobooks.
   static BookGroup? fromJson(Object? json) {
     if (json is! Map) return null;
     final source = SourceId.tryParse('${json['source']}');
@@ -148,10 +160,12 @@ final class BookGroup {
     if (source == null || kind == null || library is! String || id is! String || name is! String || id.isEmpty) {
       return null;
     }
-    return BookGroup(source: source, libraryId: library, kind: kind, id: id, name: name);
+    final place = BookGroupPlace.values.asNameMap()[json['place']] ?? BookGroupPlace.audiobooks;
+    return BookGroup(source: source, libraryId: library, kind: kind, id: id, name: name, place: place);
   }
 
-  /// The same author or series, whatever name it had when picked.
+  /// The same author or series, whatever name it had when picked and
+  /// wherever it shows.
   @override
   bool operator ==(Object other) =>
       other is BookGroup &&

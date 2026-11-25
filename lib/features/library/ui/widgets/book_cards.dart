@@ -332,18 +332,28 @@ void openBookGroup(BuildContext context, BookGroup group) => switch (group.kind)
 /// An author or a series the user keeps together, as one card in a grid:
 /// fanned covers, the name, what it is and how many books.
 class BookGroupCard extends StatelessWidget {
-  const BookGroupCard({super.key, required this.group, required this.books, required this.count, required this.width});
+  const BookGroupCard({
+    super.key,
+    required this.group,
+    required this.books,
+    required this.count,
+    required this.width,
+    this.line,
+  });
 
   final BookGroup group;
   final List<BookSummary> books;
   final int count;
   final double width;
 
+  /// What it says under the name, instead of "Author, 729 books".
+  final String? line;
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
-    final line = bookGroupLine(AppLocalizations.of(context), group, count);
+    final line = this.line ?? bookGroupLine(AppLocalizations.of(context), group, count);
     return SizedBox(
       width: width,
       child: Semantics(

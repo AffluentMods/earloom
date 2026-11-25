@@ -8,12 +8,16 @@ import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/router.dart';
+import '../../../core/library/browse_models.dart';
+import '../../../core/library/models.dart';
 import '../../../core/library/source_id.dart';
 import '../../../core/ui/cover_image.dart';
+import '../../../core/util/streams.dart';
 import '../../accounts/data/account_session.dart';
 import '../../downloads/data/download_manager.dart';
 import '../../downloads/data/offline_providers.dart';
 import '../../library/data/abs_json.dart';
+import '../../library/data/book_groups.dart';
 import '../../library/data/library_providers.dart';
 import '../../player/player_controller.dart';
 import '../../player/player_engine.dart';
@@ -65,6 +69,83 @@ final podcastShowsProvider = StreamProvider.autoDispose.family<List<ShowSummary>
   if (repository == null) return Stream.value(const []);
   return repository.watchShows(args.libraryId, sort: args.sort);
 });
+
+/// An author or a series moved to Podcasts, as a card there: its newest
+/// books first, and how many are not finished.
+final class PodcastsGroup {
+  const PodcastsGroup(this.entry, {required this.unplayed});
+
+  /// Its books newest first ([GroupEntry.books] holds the newest).
+  final GroupEntry entry;
+  final int unplayed;
+}
+
+/// The authors and series of the current account moved to Podcasts, each
+/// with its newest books and counts. While the server cannot be reached
+/// only the books on this phone count.
+final podcastGroupsProvider = StreamProvider.autoDispose<List<PodcastsGroup>>((ref) {
+  final repository = ref.watch(absLibraryRepositoryProvider);
+  if (repository == null) return Stream.value(const []);
+  // Wait for them, like Audiobooks, so a card never pops in late.
+  if (!ref.watch(bookGroupsProvider).hasValue) return const Stream.empty();
+  final groups = ref.watch(podcastGroupsOfAccountProvider);
+  if (groups.isEmpty) return Stream.value(const []);
+  final offline = ref.watch(isOfflineProvider);
+  const newest = LibraryQuery(sort: LibrarySort.addedAt, descending: true);
+  final query = offline ? offlineQuery(newest) : newest;
+  final downloaded = offline ? ref.watch(downloadedBookIdsProvider).ids : const <String>{};
+  final finished = query.withFilter(const LibraryFilter(FilterKind.progress, ProgressFilterValue.finished));
+  return combineLatestAll([
+    for (final g in groups)
+      combineLatest2(
+        repository.watchGroupHead(g.libraryId, query, groupMembers([g]), downloadedIds: downloaded),
+        repository.watchGroupHead(g.libraryId, finished, groupMembers([g]), take: 1, downloadedIds: downloaded),
+        (({List<BookSummary> first, int count})? head, ({List<BookSummary> first, int count})? done) => head == null
+            ? null
+            : PodcastsGroup(
+                GroupEntry(group: g, books: head.first, count: head.count),
+                unplayed: head.count - (done?.count ?? 0),
+              ),
+      ),
+  ]).map((list) => [...list.nonNulls]);
+});
+
+/// A card of the Podcasts grid.
+sealed class PodcastsCard {
+  const PodcastsCard();
+}
+
+final class PodcastsShowCard extends PodcastsCard {
+  const PodcastsShowCard(this.show);
+
+  final ShowSummary show;
+}
+
+final class PodcastsGroupCard extends PodcastsCard {
+  const PodcastsGroupCard(this.group);
+
+  final PodcastsGroup group;
+}
+
+/// The shows and the moved authors and series in one grid, in [sort]
+/// order. A group counts as a show whose newest episode is its newest book.
+List<PodcastsCard> podcastsGrid(List<ShowSummary> shows, List<PodcastsGroup> groups, ShowSort sort) {
+  final standIns = Map<ShowSummary, PodcastsGroup>.identity();
+  for (final g in groups) {
+    final newest = g.entry.books.first;
+    final standIn = ShowSummary(
+      show: BookSummary(ref: newest.ref, title: g.entry.group.name, addedAt: newest.addedAt),
+      episodeCount: g.entry.count,
+      unplayed: g.unplayed,
+      latestEpisodeAt: newest.addedAt,
+    );
+    standIns[standIn] = g;
+  }
+  return [
+    for (final s in sortShows([...shows, ...standIns.keys], sort))
+      if (standIns[s] case final group?) PodcastsGroupCard(group) else PodcastsShowCard(s),
+  ];
+}
 
 /// A show's header. Null when it is gone or not in the current account.
 final showDetailProvider = StreamProvider.autoDispose.family<ShowDetail?, ItemRef>((ref, show) {

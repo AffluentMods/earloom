@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../app/theme/tokens.dart';
+import '../../../core/library/browse_models.dart';
 import '../../../core/library/models.dart';
 import '../../../core/ui/states.dart';
 import '../../../l10n/gen/app_localizations.dart';
@@ -21,26 +22,29 @@ import 'episode_widgets.dart';
 import 'podcast_home.dart';
 
 /// The Podcasts tab of the Library: the shows of the server's podcast
-/// library (the selected one when there are several).
+/// library (the selected one when there are several), and the authors and
+/// series the user moved here from a book library.
 class PodcastsTab extends ConsumerWidget {
   const PodcastsTab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final library = ref.watch(podcastsLibraryProvider);
-    if (library == null) return const SizedBox.shrink();
     // A new library starts with its own sort and scroll position.
-    return PodcastShowsView(key: ValueKey(selectionKey(library)), library: library);
+    return PodcastShowsView(key: ValueKey(library == null ? '' : selectionKey(library)), library: library);
   }
 }
 
 /// The shows of one podcast library as a grid, each with how many episodes
 /// are unplayed, sorted by title, recent episodes or when they were added.
-/// Admins can add a show here.
+/// The authors and series moved to Podcasts are cards among them. Admins
+/// can add a show here.
 class PodcastShowsView extends ConsumerStatefulWidget {
   const PodcastShowsView({super.key, required this.library});
 
-  final LibraryInfo library;
+  /// Null when the server has no podcast library: then only the moved
+  /// authors and series show.
+  final LibraryInfo? library;
 
   @override
   ConsumerState<PodcastShowsView> createState() => _PodcastShowsViewState();
@@ -61,12 +65,23 @@ class _PodcastShowsViewState extends ConsumerState<PodcastShowsView>
 
   Future<void> _sync({bool force = false}) => runRefresh(() async {
     final books = ref.read(absLibraryRepositoryProvider);
-    final podcasts = currentPodcasts(ref, widget.library.source);
-    if (books == null || podcasts == null || books.source != widget.library.source) return;
-    await books.syncLibrary(widget.library.id, force: force);
+    if (books == null) return;
+    final library = widget.library;
+    final podcasts = library == null ? null : currentPodcasts(ref, library.source);
+    if (library != null && podcasts != null && books.source == library.source) {
+      await books.syncLibrary(library.id, force: force);
+      // Every show's episodes, quietly and at most every few hours.
+      unawaited(podcasts.syncShows(library.id).catchError((Object _) {}));
+    }
+    // The books of the moved authors and series, also new ones.
+    final moved = ref.read(podcastGroupsOfAccountProvider);
+    for (final libraryId in {for (final g in moved) g.libraryId}) {
+      await books.syncLibrary(libraryId, force: force);
+    }
+    for (final g in moved) {
+      if (g.kind == BookGroupKind.series) await books.refreshSeries(g.id, force: force);
+    }
     if (force) await books.refreshProgress();
-    // Every show's episodes, quietly and at most every few hours.
-    unawaited(podcasts.syncShows(widget.library.id).catchError((Object _) {}));
   });
 
   Future<void> _pickSort() async {
@@ -117,11 +132,13 @@ class _PodcastShowsViewState extends ConsumerState<PodcastShowsView>
       ShowSort.recentlyUpdated => l10n.podcastSortUpdated,
       ShowSort.addedAt => l10n.librarySortAdded,
     };
-    final shows = ref.watch(
-      podcastShowsProvider((source: widget.library.source, libraryId: widget.library.id, sort: _sort)),
-    );
-    final admin = ref.watch(userAccessProvider).value?.isAdmin ?? false;
-    final list = shows.value;
+    final library = widget.library;
+    final shows = library == null
+        ? const AsyncData(<ShowSummary>[])
+        : ref.watch(podcastShowsProvider((source: library.source, libraryId: library.id, sort: _sort)));
+    final groups = ref.watch(podcastGroupsProvider);
+    final admin = library != null && (ref.watch(userAccessProvider).value?.isAdmin ?? false);
+    final list = shows.hasValue && groups.hasValue ? podcastsGrid(shows.value!, groups.value!, _sort) : null;
     Widget body;
     if (list == null) {
       body = const SliverGridSkeleton();
@@ -133,7 +150,7 @@ class _PodcastShowsViewState extends ConsumerState<PodcastShowsView>
           title: l10n.podcastLibraryEmpty,
           action: admin
               ? FilledButton.icon(
-                  onPressed: () => openAddPodcast(context, widget.library.id),
+                  onPressed: () => openAddPodcast(context, library.id),
                   icon: const Icon(Icons.add_rounded),
                   label: Text(l10n.podcastAdminAdd),
                 )
@@ -147,7 +164,10 @@ class _PodcastShowsViewState extends ConsumerState<PodcastShowsView>
           gridDelegate: bookGridDelegate(context),
           itemCount: list.length,
           itemBuilder: (context, i) => LayoutBuilder(
-            builder: (context, c) => _ShowCard(show: list[i], width: c.maxWidth),
+            builder: (context, c) => switch (list[i]) {
+              PodcastsShowCard(:final show) => _ShowCard(show: show, width: c.maxWidth),
+              PodcastsGroupCard(:final group) => _GroupCard(group: group, width: c.maxWidth),
+            },
           ),
         ),
       );
@@ -167,7 +187,8 @@ class _PodcastShowsViewState extends ConsumerState<PodcastShowsView>
                 runSpacing: Space.sm,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  if (libraries.length > 1) LibrarySwitcherButton(library: widget.library, only: (l) => l.isPodcast),
+                  if (library != null && libraries.length > 1)
+                    LibrarySwitcherButton(library: library, only: (l) => l.isPodcast),
                   ActionChip(
                     side: BorderSide(color: scheme.outline),
                     avatar: const Icon(Icons.swap_vert_rounded),
@@ -180,7 +201,7 @@ class _PodcastShowsViewState extends ConsumerState<PodcastShowsView>
                       side: BorderSide(color: scheme.outline),
                       avatar: const Icon(Icons.add_rounded),
                       label: Text(l10n.podcastAdminAdd),
-                      onPressed: () => openAddPodcast(context, widget.library.id),
+                      onPressed: () => openAddPodcast(context, library.id),
                     ),
                 ],
               ),
@@ -211,6 +232,38 @@ class _ShowCard extends StatelessWidget {
             top: Space.sm,
             right: Space.sm,
             child: UnplayedBadge(count: show.unplayed),
+          ),
+      ],
+    );
+  }
+}
+
+/// An author or a series moved here, laid out like a show: its newest
+/// covers, how many books ("episodes") and how many are not finished.
+/// Opens the author or the series.
+class _GroupCard extends StatelessWidget {
+  const _GroupCard({required this.group, required this.width});
+
+  final PodcastsGroup group;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    final entry = group.entry;
+    return Stack(
+      children: [
+        BookGroupCard(
+          group: entry.group,
+          books: entry.books,
+          count: entry.count,
+          width: width,
+          line: AppLocalizations.of(context).groupCardEpisodes(entry.count),
+        ),
+        if (group.unplayed > 0)
+          Positioned(
+            top: Space.sm,
+            right: Space.sm,
+            child: UnplayedBadge(count: group.unplayed),
           ),
       ],
     );

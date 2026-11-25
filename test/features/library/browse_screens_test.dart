@@ -16,6 +16,9 @@ import 'package:earloom/features/library/ui/listen_view.dart';
 import 'package:earloom/features/library/ui/lists_view.dart';
 import 'package:earloom/features/library/ui/series_screen.dart';
 import 'package:earloom/features/library/ui/widgets/book_cards.dart';
+import 'package:earloom/features/library/ui/widgets/group_place.dart';
+import 'package:earloom/features/podcasts/ui/episode_widgets.dart';
+import 'package:earloom/features/podcasts/ui/podcast_library_screen.dart';
 import 'package:earloom/features/search/ui/search_screen.dart';
 import 'package:earloom/features/local_library/data/local_search_text.dart';
 import 'package:earloom/features/player/player_controller.dart';
@@ -492,8 +495,8 @@ void main() {
       expect(find.text("The Clockmaker's Tide"), findsOneWidget);
     });
 
-    serverTest('an author kept as one card in Audiobooks; Lists > Authors shows whole names', (tester) async {
-      await pumpServer(tester);
+    /// Opens Theo Vance from Lists > Authors.
+    Future<void> openTheoVance(WidgetTester tester) async {
       await tester.tap(find.text(l10n.tabLibrary));
       await settle(tester, rounds: 8);
       await tester.tap(find.text(l10n.libraryTabLists));
@@ -504,20 +507,37 @@ void main() {
       await tester.tap(find.text('Theo Vance'));
       await settle(tester, rounds: 8);
       expect(find.byType(AuthorScreen), findsOneWidget);
+    }
 
-      final toggle = find.widgetWithText(SwitchListTile, l10n.groupSwitchTitle);
-      await tester.scrollUntilVisible(toggle, 100, scrollable: mainScroll(AuthorScreen));
-      expect(tester.widget<SwitchListTile>(toggle).value, isFalse);
-      await tester.tap(toggle);
+    /// Picks where the open author's books show.
+    Future<void> showBooksIn(WidgetTester tester, String choice) async {
+      final tile = find.widgetWithText(ListTile, l10n.groupPlaceTitle);
+      await tester.scrollUntilVisible(tile, 100, scrollable: mainScroll(AuthorScreen));
+      await tester.tap(tile);
       await settle(tester);
-      expect(tester.widget<SwitchListTile>(toggle).value, isTrue);
+      await tester.tap(find.widgetWithText(RadioListTile<GroupPlaceChoice>, choice));
+      await settle(tester);
+      expect(find.descendant(of: tile, matching: find.text(choice)), findsOneWidget);
+    }
+
+    Future<void> openLibraryTab(WidgetTester tester, String tab) async {
+      GoRouter.of(tester.element(find.byType(AuthorScreen))).go('/library');
+      await settle(tester, rounds: 8);
+      await tester.tap(find.text(tab));
+      await settle(tester, rounds: 8);
+    }
+
+    serverTest('an author kept as one card in Audiobooks; Lists > Authors shows whole names', (tester) async {
+      await pumpServer(tester);
+      await openTheoVance(tester);
+      final tile = find.widgetWithText(ListTile, l10n.groupPlaceTitle);
+      await tester.scrollUntilVisible(tile, 100, scrollable: mainScroll(AuthorScreen));
+      expect(find.descendant(of: tile, matching: find.text(l10n.groupPlaceEach)), findsOneWidget);
+      await showBooksIn(tester, l10n.groupPlaceAudiobooks);
 
       // Audiobooks: Theo Vance's books are one card (the author screen
       // brought two more of them), the rest as before.
-      GoRouter.of(tester.element(find.byType(AuthorScreen))).go('/library');
-      await settle(tester, rounds: 8);
-      await tester.tap(find.text(l10n.libraryTabAudiobooks));
-      await settle(tester, rounds: 8);
+      await openLibraryTab(tester, l10n.libraryTabAudiobooks);
       for (final title in ['Ash Harbor', 'Cinder Interlude', 'Ember Road', 'Kindling Sky']) {
         expect(find.text(title), findsNothing);
       }
@@ -530,6 +550,63 @@ void main() {
       await settle(tester, rounds: 8);
       expect(find.byType(AuthorScreen), findsOneWidget);
       expect(find.text('Ash Harbor'), findsOneWidget);
+    });
+
+    serverTest('an author moved to Podcasts leaves Audiobooks and is a card in a Podcasts tab', (tester) async {
+      // A server with no podcast library: no Podcasts tab until books move
+      // there.
+      await pumpServer(
+        tester,
+        configure: (s) => s.routes['/api/libraries'] = (_) {
+          final all = fixture('libraries_list')! as Map;
+          return {
+            'libraries': [
+              for (final l in all['libraries']! as List)
+                if ((l as Map)['mediaType'] == 'book') l,
+            ],
+          };
+        },
+      );
+      await openTheoVance(tester);
+      expect(find.text(l10n.libraryTabPodcasts), findsNothing);
+      await showBooksIn(tester, l10n.groupPlacePodcasts);
+
+      await openLibraryTab(tester, l10n.libraryTabAudiobooks);
+      for (final title in ['Ash Harbor', 'Cinder Interlude', 'Ember Road', 'Kindling Sky']) {
+        expect(find.text(title), findsNothing);
+      }
+      expect(find.text("The Clockmaker's Tide"), findsOneWidget);
+      expect(find.byType(BookGroupCard), findsNothing);
+
+      // A Podcasts tab now: one card, four "episodes", none finished.
+      await tester.tap(find.text(l10n.libraryTabPodcasts));
+      await settle(tester, rounds: 8);
+      expect(find.byType(BookGroupCard), findsOneWidget);
+      expect(find.text('Theo Vance'), findsOneWidget);
+      expect(find.text(l10n.groupCardEpisodes(4)), findsOneWidget);
+      expect(find.descendant(of: find.byType(UnplayedBadge), matching: find.text('4')), findsOneWidget);
+      expect(find.text(l10n.podcastAdminAdd), findsNothing);
+
+      await tester.tap(find.byType(BookGroupCard));
+      await settle(tester, rounds: 8);
+      expect(find.byType(AuthorScreen), findsOneWidget);
+      expect(find.text('Ash Harbor'), findsOneWidget);
+
+      // Back to a card each: the Podcasts tab goes away again.
+      await showBooksIn(tester, l10n.groupPlaceEach);
+      await openLibraryTab(tester, l10n.libraryTabAudiobooks);
+      expect(find.text(l10n.libraryTabPodcasts), findsNothing);
+      expect(find.text('Ash Harbor'), findsOneWidget);
+    });
+
+    serverTest("with a podcast library, a moved author's card sits among its shows", (tester) async {
+      await pumpServer(tester);
+      await openTheoVance(tester);
+      await showBooksIn(tester, l10n.groupPlacePodcasts);
+      await openLibraryTab(tester, l10n.libraryTabPodcasts);
+      expect(find.byType(PodcastShowsView), findsOneWidget);
+      expect(find.byType(BookGroupCard), findsOneWidget);
+      expect(find.text(l10n.groupCardEpisodes(4)), findsOneWidget);
     });
 
     serverTest('Search: a newer query wins over a slower older one', (tester) async {

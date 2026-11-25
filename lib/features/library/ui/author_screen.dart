@@ -16,7 +16,7 @@ import 'widgets/book_cards.dart';
 import 'widgets/book_cover.dart';
 import 'widgets/browse_layout.dart';
 import 'widgets/collection_scaffold.dart';
-import 'widgets/group_switch.dart';
+import 'widgets/group_place.dart';
 
 /// An author: photo, biography, books grouped by series (in sequence), then
 /// the rest.
@@ -85,7 +85,7 @@ class _AuthorScreenState extends ConsumerState<AuthorScreen> with RefreshingStat
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (group != null) GroupSwitch(group: group),
+                if (group != null) GroupPlaceTile(group: group),
                 if (value.description != null) DescriptionText(html: value.description!, maxLines: 4),
               ],
             ),

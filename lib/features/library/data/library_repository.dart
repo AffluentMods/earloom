@@ -168,15 +168,16 @@ class AbsLibraryRepository {
       .watchBooks(libraryId, query, limit: limit, downloadedIds: downloadedIds, hidden: hidden)
       .map((rows) => [for (final r in rows) AbsJson.summary(source, r.item, r.progress)]);
 
-  /// The first books of a group that match [query] and how many match, for
-  /// its card in Audiobooks. Null when none match.
+  /// The first [take] books of a group that match [query] and how many
+  /// match, for its card. Null when none match.
   Stream<({List<BookSummary> first, int count})?> watchGroupHead(
     String libraryId,
     LibraryQuery query,
     GroupMembers members, {
+    int take = 3,
     Set<String> downloadedIds = const {},
   }) => _dao
-      .watchGroupHead(libraryId, query, members, downloadedIds: downloadedIds)
+      .watchGroupHead(libraryId, query, members, take: take, downloadedIds: downloadedIds)
       .map(
         (head) => head == null
             ? null

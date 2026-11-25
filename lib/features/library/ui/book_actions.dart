@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../app/providers.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../core/library/browse_models.dart';
 import '../../../core/library/models.dart';
@@ -16,6 +17,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../local_library/data/providers.dart';
 import '../../player/player_controller.dart';
 import '../../player/player_prefs.dart' show QueueEntry;
+import '../data/continue_listening.dart';
 import '../data/library_providers.dart';
 import 'widgets/book_cover.dart';
 import 'widgets/browse_layout.dart';
@@ -77,6 +79,94 @@ abstract final class BookActions {
     } on Object catch (e) {
       if (context.mounted) showActionError(context, e);
     }
+  }
+
+  /// What holding a book in Continue listening offers: a sheet with
+  /// "Remove from Continue listening".
+  static Future<void> continueListeningMenu(BuildContext context, WidgetRef ref, BookSummary book) async {
+    unawaited(HapticFeedback.mediumImpact());
+    final l10n = AppLocalizations.of(context);
+    final remove = await showModalBottomSheet<bool>(
+      context: context,
+      useRootNavigator: true,
+      useSafeArea: true,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(Space.xl, Space.lg, Space.xl, Space.sm),
+              child: Text(
+                book.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(sheet).textTheme.titleMedium,
+              ),
+            ),
+            ListTile(
+              minTileHeight: 56,
+              contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
+              leading: const Icon(Icons.remove_circle_outline_rounded),
+              title: Text(l10n.continueRemove),
+              onTap: () => Navigator.pop(sheet, true),
+            ),
+            const SizedBox(height: Space.sm),
+          ],
+        ),
+      ),
+    );
+    if (remove == true && context.mounted) await removeFromContinueListening(context, ref, book);
+  }
+
+  /// Takes [book] out of Continue listening, with Undo. It comes back on
+  /// its own once played again.
+  static Future<void> removeFromContinueListening(BuildContext context, WidgetRef ref, BookSummary book) async {
+    final l10n = AppLocalizations.of(context);
+    // The card goes away with the book, and [ref] with it: keep what Undo
+    // and the messages need.
+    final db = ref.read(globalDbProvider);
+    final repository = ref.read(absLibraryRepositoryProvider);
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    Future<void> setHidden(bool hidden) async {
+      switch (book.ref.source) {
+        case LocalSource():
+          await setHiddenLocally(db, book.ref.itemId, hidden: hidden);
+        case AbsSource():
+          if (repository == null || repository.source != book.ref.source) return;
+          await repository.setHiddenFromContinueListening(book.ref.itemId, hidden: hidden);
+      }
+    }
+
+    try {
+      await setHidden(true);
+    } on Object catch (e) {
+      if (context.mounted) showActionError(context, e);
+      return;
+    }
+    messenger
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(l10n.continueRemoved),
+          action: SnackBarAction(
+            label: l10n.progressUndo,
+            onPressed: () => unawaited(
+              setHidden(false).catchError((Object e) {
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.genericActionFailed),
+                    action: SnackBarAction(
+                      label: l10n.genericCopyDetails,
+                      onPressed: () => Clipboard.setData(ClipboardData(text: failureDetails(e))),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ),
+      );
   }
 
   /// Asks, then deletes an imported book and its files. Returns true when

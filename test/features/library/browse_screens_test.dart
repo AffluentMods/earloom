@@ -9,6 +9,7 @@ import 'package:earloom/core/library/source_id.dart';
 import 'package:earloom/features/accounts/data/account_session.dart';
 import 'package:earloom/features/downloads/data/download_manager.dart';
 import 'package:earloom/features/downloads/data/offline_providers.dart';
+import 'package:earloom/features/home/ui/hero_card.dart';
 import 'package:earloom/features/home/ui/home_screen.dart';
 import 'package:earloom/features/item_detail/ui/item_detail_screen.dart';
 import 'package:earloom/features/library/ui/author_screen.dart';
@@ -315,6 +316,27 @@ void main() {
       await tester.scrollUntilVisible(find.text(l10n.homeShelfRecentlyAdded), 200, scrollable: mainScroll(HomeScreen));
       await tester.scrollUntilVisible(find.text(l10n.homeShelfOnThisDevice), 200, scrollable: mainScroll(HomeScreen));
       expect(find.text('Pocket Atlas'), findsOneWidget);
+    });
+
+    serverTest('Home: holding the book in Continue listening takes it out, with Undo', (tester) async {
+      final setup = await pumpServer(
+        tester,
+        configure: (s) => s.routes['/api/me/progress/$clockmaker'] = (_) => 'OK',
+      );
+      expect(find.byType(HeroCard), findsOneWidget);
+
+      await tester.longPress(find.byType(HeroCard));
+      await settle(tester);
+      await tester.tap(find.text(l10n.continueRemove));
+      await settle(tester);
+      expect(find.byType(HeroCard), findsNothing);
+      expect(find.text(l10n.continueRemoved), findsOneWidget);
+      expect(setup.server.requestsTo('/api/me/progress/$clockmaker').single.data, {'hideFromContinueListening': true});
+
+      await tester.tap(find.text(l10n.progressUndo));
+      await settle(tester);
+      expect(find.byType(HeroCard), findsOneWidget);
+      expect(setup.server.requestsTo('/api/me/progress/$clockmaker').last.data, {'hideFromContinueListening': false});
     });
 
     serverTest('Item detail of a server book: header, chapters, details, mark finished', (tester) async {

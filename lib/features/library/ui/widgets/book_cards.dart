@@ -36,10 +36,16 @@ class BookGridCard extends ConsumerWidget {
     this.subtitle,
     this.selected = false,
     this.markPhoneBook = false,
+    this.onLongPress,
+    this.longPressHint,
   });
 
   final BookSummary book;
   final double width;
+
+  /// What holding the card does, and what a screen reader says it does.
+  final VoidCallback? onLongPress;
+  final String? longPressHint;
 
   /// Marks a book from the On this device library (see [BookCover]).
   final bool markPhoneBook;
@@ -69,8 +75,11 @@ class BookGridCard extends ConsumerWidget {
         selected: selected,
         label: onPhone ? '${bookSemantics(l10n, book)}, ${l10n.sourceOnThisDevice}' : bookSemantics(l10n, book),
         excludeSemantics: true,
+        onLongPress: onLongPress,
+        onLongPressHint: longPressHint,
         child: InkWell(
           onTap: () => BrowseNav.open(context, book, heroTag: tag),
+          onLongPress: onLongPress,
           borderRadius: BorderRadius.circular(coverRadius(width)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,10 +140,16 @@ class BookListRow extends ConsumerWidget {
     this.onTap,
     this.selected = false,
     this.markPhoneBook = false,
+    this.onLongPress,
+    this.longPressHint,
   });
 
   final BookSummary book;
   final String place;
+
+  /// What holding the row does, and what a screen reader says it does.
+  final VoidCallback? onLongPress;
+  final String? longPressHint;
 
   /// Says "On this device" for a book from the On this device library.
   final bool markPhoneBook;
@@ -169,10 +184,13 @@ class BookListRow extends ConsumerWidget {
       label: bookSemantics(l10n, book),
       excludeSemantics: trailing == null,
       selected: selected,
+      onLongPress: onLongPress,
+      onLongPressHint: longPressHint,
       child: Material(
         color: selected ? scheme.secondaryContainer : Colors.transparent,
         child: InkWell(
           onTap: onTap ?? () => BrowseNav.open(context, book, heroTag: tag),
+          onLongPress: onLongPress,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 88),
             child: Padding(

@@ -280,6 +280,46 @@ void main() {
       expect(progress!.isFinished, isFalse);
       expect(progress.position, const Duration(seconds: 144));
     });
+
+    Future<List<String>> continuing() async => [
+      for (final b in await repository.watchContinueListening().first) b.ref.itemId,
+    ];
+
+    test("taking a book out of Continue listening sets the server's flag; putting it back clears it", () async {
+      await repository.refreshProgress();
+      expect(await continuing(), contains(clockmaker));
+      server.routes['/api/me/progress/$clockmaker'] = (_) => const FakeResponse(200, 'OK');
+
+      await repository.setHiddenFromContinueListening(clockmaker, hidden: true);
+      expect(await continuing(), isNot(contains(clockmaker)));
+      expect((await repository.watchProgress(clockmaker).first)!.position, const Duration(seconds: 144));
+      await repository.setHiddenFromContinueListening(clockmaker, hidden: false);
+      expect(await continuing(), contains(clockmaker));
+
+      final requests = server.requestsTo('/api/me/progress/$clockmaker');
+      expect([for (final r in requests) r.method], ['PATCH', 'PATCH']);
+      expect(
+        [for (final r in requests) r.data],
+        [
+          {'hideFromContinueListening': true},
+          {'hideFromContinueListening': false},
+        ],
+      );
+
+      // Already shown: nothing to send (playing a book asks this each time).
+      await repository.setHiddenFromContinueListening(clockmaker, hidden: false);
+      expect(server.requestsTo('/api/me/progress/$clockmaker'), hasLength(2));
+    });
+
+    test('a failed take-out leaves the book in Continue listening', () async {
+      await repository.refreshProgress();
+      server.offline = true;
+      await expectLater(
+        repository.setHiddenFromContinueListening(clockmaker, hidden: true),
+        throwsA(isA<AbsUnreachable>()),
+      );
+      expect(await continuing(), contains(clockmaker));
+    });
   });
 
   group('socket', () {

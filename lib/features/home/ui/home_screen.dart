@@ -285,12 +285,18 @@ class _BookShelf extends StatelessWidget {
     required this.place,
     this.action,
     this.showSeries = false,
+    this.onLongPress,
+    this.longPressHint,
   });
 
   final String title;
   final List<BookSummary> books;
   final String place;
   final Widget? action;
+
+  /// What holding a book does, and what a screen reader says it does.
+  final void Function(BookSummary book)? onLongPress;
+  final String? longPressHint;
 
   /// Under the cover, "Book 3 of The Example Saga" instead of the author.
   final bool showSeries;
@@ -314,6 +320,8 @@ class _BookShelf extends StatelessWidget {
           subtitle: showSeries && b.seriesSequence != null && b.seriesName != null
               ? l10n.itemSeriesPosition(b.seriesSequence!, b.seriesName!)
               : null,
+          onLongPress: onLongPress == null ? null : () => onLongPress!(b),
+          longPressHint: longPressHint,
         );
       },
     );
@@ -323,8 +331,8 @@ class _BookShelf extends StatelessWidget {
 /// The book to go back to, and the other books in progress. Phones get the
 /// hero card and a shelf under it. Tablets get the wide hero card, and on
 /// wide screens the other books sit in a panel beside it, as tall as the
-/// card.
-class _ContinueListening extends StatelessWidget {
+/// card. Holding a book offers to take it out of Continue listening.
+class _ContinueListening extends ConsumerWidget {
   const _ContinueListening({required this.books});
 
   final List<BookSummary> books;
@@ -333,15 +341,16 @@ class _ContinueListening extends StatelessWidget {
   static const _panelFrom = 900.0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final gutter = context.gutter;
+    void menu(BookSummary book) => BookActions.continueListeningMenu(context, ref, book);
     return LayoutBuilder(
       builder: (context, box) {
         final wide = box.maxWidth - 2 * gutter >= ContentWidth.form;
         final others = books.skip(1).toList();
         final panel = others.isNotEmpty && box.maxWidth >= _panelFrom;
-        final hero = HeroCard(book: books.first, wide: wide);
+        final hero = HeroCard(book: books.first, wide: wide, onLongPress: () => menu(books.first));
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -364,7 +373,13 @@ class _ContinueListening extends StatelessWidget {
                   : hero,
             ),
             if (!panel && others.isNotEmpty)
-              _BookShelf(title: l10n.homeShelfAlsoInProgress, books: others, place: 'home-continue'),
+              _BookShelf(
+                title: l10n.homeShelfAlsoInProgress,
+                books: others,
+                place: 'home-continue',
+                onLongPress: menu,
+                longPressHint: l10n.continueRemove,
+              ),
           ],
         );
       },
@@ -428,8 +443,10 @@ class _InProgressRow extends ConsumerWidget {
     ].join(' · ');
     final isCurrent = ref.watch(playerProvider.select((s) => s.now?.ref == book.ref));
     final playing = ref.watch(playerProvider.select((s) => s.now?.ref == book.ref && s.playing));
+    void menu() => BookActions.continueListeningMenu(context, ref, book);
     return InkWell(
       onTap: () => BrowseNav.open(context, book, heroTag: tag),
+      onLongPress: menu,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(Space.lg, Space.sm, Space.xs, Space.sm),
         child: Row(
@@ -439,6 +456,8 @@ class _InProgressRow extends ConsumerWidget {
                 button: true,
                 label: bookSemantics(l10n, book),
                 excludeSemantics: true,
+                onLongPress: menu,
+                onLongPressHint: l10n.continueRemove,
                 child: Row(
                   children: [
                     BookCover(book: book, size: 52, heroTag: tag, showProgress: false),

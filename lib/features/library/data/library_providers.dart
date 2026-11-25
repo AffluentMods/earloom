@@ -19,6 +19,7 @@ import '../../home/data/home_repository.dart';
 import '../../local_library/data/local_library_repository.dart';
 import '../../local_library/data/providers.dart';
 import 'book_groups.dart';
+import 'continue_listening.dart';
 import 'library_repository.dart';
 
 // The source-agnostic layer the screens use. Every provider here answers
@@ -631,13 +632,24 @@ final libraryOfItemProvider = FutureProvider.autoDispose.family<String?, ItemRef
 
 // --- Home ---
 
-/// In-progress books of both sources, most recent first. While the server
-/// cannot be reached, only the ones on this phone.
+/// In-progress books of both sources, most recent first, leaving out those
+/// the user took out (until played again). While the server cannot be
+/// reached, only the ones on this phone.
 final continueListeningProvider = StreamProvider.autoDispose<List<BookSummary>>((ref) {
+  final hidden = ref.watch(hiddenLocalBooksProvider);
+  // Wait for them, so a book taken out never shows for a moment.
+  if (!hidden.hasValue) return const Stream.empty();
   final local = ref
       .watch(localLibraryRepositoryProvider)
       .watchBooks(sort: LocalBookSort.recentlyPlayed)
-      .map((books) => books.where((b) => (b.progress?.isStarted ?? false) && !(b.progress?.isFinished ?? false)));
+      .map(
+        (books) => books.where(
+          (b) =>
+              (b.progress?.isStarted ?? false) &&
+              !(b.progress?.isFinished ?? false) &&
+              !isHiddenLocally(b, hidden.value!),
+        ),
+      );
   final repository = ref.watch(absLibraryRepositoryProvider);
   final onPhone = ref.watch(isOfflineProvider) ? ref.watch(downloadedBookIdsProvider) : null;
   final server = repository == null

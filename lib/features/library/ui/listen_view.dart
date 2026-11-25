@@ -16,6 +16,7 @@ import '../../downloads/data/download_manager.dart';
 import '../../downloads/data/offline_providers.dart';
 import '../../downloads/ui/download_rows.dart';
 import '../data/library_providers.dart';
+import 'book_actions.dart';
 import 'browse_nav.dart';
 import 'library_screen.dart' show libraryPaneProvider;
 import 'widgets/book_cards.dart';
@@ -172,8 +173,13 @@ class _ListenViewState extends ConsumerState<ListenView> with RefreshingState, A
               title(l10n.homeContinueListening),
               SliverList.builder(
                 itemCount: inProgress.length,
-                itemBuilder: (_, i) =>
-                    BookListRow(book: inProgress[i], place: 'listen', selected: inProgress[i].ref == open),
+                itemBuilder: (_, i) => BookListRow(
+                  book: inProgress[i],
+                  place: 'listen',
+                  selected: inProgress[i].ref == open,
+                  onLongPress: () => BookActions.continueListeningMenu(context, ref, inProgress[i]),
+                  longPressHint: l10n.continueRemove,
+                ),
               ),
             ],
             if (saved.isNotEmpty || episodes.isNotEmpty) ...[

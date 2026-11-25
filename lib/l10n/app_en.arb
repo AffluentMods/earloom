@@ -2000,6 +2000,10 @@
   },
   "homeContinueListening": "Continue listening",
   "homeShelfAlsoInProgress": "Also in progress",
+  "continueRemove": "Remove from Continue listening",
+  "@continueRemove": {"description": "In the sheet that opens when the user holds a book in Continue listening (Home, Listen). Takes the book out of that list until it is played again. Also read by screen readers as what holding the book does."},
+  "continueRemoved": "Removed from Continue listening",
+  "@continueRemoved": {"description": "Message after continueRemove, with an Undo button."},
   "@homeShelfAlsoInProgress": {
     "description": "Home shelf under the big Continue listening card: the other books the user has started."
   },

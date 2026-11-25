@@ -154,6 +154,22 @@ class AbsLibraryRepository {
     }
   }
 
+  /// Takes a book out of Continue listening, or puts it back. The flag is
+  /// the server's own (`hideFromContinueListening`), so the web app and
+  /// other devices follow. Changes in the cache at once and goes back if
+  /// the server says no.
+  Future<void> setHiddenFromContinueListening(String itemId, {required bool hidden}) async {
+    final before = await _dao.progressOf(itemId);
+    if (before == null || before.hideFromContinueListening == hidden) return;
+    await _dao.setHiddenFromContinueListening(itemId, hidden: hidden);
+    try {
+      await client.patch<Object?>('/api/me/progress/$itemId', body: {'hideFromContinueListening': hidden});
+    } on Object {
+      await _dao.setHiddenFromContinueListening(itemId, hidden: !hidden);
+      rethrow;
+    }
+  }
+
   // --- Items ---
 
   /// [downloadedIds]: the books fully on this phone, for the downloaded

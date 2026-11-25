@@ -329,6 +329,11 @@ class CatalogDao extends DatabaseAccessor<AccountDb> with _$CatalogDaoMixin {
 
   Future<void> upsertProgress(ProgressCompanion row) => into(progress).insertOnConflictUpdate(row);
 
+  Future<void> setHiddenFromContinueListening(String itemId, {required bool hidden}) =>
+      (update(progress)..where((t) => t.itemId.equals(itemId) & t.episodeId.equals(''))).write(
+        ProgressCompanion(hideFromContinueListening: Value(hidden)),
+      );
+
   Future<void> deleteProgress(String itemId, {String episodeId = ''}) =>
       (delete(progress)..where((t) => t.itemId.equals(itemId) & t.episodeId.equals(episodeId))).go();
 

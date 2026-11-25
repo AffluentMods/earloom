@@ -20,9 +20,13 @@ import '../../player/player_controller.dart';
 /// button that plays right here. The card takes the cover's colors and
 /// cross-fades when the book changes.
 class HeroCard extends ConsumerWidget {
-  const HeroCard({super.key, required this.book, this.onOpen, this.cover, this.wide = false});
+  const HeroCard({super.key, required this.book, this.onOpen, this.onLongPress, this.cover, this.wide = false});
 
   final BookSummary book;
+
+  /// What holding the card does (Home: take the book out of Continue
+  /// listening).
+  final VoidCallback? onLongPress;
 
   /// Tablet layout: a bigger cover with everything else beside it, so the
   /// card does not stretch a phone's layout across the screen.
@@ -45,17 +49,25 @@ class HeroCard extends ConsumerWidget {
         duration: reduceMotion ? Duration.zero : Motion.normal,
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
-        child: _HeroContent(key: ValueKey(book.ref), book: book, onOpen: onOpen, cover: cover, wide: wide),
+        child: _HeroContent(
+          key: ValueKey(book.ref),
+          book: book,
+          onOpen: onOpen,
+          onLongPress: onLongPress,
+          cover: cover,
+          wide: wide,
+        ),
       ),
     );
   }
 }
 
 class _HeroContent extends ConsumerWidget {
-  const _HeroContent({super.key, required this.book, this.onOpen, this.cover, this.wide = false});
+  const _HeroContent({super.key, required this.book, this.onOpen, this.onLongPress, this.cover, this.wide = false});
 
   final BookSummary book;
   final VoidCallback? onOpen;
+  final VoidCallback? onLongPress;
   final BookSummary? cover;
   final bool wide;
 
@@ -147,6 +159,8 @@ class _HeroContent extends ConsumerWidget {
               label: bookSemantics(l10n, book),
               button: true,
               excludeSemantics: true,
+              onLongPress: onLongPress,
+              onLongPressHint: onLongPress == null ? null : l10n.continueRemove,
               child: BookCover(book: cover ?? book, size: wideCoverSize, heroTag: tag, showProgress: false),
             ),
             const SizedBox(width: Space.xl),
@@ -181,6 +195,8 @@ class _HeroContent extends ConsumerWidget {
               label: bookSemantics(l10n, book),
               button: true,
               excludeSemantics: true,
+              onLongPress: onLongPress,
+              onLongPressHint: onLongPress == null ? null : l10n.continueRemove,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -214,6 +230,7 @@ class _HeroContent extends ConsumerWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onOpen ?? () => BrowseNav.open(context, book, heroTag: tag),
+          onLongPress: onLongPress,
           child: content,
         ),
       ),

@@ -12,6 +12,7 @@ import 'package:sensors_plus/sensors_plus.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../platform/native_bridge.dart';
 import '../../../platform/widget_bridge.dart';
+import '../../library/data/continue_listening.dart';
 import '../../podcasts/data/podcast_providers.dart';
 import '../../stats/data/stats_repository.dart';
 import '../player_controller.dart';
@@ -145,6 +146,7 @@ class _PlayerSideEffectsState extends ConsumerState<PlayerSideEffects> with Widg
     ref.watch(nativeBridgeProvider);
     ref.watch(podcastPlaybackBridgeProvider);
     ref.watch(podcastAutomationProvider);
+    ref.watch(continueListeningRevealProvider);
     ref.listen(playerNoticesProvider, (_, next) {
       if (next case AsyncData(:final value)) _onNotice(value);
     });

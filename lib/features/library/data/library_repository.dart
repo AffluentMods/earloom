@@ -184,6 +184,14 @@ class AbsLibraryRepository {
       .watchBooks(libraryId, query, limit: limit, downloadedIds: downloadedIds, hidden: hidden)
       .map((rows) => [for (final r in rows) AbsJson.summary(source, r.item, r.progress)]);
 
+  /// How many books [watchBooks] would list without a limit.
+  Stream<int> watchBookCount(
+    String libraryId,
+    LibraryQuery query, {
+    Set<String> downloadedIds = const {},
+    GroupMembers? hidden,
+  }) => _dao.watchBookCount(libraryId, query, downloadedIds: downloadedIds, hidden: hidden);
+
   /// The first [take] books of a group that match [query] and how many
   /// match, for its card. Null when none match.
   Stream<({List<BookSummary> first, int count})?> watchGroupHead(

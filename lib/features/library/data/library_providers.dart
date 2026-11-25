@@ -299,6 +299,39 @@ final audiobooksProvider = StreamProvider.autoDispose.family<List<AudiobooksEntr
   );
 });
 
+/// How many books the Audiobooks list holds for its query, not only the
+/// pages loaded so far: the server library's and this phone's. Books kept
+/// together on one card count one by one; books moved to Podcasts do not
+/// count.
+final audiobooksCountProvider = StreamProvider.autoDispose.family<int, ({LibraryKey? server, LibraryQuery query})>((
+  ref,
+  args,
+) {
+  final query = ref.watch(isOfflineProvider) ? offlineQuery(args.query) : args.query;
+  final local = _watchBooks(ref, const LocalSource(), localLibraryId, query, 1 << 30).map((books) => books.length);
+  final server = args.server;
+  final repository = server == null ? null : absRepositoryFor(ref, server.source);
+  if (server == null || repository == null) return local;
+  final saved = ref.watch(bookGroupsProvider);
+  if (!saved.hasValue) return const Stream.empty();
+  final moved = groupingApplies(query)
+      ? [
+          for (final g in saved.value!)
+            if (g.source == server.source && g.libraryId == server.libraryId && g.place == BookGroupPlace.podcasts) g,
+        ]
+      : const <BookGroup>[];
+  final downloaded = query.filterOf(FilterKind.downloaded) == null
+      ? const <String>{}
+      : ref.watch(downloadedBookIdsProvider).ids;
+  final books = repository.watchBookCount(
+    server.libraryId,
+    query,
+    downloadedIds: downloaded,
+    hidden: moved.isEmpty ? null : groupMembers(moved),
+  );
+  return combineLatest2(books, local, (int s, int l) => s + l);
+});
+
 /// Groups show as cards unless the user is looking at one author or one
 /// series already: then their books are what they asked for.
 bool groupingApplies(LibraryQuery query) =>

@@ -151,6 +151,23 @@ class CatalogDao extends DatabaseAccessor<AccountDb> with _$CatalogDaoMixin {
     return statement.watch().map((rows) => [for (final r in rows) _read(r)]);
   }
 
+  /// How many books [watchBooks] would list without a limit.
+  Stream<int> watchBookCount(
+    String libraryId,
+    LibraryQuery query, {
+    Set<String> downloadedIds = const {},
+    GroupMembers? hidden,
+  }) {
+    const total = CustomExpression<int>('COUNT(*) OVER ()');
+    final statement = _books(libraryId, query, downloadedIds);
+    final inGroups = hidden == null ? null : _inGroups(hidden);
+    if (inGroups != null) statement.where(inGroups.not());
+    statement
+      ..addColumns([total])
+      ..limit(1);
+    return statement.watch().map((rows) => rows.isEmpty ? 0 : rows.first.read(total) ?? 0);
+  }
+
   /// The first [take] books of a group that match [query], in the order of
   /// [query], and how many match in all: where the group's card goes, the
   /// covers it shows and the count under it. Null when none match.

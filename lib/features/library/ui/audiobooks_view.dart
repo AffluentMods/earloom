@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../app/providers.dart';
 import '../../../app/router.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../core/library/browse_models.dart';
@@ -16,15 +17,17 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../downloads/data/offline_providers.dart';
 import '../data/book_groups.dart';
 import '../data/library_providers.dart';
-import 'library_screen.dart' show libraryPaneProvider;
+import 'book_actions.dart';
+import 'library_screen.dart' show audiobooksLayoutKey, libraryPaneProvider;
 import 'library_sheets.dart';
 import 'library_switcher.dart';
 import 'widgets/book_cards.dart';
 import 'widgets/browse_layout.dart';
 
 /// Every book: the server library's and the ones on this phone in one list,
-/// with the progress and download filters one tap away. Pages 50 at a time
-/// from the cache while the server library syncs in the background.
+/// with the progress and download filters one tap away, then how many books
+/// there are, grid or list, and the sort. Pages 50 at a time from the cache
+/// while the server library syncs in the background.
 class AudiobooksView extends ConsumerStatefulWidget {
   const AudiobooksView({super.key, required this.grid});
 
@@ -113,6 +116,7 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
     final libraries = ref.watch(bookLibrariesProvider);
     final offline = ref.watch(isOfflineProvider);
     final books = ref.watch(audiobooksProvider(_args));
+    final count = ref.watch(audiobooksCountProvider((server: _args.server, query: _query))).value;
     final list = books.value;
     final hasMore = list != null && list.length >= _limit;
     // On wide screens the chosen book is open beside the list: mark it.
@@ -186,6 +190,7 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
             place: 'library',
             selected: book.ref == open,
             markPhoneBook: library != null,
+            trailing: BookRowActions(book: book, libraryId: library?.id),
           ),
           GroupEntry(:final group, :final books, :final count) => BookGroupRow(
             group: group,
@@ -222,6 +227,15 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
               onChanged: _setQuery,
             ),
           ),
+          SliverToBoxAdapter(
+            child: _CountLayoutSort(
+              count: count,
+              grid: widget.grid,
+              query: _query,
+              local: library == null,
+              onChanged: _setQuery,
+            ),
+          ),
           body,
           if (hasMore)
             const SliverToBoxAdapter(
@@ -251,7 +265,7 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
   }
 }
 
-/// The row above the books: sort, More filters, then one-tap chips for
+/// The chips above the books: More filters, then one-tap chips for
 /// progress (not started, in progress, finished) and downloads (downloaded,
 /// not downloaded), then each filter from the sheet as a removable chip.
 class QuickFilterBar extends StatelessWidget {
@@ -281,8 +295,6 @@ class QuickFilterBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final sort = librarySortLabel(l10n, query.sort);
-    final direction = query.descending ? l10n.librarySortDescending : l10n.librarySortAscending;
     final more = query.moreFilters;
     Widget quick(LibraryFilter filter) {
       final selected = query.filterOf(filter.kind) == filter;
@@ -305,21 +317,6 @@ class QuickFilterBar extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: context.gutter, vertical: Space.sm),
         child: Row(
           children: [
-            Semantics(
-              label: l10n.librarySortedBy(sort, direction),
-              excludeSemantics: true,
-              button: true,
-              child: ActionChip(
-                avatar: Icon(query.descending ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded),
-                label: Text(sort),
-                tooltip: l10n.librarySort,
-                onPressed: () async {
-                  final next = await showSortSheet(context, query, local: local);
-                  if (next != null) onChanged(next);
-                },
-              ),
-            ),
-            const SizedBox(width: Space.sm),
             ActionChip(
               avatar: const Icon(Icons.tune_rounded),
               label: Text(
@@ -360,6 +357,78 @@ class QuickFilterBar extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Under the chips: how many books, grid or list, and the sort. The sort
+/// moves to its own line when the text is large.
+class _CountLayoutSort extends ConsumerWidget {
+  const _CountLayoutSort({
+    required this.count,
+    required this.grid,
+    required this.query,
+    required this.local,
+    required this.onChanged,
+  });
+
+  /// Null while counting.
+  final int? count;
+  final bool grid;
+  final LibraryQuery query;
+  final bool local;
+  final ValueChanged<LibraryQuery> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final sort = librarySortLabel(l10n, query.sort);
+    final direction = query.descending ? l10n.librarySortDescending : l10n.librarySortAscending;
+    final layoutLabel = grid ? l10n.libraryList : l10n.libraryGrid;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(context.gutter, 0, context.gutter - Space.sm, 0),
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (count != null) ...[
+                Text(l10n.bookCountLabel(count!), style: text.titleMedium),
+                const SizedBox(width: Space.sm),
+              ],
+              Tooltip(
+                message: layoutLabel,
+                child: TextButton.icon(
+                  icon: Icon(grid ? Icons.view_list_rounded : Icons.grid_view_rounded),
+                  label: Text(grid ? l10n.libraryLayoutList : l10n.libraryLayoutGrid),
+                  onPressed: () => ref
+                      .read(globalDbProvider)
+                      .writeSetting('${LibrarySettingKeys.layoutPrefix}$audiobooksLayoutKey', grid ? 'list' : 'grid'),
+                ),
+              ),
+            ],
+          ),
+          Tooltip(
+            message: l10n.librarySort,
+            child: Semantics(
+              label: l10n.librarySortedBy(sort, direction),
+              button: true,
+              excludeSemantics: true,
+              child: TextButton.icon(
+                icon: Icon(query.descending ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded),
+                label: Text(sort),
+                onPressed: () async {
+                  final next = await showSortSheet(context, query, local: local);
+                  if (next != null) onChanged(next);
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

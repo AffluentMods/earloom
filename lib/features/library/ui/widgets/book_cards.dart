@@ -171,14 +171,21 @@ class BookListRow extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final tag = coverHeroTag(book.ref, place);
     final progress = book.progress;
-    final details = [
+    final finished = progress != null && progress.isFinished;
+    final started = progress != null && progress.isStarted && !progress.isFinished;
+    final byline = [
       if (markPhoneBook && book.ref.source is LocalSource) l10n.sourceOnThisDevice,
       if (book.authors.isNotEmpty) book.authorLine,
-      if (book.duration > Duration.zero)
-        progress != null && progress.isStarted && !progress.isFinished
-            ? formatTimeLeft(l10n, progress.remaining)
-            : formatDurationShort(l10n, book.duration),
     ].join(' · ');
+    // Under the authors: Finished, the time left, or the length.
+    final status = finished
+        ? l10n.genericFinished
+        : started
+        ? formatTimeLeft(l10n, progress.remaining)
+        : book.duration > Duration.zero
+        ? formatDurationShort(l10n, book.duration)
+        : null;
+    final quiet = text.bodySmall?.copyWith(color: scheme.onSurfaceVariant);
     return Semantics(
       button: true,
       label: bookSemantics(l10n, book),
@@ -207,26 +214,31 @@ class BookListRow extends ConsumerWidget {
                         if (leadingLabel != null)
                           Text(leadingLabel!, style: text.labelMedium?.copyWith(color: scheme.primary)),
                         Text(book.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: text.titleMedium),
-                        if (details.isNotEmpty) ...[
+                        if (byline.isNotEmpty) ...[
                           const SizedBox(height: 2),
-                          Text(
-                            details,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+                          Text(byline, maxLines: 1, overflow: TextOverflow.ellipsis, style: quiet),
+                        ],
+                        if (status != null) ...[
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              if (finished) ...[
+                                Icon(Icons.check_circle_rounded, color: scheme.primary, size: 16),
+                                const SizedBox(width: Space.xs),
+                              ],
+                              Flexible(
+                                child: Text(status, maxLines: 1, overflow: TextOverflow.ellipsis, style: quiet),
+                              ),
+                            ],
                           ),
                         ],
-                        if (progress != null && progress.isStarted && !progress.isFinished) ...[
+                        if (started) ...[
                           const SizedBox(height: Space.sm),
                           SizedBox(width: 120, child: ThinProgressBar(value: progress.fraction, height: 3)),
                         ],
                       ],
                     ),
                   ),
-                  if (progress != null && progress.isFinished) ...[
-                    const SizedBox(width: Space.sm),
-                    Icon(Icons.check_circle_rounded, color: scheme.primary, size: 20),
-                  ],
                   if (trailing != null) ...[const SizedBox(width: Space.xs), trailing!],
                 ],
               ),

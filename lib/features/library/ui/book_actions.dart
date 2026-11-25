@@ -81,6 +81,65 @@ abstract final class BookActions {
     }
   }
 
+  /// The ⋮ of a book row: play next, add to Up next, mark finished or not,
+  /// and for a server book with a known library, add to a playlist.
+  static Future<void> menu(BuildContext context, WidgetRef ref, BookSummary book, {String? libraryId}) async {
+    final l10n = AppLocalizations.of(context);
+    final finished = book.progress?.isFinished ?? false;
+    final canPlaylist = book.ref.source is AbsSource && libraryId != null;
+    final action = await showModalBottomSheet<_RowAction>(
+      context: context,
+      useRootNavigator: true,
+      useSafeArea: true,
+      builder: (sheet) {
+        Widget tile(IconData icon, String label, _RowAction value) => ListTile(
+          minTileHeight: 56,
+          contentPadding: const EdgeInsets.symmetric(horizontal: Space.xl),
+          leading: Icon(icon),
+          title: Text(label),
+          onTap: () => Navigator.pop(sheet, value),
+        );
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(Space.xl, Space.lg, Space.xl, Space.sm),
+                child: Text(
+                  book.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(sheet).textTheme.titleMedium,
+                ),
+              ),
+              tile(Icons.queue_rounded, l10n.queuePlayNext, _RowAction.playNext),
+              tile(Icons.playlist_play_rounded, l10n.queueAdd, _RowAction.upNext),
+              tile(
+                finished ? Icons.remove_done_rounded : Icons.check_circle_outline_rounded,
+                finished ? l10n.itemMarkUnfinished : l10n.itemMarkFinished,
+                _RowAction.finished,
+              ),
+              if (canPlaylist) tile(Icons.playlist_add_rounded, l10n.itemAddToPlaylist, _RowAction.playlist),
+              const SizedBox(height: Space.sm),
+            ],
+          ),
+        );
+      },
+    );
+    if (action == null || !context.mounted) return;
+    switch (action) {
+      case _RowAction.playNext:
+        await playNext(context, ref, book);
+      case _RowAction.upNext:
+        await addToUpNext(context, ref, book);
+      case _RowAction.finished:
+        await setFinished(context, ref, book, !finished);
+      case _RowAction.playlist:
+        await addToPlaylist(context, ref, book, libraryId!);
+    }
+  }
+
   /// What holding a book in Continue listening offers: a sheet with
   /// "Remove from Continue listening".
   static Future<void> continueListeningMenu(BuildContext context, WidgetRef ref, BookSummary book) async {
@@ -256,6 +315,41 @@ abstract final class BookActions {
 
   static void unawaitedRefresh(Future<void> Function() task) {
     task().catchError((Object _) {});
+  }
+}
+
+enum _RowAction { playNext, upNext, finished, playlist }
+
+/// The end of a book row: a round play button (pause while it plays) and
+/// ⋮ for the rest ([BookActions.menu]).
+class BookRowActions extends ConsumerWidget {
+  const BookRowActions({super.key, required this.book, this.libraryId});
+
+  final BookSummary book;
+
+  /// The server library the book is listed from, for Add to playlist.
+  final String? libraryId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final isCurrent = ref.watch(playerProvider.select((s) => s.now?.ref == book.ref));
+    final playing = ref.watch(playerProvider.select((s) => s.now?.ref == book.ref && s.playing));
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton.outlined(
+          icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded),
+          tooltip: [playing ? l10n.homePause : l10n.itemPlay, book.title].join(', '),
+          onPressed: () => isCurrent ? BookActions.playOrPause(ref, book.ref) : BookActions.play(ref, book.ref),
+        ),
+        IconButton(
+          icon: const Icon(Icons.more_vert_rounded),
+          tooltip: [l10n.itemMoreActions, book.title].join(', '),
+          onPressed: () => BookActions.menu(context, ref, book, libraryId: libraryId),
+        ),
+      ],
+    );
   }
 }
 

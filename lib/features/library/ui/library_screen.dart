@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../../app/providers.dart';
 import '../../../app/router.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../core/library/source_id.dart';
@@ -165,20 +164,12 @@ class _LibraryTabsState extends ConsumerState<_LibraryTabs> with TickerProviderS
       appBar: AppBar(
         title: Text(l10n.tabLibrary),
         actions: [
-          if (tab == LibraryTab.audiobooks) ...[
-            IconButton(
-              icon: Icon(grid ? Icons.view_list_rounded : Icons.grid_view_rounded),
-              tooltip: grid ? l10n.libraryList : l10n.libraryGrid,
-              onPressed: () => ref
-                  .read(globalDbProvider)
-                  .writeSetting('${LibrarySettingKeys.layoutPrefix}$audiobooksLayoutKey', grid ? 'list' : 'grid'),
-            ),
+          if (tab == LibraryTab.audiobooks)
             IconButton(
               icon: const Icon(Icons.library_add_outlined),
               tooltip: l10n.homeAddFiles,
               onPressed: () => context.push(AppRoutes.importFiles),
             ),
-          ],
           const SizedBox(width: Space.xs),
         ],
         bottom: TabBar(

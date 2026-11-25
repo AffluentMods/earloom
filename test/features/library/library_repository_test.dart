@@ -214,6 +214,30 @@ void main() {
       expect(await titles(saga), ["The Clockmaker's Tide", 'A Field Guide to Quiet Places']);
       expect(await head(saga), 'Ash Harbor, Cinder Interlude, Ember Road (4)');
     });
+
+    test('the count is every book the list holds, past any page, after filters and hidden groups', () async {
+      await repository.syncLibrary(testLibraryId);
+      await db.catalogDao.upsertProgress(
+        AbsJson.progress({'libraryItemId': ashHarbor, 'currentTime': 100, 'duration': 1000, 'lastUpdate': 5}),
+      );
+      const theo = (seriesIds: <String>{}, authorNames: {'Theo Vance'});
+      const started = LibraryQuery(filters: [LibraryFilter(FilterKind.progress, ProgressFilterValue.inProgress)]);
+      const none = LibraryQuery(filters: [LibraryFilter(FilterKind.genre, 'No such genre')]);
+      for (final (query, hidden) in [
+        (const LibraryQuery(), null),
+        (const LibraryQuery(), theo),
+        (started, null),
+        (started, theo),
+        (none, null),
+      ]) {
+        final all = await repository.watchBooks(testLibraryId, query, hidden: hidden).first;
+        final page = await repository.watchBooks(testLibraryId, query, hidden: hidden, limit: 1).first;
+        final count = await repository.watchBookCount(testLibraryId, query, hidden: hidden).first;
+        expect(count, all.length, reason: '$query, hidden: $hidden');
+        expect(page.length, lessThanOrEqualTo(1));
+      }
+      expect(await repository.watchBookCount(testLibraryId, const LibraryQuery()).first, greaterThan(2));
+    });
   });
 
   group('item detail', () {

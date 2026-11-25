@@ -216,9 +216,28 @@ void main() {
       expect(find.widgetWithText(FilterChip, l10n.filterNotDownloaded), findsNothing);
       expect(find.widgetWithText(FilterChip, l10n.filterInProgress), findsOneWidget);
 
+      // How many books, then grid or list, and the sort.
+      expect(find.text(l10n.bookCountLabel(2)), findsOneWidget);
       await tester.tap(find.byTooltip(l10n.libraryList));
       await settle(tester);
       expect(tester.getTopLeft(find.text('Book 2')).dy, lessThan(tester.getTopLeft(find.text('Book 10')).dy));
+      expect(find.byTooltip(l10n.libraryGrid), findsOneWidget);
+
+      // A row plays right there; its ⋮ has the rest (no playlists without
+      // a server).
+      await tester.tap(find.byTooltip([l10n.itemPlay, 'Book 2'].join(', ')));
+      await settle(tester);
+      expect(setup.player.calls.single.$1, const ItemRef(LocalSource(), 'b2'));
+      expect(find.byType(ItemDetailScreen), findsNothing);
+      await tester.tap(find.byTooltip([l10n.itemMoreActions, 'Book 10'].join(', ')));
+      await settle(tester);
+      expect(find.text(l10n.queuePlayNext), findsOneWidget);
+      expect(find.text(l10n.queueAdd), findsOneWidget);
+      expect(find.text(l10n.itemMarkFinished), findsOneWidget);
+      expect(find.text(l10n.itemAddToPlaylist), findsNothing);
+      await tester.tapAt(const Offset(20, 20));
+      await settle(tester);
+      expect(find.text(l10n.queuePlayNext), findsNothing);
 
       // Lists: no collections or playlists without a server.
       await tester.tap(find.text(l10n.libraryTabLists));

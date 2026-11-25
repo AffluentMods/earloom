@@ -2139,6 +2139,10 @@
   "@libraryList": {
     "description": "Button that shows books as a list."
   },
+  "libraryLayoutGrid": "Grid",
+  "@libraryLayoutGrid": {"description": "Short button in the Audiobooks tab, next to the book count, that switches to the grid of covers. Its tooltip is libraryGrid."},
+  "libraryLayoutList": "List",
+  "@libraryLayoutList": {"description": "Short button in the Audiobooks tab, next to the book count, that switches to the list of rows. Its tooltip is libraryList."},
   "librarySort": "Sort",
   "@librarySort": {
     "description": "Button and sheet title for sorting books."

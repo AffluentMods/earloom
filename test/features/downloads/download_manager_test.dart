@@ -114,6 +114,29 @@ void main() {
     expect(state.bytesTotal, tracks.fold<int>(0, (s, t) => s + t.size));
   });
 
+  test('many at once: each new one is queued and then fetched; ones already here are left alone', () async {
+    final m = manager();
+    await m.start();
+    await m.enqueueItem(_book);
+    const second = ItemRef(AbsSource('a1'), 'second-book');
+    const third = ItemRef(AbsSource('a1'), 'third-book');
+    final added = await m.enqueueItems([
+      (ref: _book, title: "The Clockmaker's Tide"),
+      (ref: second, title: 'Second'),
+      (ref: third, title: 'Third'),
+      (ref: const ItemRef(LocalSource(), 'on-this-phone'), title: 'Local'),
+    ]);
+    expect(added, 2);
+    final states = await m.states.first;
+    expect(states.keys, containsAll([second.key, third.key]));
+    expect(states.keys, isNot(contains(const ItemRef(LocalSource(), 'on-this-phone').key)));
+
+    await drain(m);
+    expect(await db.snapshot(second.key), isNotNull);
+    expect(await db.snapshot(third.key), isNotNull);
+    expect(transport.jobs, hasLength(24), reason: 'eight files each, the first book not twice');
+  });
+
   test('completes when every file has the size the server reported', () async {
     final m = manager();
     await m.start();

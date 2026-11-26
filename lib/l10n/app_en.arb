@@ -1438,17 +1438,30 @@
   },
   "downloadAllInSeries": "Download all",
   "@downloadAllInSeries": {
-    "description": "Series screen action."
+    "description": "Button on a series, an author, a collection or a playlist: downloads every book of it not on this phone yet (asks first)."
   },
-  "downloadNextInSeries": "Download next {count}",
-  "@downloadNextInSeries": {
-    "description": "Series screen action.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
+  "downloadAllRunning": "Downloading",
+  "@downloadAllRunning": {"description": "The Download all button while every book of it is downloaded or still downloading."},
+  "downloadAllDone": "All downloaded",
+  "@downloadAllDone": {"description": "The Download all button once every book of it is on this phone."},
+  "downloadManyTitle": "{count, plural, =1{Download 1 book?} other{Download {count} books?}}",
+  "@downloadManyTitle": {"description": "Title of the question before Download all or downloading the selected books. Counts only the books not on this phone yet.", "placeholders": {"count": {"type": "int"}}},
+  "downloadManyBody": "{size} in all. They download two at a time and show under Listen while they do.",
+  "@downloadManyBody": {"description": "Body of downloadManyTitle. size is formatted, like 18.4 GB.", "placeholders": {"size": {"type": "String"}}},
+  "downloadManyBodyNoSize": "They download two at a time and show under Listen while they do.",
+  "@downloadManyBodyNoSize": {"description": "Body of downloadManyTitle when the size is not known."},
+  "downloadManyLowSpace": "This phone has {free} free, so some may not fit.",
+  "@downloadManyLowSpace": {"description": "Warning in the downloadManyTitle question when the books are larger than the free space. free is formatted, like 12.1 GB.", "placeholders": {"free": {"type": "String"}}},
+  "downloadManyAdded": "{count, plural, =1{1 book added to downloads} other{{count} books added to downloads}}",
+  "@downloadManyAdded": {"description": "Message after Download all or downloading the selected books.", "placeholders": {"count": {"type": "int"}}},
+  "downloadManyNothing": "These are already downloaded or on their way.",
+  "@downloadManyNothing": {"description": "Message when Download all or Download finds nothing left to download."},
+  "librarySelect": "Select",
+  "@librarySelect": {"description": "Button in the Audiobooks tab, next to the sort: pick several books to download them together."},
+  "librarySelectedCount": "{count, plural, =0{Tap books to pick them} =1{1 selected} other{{count} selected}}",
+  "@librarySelectedCount": {"description": "In the bar at the bottom of Audiobooks while picking books.", "placeholders": {"count": {"type": "int"}}},
+  "librarySelectStop": "Stop selecting",
+  "@librarySelectStop": {"description": "Close button of the bar at the bottom of Audiobooks while picking books."},
   "downloadFileIncomplete": "A file did not download completely.",
   "@downloadFileIncomplete": {
     "description": "Download error."

@@ -133,6 +133,13 @@ abstract interface class DownloadManager {
   /// [title] shows in the list until the item details arrive.
   Future<void> enqueueItem(ItemRef ref, {DownloadReason reason = DownloadReason.user, String? title});
 
+  /// Downloads many items (Download all, a selection). Every new one is
+  /// saved as queued before any is fetched, so all of them show at once and
+  /// survive a restart; their details are then fetched one by one in the
+  /// background. Items already on the phone or on their way are left as
+  /// they are; failed ones start again. Returns how many were added.
+  Future<int> enqueueItems(List<({ItemRef ref, String title})> items, {DownloadReason reason = DownloadReason.user});
+
   /// Downloads the books of a series in order, skipping ones already on the
   /// phone. [after] starts after that book; [limit] caps how many are added.
   /// Returns how many were added.

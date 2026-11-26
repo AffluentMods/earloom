@@ -13,6 +13,7 @@ import '../../../core/ui/html_text.dart';
 import '../../../core/ui/states.dart';
 import '../../../core/util/duration_format.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../downloads/ui/bulk_download.dart';
 import '../data/library_providers.dart';
 import 'book_actions.dart';
 import 'widgets/book_cards.dart';
@@ -113,7 +114,16 @@ class _BookListScreenState extends ConsumerState<BookListScreen> with Refreshing
               label: Text(l10n.playlistPlayAll),
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
             ),
-      below: value.description == null ? null : DescriptionText(html: value.description!, maxLines: 3),
+      below: books.isEmpty && value.description == null
+          ? null
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (books.isNotEmpty) DownloadAllButton(books: books),
+                if (books.isNotEmpty && value.description != null) const SizedBox(height: Space.md),
+                if (value.description != null) DescriptionText(html: value.description!, maxLines: 3),
+              ],
+            ),
       slivers: [
         if (books.isEmpty)
           SliverToBoxAdapter(

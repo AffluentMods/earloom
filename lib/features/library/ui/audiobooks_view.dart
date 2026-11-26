@@ -10,11 +10,13 @@ import '../../../app/providers.dart';
 import '../../../app/router.dart';
 import '../../../app/theme/tokens.dart';
 import '../../../core/library/browse_models.dart';
+import '../../../core/library/models.dart';
 import '../../../core/library/source_id.dart';
 import '../../../core/ui/adaptive.dart';
 import '../../../core/ui/states.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../downloads/data/offline_providers.dart';
+import '../../downloads/ui/bulk_download.dart';
 import '../data/book_groups.dart';
 import '../data/library_providers.dart';
 import 'book_actions.dart';
@@ -43,6 +45,26 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
   bool _syncing = false;
   LibraryQuery _query = const LibraryQuery();
   final _scroll = ScrollController();
+
+  /// The books picked with Select, in the order picked; null when not
+  /// picking.
+  Map<ItemRef, BookSummary>? _picked;
+
+  void _startPicking() => setState(() => _picked = {});
+
+  void _stopPicking() => setState(() => _picked = null);
+
+  void _toggle(BookSummary book) => setState(() {
+    final picked = _picked;
+    if (picked == null) return;
+    if (picked.remove(book.ref) == null) picked[book.ref] = book;
+  });
+
+  Future<void> _downloadPicked() async {
+    final picked = _picked;
+    if (picked == null || picked.isEmpty) return;
+    if (await downloadBooks(context, ref, [...picked.values]) && mounted) _stopPicking();
+  }
 
   @override
   bool get wantKeepAlive => true;
@@ -122,6 +144,12 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
     // On wide screens the chosen book is open beside the list: mark it.
     final open = MediaQuery.sizeOf(context).width >= Breakpoints.expanded ? ref.watch(libraryPaneProvider) : null;
     final filtered = _query.filters.isNotEmpty;
+    // Picking books to download: server books not on the phone yet.
+    final picked = _picked;
+    final onPhone = picked == null ? const <String>{} : ref.watch(downloadedBookIdsProvider).ids;
+    bool pickable(BookSummary b) => b.ref.source is AbsSource && !onPhone.contains(b.ref.itemId);
+    // While picking, what cannot be picked steps back and does nothing.
+    Widget faded(Widget child) => picked == null ? child : IgnorePointer(child: Opacity(opacity: 0.4, child: child));
     Widget body;
     if (list == null || (list.isEmpty && _syncing && !filtered)) {
       body = const SliverGridSkeleton();
@@ -164,18 +192,20 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
           itemCount: list.length,
           itemBuilder: (context, i) => LayoutBuilder(
             builder: (context, c) => switch (list[i]) {
+              BookEntry(:final book) when picked != null && !pickable(book) => faded(
+                BookGridCard(book: book, width: c.maxWidth, place: 'library', markPhoneBook: library != null),
+              ),
               BookEntry(:final book) => BookGridCard(
                 book: book,
                 width: c.maxWidth,
                 place: 'library',
                 selected: book.ref == open,
                 markPhoneBook: library != null,
+                onTap: picked == null ? null : () => _toggle(book),
+                checked: picked?.containsKey(book.ref),
               ),
-              GroupEntry(:final group, :final books, :final count) => BookGroupCard(
-                group: group,
-                books: books,
-                count: count,
-                width: c.maxWidth,
+              GroupEntry(:final group, :final books, :final count) => faded(
+                BookGroupCard(group: group, books: books, count: count, width: c.maxWidth),
               ),
             },
           ),
@@ -185,6 +215,16 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
       body = SliverList.builder(
         itemCount: list.length,
         itemBuilder: (context, i) => switch (list[i]) {
+          BookEntry(:final book) when picked != null && !pickable(book) => faded(
+            BookListRow(book: book, place: 'library', markPhoneBook: library != null),
+          ),
+          BookEntry(:final book) when picked != null => BookListRow(
+            book: book,
+            place: 'library',
+            markPhoneBook: library != null,
+            onTap: () => _toggle(book),
+            trailing: Checkbox(value: picked.containsKey(book.ref), onChanged: (_) => _toggle(book)),
+          ),
           BookEntry(:final book) => BookListRow(
             book: book,
             place: 'library',
@@ -192,15 +232,13 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
             markPhoneBook: library != null,
             trailing: BookRowActions(book: book, libraryId: library?.id),
           ),
-          GroupEntry(:final group, :final books, :final count) => BookGroupRow(
-            group: group,
-            books: books,
-            count: count,
+          GroupEntry(:final group, :final books, :final count) => faded(
+            BookGroupRow(group: group, books: books, count: count),
           ),
         },
       );
     }
-    return RefreshIndicator(
+    final scroll = RefreshIndicator(
       onRefresh: () => _sync(force: true),
       child: CustomScrollView(
         controller: _scroll,
@@ -234,6 +272,8 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
               query: _query,
               local: library == null,
               onChanged: _setQuery,
+              // Only server books can be downloaded.
+              onSelect: library == null || offline || picked != null ? null : _startPicking,
             ),
           ),
           body,
@@ -260,6 +300,58 @@ class _AudiobooksViewState extends ConsumerState<AudiobooksView> with Refreshing
               ),
             ),
         ],
+      ),
+    );
+    if (picked == null) return scroll;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _stopPicking();
+      },
+      child: Column(
+        children: [
+          Expanded(child: scroll),
+          _PickBar(count: picked.length, onClose: _stopPicking, onDownload: picked.isEmpty ? null : _downloadPicked),
+        ],
+      ),
+    );
+  }
+}
+
+/// At the bottom of Audiobooks while picking books: how many, and
+/// Download.
+class _PickBar extends StatelessWidget {
+  const _PickBar({required this.count, required this.onClose, required this.onDownload});
+
+  final int count;
+  final VoidCallback onClose;
+  final VoidCallback? onDownload;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.surfaceContainer,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(context.gutter - Space.sm, Space.sm, context.gutter, Space.sm),
+        child: Row(
+          children: [
+            IconButton(icon: const Icon(Icons.close_rounded), tooltip: l10n.librarySelectStop, onPressed: onClose),
+            const SizedBox(width: Space.xs),
+            Expanded(
+              child: Semantics(
+                liveRegion: true,
+                child: Text(l10n.librarySelectedCount(count), style: theme.textTheme.titleMedium),
+              ),
+            ),
+            FilledButton.icon(
+              onPressed: onDownload,
+              icon: const Icon(Icons.download_rounded),
+              label: Text(l10n.downloadAction),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -371,6 +463,7 @@ class _CountLayoutSort extends ConsumerWidget {
     required this.query,
     required this.local,
     required this.onChanged,
+    this.onSelect,
   });
 
   /// Null while counting.
@@ -379,6 +472,9 @@ class _CountLayoutSort extends ConsumerWidget {
   final LibraryQuery query;
   final bool local;
   final ValueChanged<LibraryQuery> onChanged;
+
+  /// Starts picking books to download; null hides Select.
+  final VoidCallback? onSelect;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -412,21 +508,27 @@ class _CountLayoutSort extends ConsumerWidget {
               ),
             ],
           ),
-          Tooltip(
-            message: l10n.librarySort,
-            child: Semantics(
-              label: l10n.librarySortedBy(sort, direction),
-              button: true,
-              excludeSemantics: true,
-              child: TextButton.icon(
-                icon: Icon(query.descending ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded),
-                label: Text(sort),
-                onPressed: () async {
-                  final next = await showSortSheet(context, query, local: local);
-                  if (next != null) onChanged(next);
-                },
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Tooltip(
+                message: l10n.librarySort,
+                child: Semantics(
+                  label: l10n.librarySortedBy(sort, direction),
+                  button: true,
+                  excludeSemantics: true,
+                  child: TextButton.icon(
+                    icon: Icon(query.descending ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded),
+                    label: Text(sort),
+                    onPressed: () async {
+                      final next = await showSortSheet(context, query, local: local);
+                      if (next != null) onChanged(next);
+                    },
+                  ),
+                ),
               ),
-            ),
+              if (onSelect != null) TextButton(onPressed: onSelect, child: Text(l10n.librarySelect)),
+            ],
           ),
         ],
       ),

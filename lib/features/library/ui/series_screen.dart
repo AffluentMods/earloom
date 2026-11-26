@@ -12,6 +12,7 @@ import '../../../core/ui/html_text.dart';
 import '../../../core/ui/states.dart';
 import '../../../core/util/duration_format.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../downloads/ui/bulk_download.dart';
 import '../data/library_providers.dart';
 import 'book_actions.dart';
 import 'widgets/book_cards.dart';
@@ -86,6 +87,7 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> with RefreshingStat
             name: value.name,
           )
         : null;
+    final canDownload = widget.source is AbsSource && books.isNotEmpty;
     final (label, target, startAt) = next == null
         ? (l10n.seriesListenAgain, books.isEmpty ? null : books.first, Duration.zero)
         : (started ? l10n.seriesContinue : l10n.seriesStart, next, null);
@@ -104,11 +106,12 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> with RefreshingStat
               label: Text(label),
               style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
             ),
-      below: value.description == null && group == null
+      below: value.description == null && group == null && !canDownload
           ? null
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (canDownload) ...[DownloadAllButton(books: books), const SizedBox(height: Space.sm)],
                 if (group != null) GroupPlaceTile(group: group),
                 if (value.description != null) DescriptionText(html: value.description!, maxLines: 4),
               ],

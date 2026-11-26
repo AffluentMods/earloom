@@ -170,6 +170,22 @@ class FakeDownloadManager implements DownloadManager {
   }
 
   @override
+  Future<int> enqueueItems(
+    List<({ItemRef ref, String title})> items, {
+    DownloadReason reason = DownloadReason.user,
+  }) async {
+    var added = 0;
+    for (final (:ref, :title) in items) {
+      if (_states.containsKey(ref.key)) continue;
+      calls.add('enqueue ${ref.key}');
+      _states[ref.key] = DownloadState(ref: ref, phase: DownloadPhase.queued, title: title);
+      added++;
+    }
+    _controller.add(Map.of(_states));
+    return added;
+  }
+
+  @override
   Future<int> enqueueSeries(
     SourceId source, {
     required String libraryId,

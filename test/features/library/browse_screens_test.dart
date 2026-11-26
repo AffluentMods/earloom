@@ -650,6 +650,73 @@ void main() {
       expect(find.text(l10n.groupCardEpisodes(4)), findsOneWidget);
     });
 
+    serverTest('Download all on an author asks with the count and queues what is not on the phone', (tester) async {
+      const ash = ItemRef(testSource, ashHarbor);
+      final downloads = FakeDownloadManager({
+        ash.key: const DownloadState(ref: ash, phase: DownloadPhase.complete, title: 'Ash Harbor'),
+      });
+      await pumpServer(tester, extra: [downloadManagerProvider.overrideWithValue(downloads)]);
+      await openTheoVance(tester);
+      final button = find.text(l10n.downloadAllInSeries);
+      await tester.scrollUntilVisible(button, 100, scrollable: mainScroll(AuthorScreen));
+      await tester.tap(button);
+      await settle(tester);
+      // Four books by Theo Vance, one already on this phone.
+      expect(find.text(l10n.downloadManyTitle(3)), findsOneWidget);
+      await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.text(l10n.downloadAction)));
+      await settle(tester);
+      final queued = [
+        for (final c in downloads.calls)
+          if (c.startsWith('enqueue')) c,
+      ];
+      expect(queued, hasLength(3));
+      expect(queued, isNot(contains('enqueue ${ash.key}')));
+      expect(find.text(l10n.downloadManyAdded(3)), findsOneWidget);
+      expect(find.text(l10n.downloadAllRunning), findsOneWidget);
+    });
+
+    serverTest('Select in Audiobooks picks books not on the phone and downloads them together', (tester) async {
+      const ash = ItemRef(testSource, ashHarbor);
+      final downloads = FakeDownloadManager({
+        ash.key: const DownloadState(ref: ash, phase: DownloadPhase.complete, title: 'Ash Harbor'),
+      });
+      await pumpServer(tester, extra: [downloadManagerProvider.overrideWithValue(downloads)]);
+      await tester.tap(find.text(l10n.tabLibrary));
+      await settle(tester, rounds: 8);
+      await tester.tap(find.text(l10n.libraryTabAudiobooks));
+      await settle(tester, rounds: 8);
+
+      await tester.tap(find.text(l10n.librarySelect));
+      await settle(tester);
+      expect(find.text(l10n.librarySelectedCount(0)), findsOneWidget);
+      for (final title in ['Cinder Interlude', 'A Field Guide to Quiet Places']) {
+        await tester.ensureVisible(find.text(title));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(title));
+        await settle(tester);
+      }
+      expect(find.text(l10n.librarySelectedCount(2)), findsOneWidget);
+      // Already on this phone: it cannot be picked.
+      await tester.ensureVisible(find.text('Ash Harbor'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Ash Harbor'), warnIfMissed: false);
+      await settle(tester);
+      expect(find.text(l10n.librarySelectedCount(2)), findsOneWidget);
+
+      await tester.tap(find.text(l10n.downloadAction));
+      await settle(tester);
+      expect(find.text(l10n.downloadManyTitle(2)), findsOneWidget);
+      await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.text(l10n.downloadAction)));
+      await settle(tester);
+      expect([
+        for (final c in downloads.calls)
+          if (c.startsWith('enqueue')) c,
+      ], hasLength(2));
+      // Done picking.
+      expect(find.text(l10n.librarySelectedCount(2)), findsNothing);
+      expect(find.text(l10n.librarySelect), findsOneWidget);
+    });
+
     serverTest('Search: a newer query wins over a slower older one', (tester) async {
       final gate = Completer<void>();
       final setup = await pumpServer(tester);

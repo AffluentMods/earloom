@@ -10,6 +10,7 @@ import '../../../core/library/source_id.dart';
 import '../../../core/ui/html_text.dart';
 import '../../../core/ui/states.dart';
 import '../../../l10n/gen/app_localizations.dart';
+import '../../downloads/ui/bulk_download.dart';
 import '../data/library_providers.dart';
 import 'browse_nav.dart';
 import 'widgets/book_cards.dart';
@@ -73,6 +74,7 @@ class _AuthorScreenState extends ConsumerState<AuthorScreen> with RefreshingStat
             name: value.name,
           )
         : null;
+    final canDownload = widget.source is AbsSource && all.isNotEmpty;
     return CollectionScaffold(
       title: value.name,
       subtitle: all.isEmpty ? null : l10n.bookCountLabel(all.length),
@@ -80,11 +82,12 @@ class _AuthorScreenState extends ConsumerState<AuthorScreen> with RefreshingStat
       artwork: AuthorAvatar(author: value, size: 148, semanticLabel: l10n.authorPhotoLabel(value.name)),
       refreshError: refreshError,
       onRefresh: () => _refresh(force: true),
-      below: value.description == null && group == null
+      below: value.description == null && group == null && !canDownload
           ? null
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (canDownload) ...[DownloadAllButton(books: all), const SizedBox(height: Space.sm)],
                 if (group != null) GroupPlaceTile(group: group),
                 if (value.description != null) DescriptionText(html: value.description!, maxLines: 4),
               ],

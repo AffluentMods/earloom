@@ -38,10 +38,19 @@ class BookGridCard extends ConsumerWidget {
     this.markPhoneBook = false,
     this.onLongPress,
     this.longPressHint,
+    this.onTap,
+    this.checked,
   });
 
   final BookSummary book;
   final double width;
+
+  /// Replaces opening the book (picking books with Select).
+  final VoidCallback? onTap;
+
+  /// While picking books: whether this one is picked. Null when not
+  /// picking, or when this book cannot be picked.
+  final bool? checked;
 
   /// What holding the card does, and what a screen reader says it does.
   final VoidCallback? onLongPress;
@@ -68,34 +77,46 @@ class BookGridCard extends ConsumerWidget {
     final secondLine = subtitle ?? (book.authors.isEmpty ? null : book.authorLine);
     final cover = BookCover(book: book, size: width, heroTag: tag, markPhoneBook: markPhoneBook);
     final onPhone = markPhoneBook && book.ref.source is LocalSource;
+    final ringed = selected || (checked ?? false);
     return SizedBox(
       width: width,
       child: Semantics(
         button: true,
         selected: selected,
+        checked: checked,
         label: onPhone ? '${bookSemantics(l10n, book)}, ${l10n.sourceOnThisDevice}' : bookSemantics(l10n, book),
         excludeSemantics: true,
         onLongPress: onLongPress,
         onLongPressHint: longPressHint,
         child: InkWell(
-          onTap: () => BrowseNav.open(context, book, heroTag: tag),
+          onTap: onTap ?? () => BrowseNav.open(context, book, heroTag: tag),
           onLongPress: onLongPress,
           borderRadius: BorderRadius.circular(coverRadius(width)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (selected)
-                DecoratedBox(
-                  position: DecorationPosition.foreground,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: scheme.primary, width: 3),
-                    borderRadius: BorderRadius.circular(coverRadius(width)),
-                  ),
-                  child: cover,
-                )
-              else
-                cover,
+              Stack(
+                children: [
+                  if (ringed)
+                    DecoratedBox(
+                      position: DecorationPosition.foreground,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: scheme.primary, width: 3),
+                        borderRadius: BorderRadius.circular(coverRadius(width)),
+                      ),
+                      child: cover,
+                    )
+                  else
+                    cover,
+                  if (checked != null)
+                    Positioned(
+                      top: Space.sm,
+                      left: Space.sm,
+                      child: PickMark(picked: checked!),
+                    ),
+                ],
+              ),
               const SizedBox(height: Space.sm),
               // Flexible: with large text the lines give way, never the
               // cover.
@@ -124,6 +145,30 @@ class BookGridCard extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The round mark on a cover while picking books: filled with a check when
+/// picked, an empty ring when not.
+class PickMark extends StatelessWidget {
+  const PickMark({super.key, required this.picked});
+
+  final bool picked;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: picked ? scheme.primary : scheme.surface.withValues(alpha: 0.85),
+        border: Border.all(color: picked ? scheme.primary : scheme.outline, width: 2),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(2),
+        child: Icon(Icons.check_rounded, size: 20, color: picked ? scheme.onPrimary : Colors.transparent),
       ),
     );
   }

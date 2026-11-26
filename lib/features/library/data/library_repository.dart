@@ -184,6 +184,9 @@ class AbsLibraryRepository {
       .watchBooks(libraryId, query, limit: limit, downloadedIds: downloadedIds, hidden: hidden)
       .map((rows) => [for (final r in rows) AbsJson.summary(source, r.item, r.progress)]);
 
+  /// The cached sizes of [itemIds] added up, in bytes (0 when unknown).
+  Future<int> sizeOfItems(Iterable<String> itemIds) => _dao.sizeOfItems(itemIds);
+
   /// How many books [watchBooks] would list without a limit.
   Stream<int> watchBookCount(
     String libraryId,

@@ -215,6 +215,44 @@ class AbsDownloadManager implements DownloadManager {
     await _locked(() => _prepare(ref));
   }
 
+  @override
+  Future<int> enqueueItems(
+    List<({ItemRef ref, String title})> items, {
+    DownloadReason reason = DownloadReason.user,
+  }) async {
+    unawaited(_transport.askNotificationPermission());
+    final added = <ItemRef>[];
+    for (final (:ref, :title) in items) {
+      final source = ref.source;
+      if (source is! AbsSource) continue;
+      final existing = await _db.download(ref.key);
+      if (existing != null) {
+        if (existing.status == DownloadStatus.failed) unawaited(resume(ref.key));
+        continue;
+      }
+      await _db.putDownload(
+        DownloadsCompanion.insert(
+          key: ref.key,
+          accountId: source.accountId,
+          itemId: ref.itemId,
+          episodeId: Value(ref.episodeId),
+          title: title,
+          status: DownloadStatus.queued,
+          createdAt: _now,
+          autoReason: Value(reason == DownloadReason.user ? null : reason.name),
+          wifiOnly: Value(_wifiOnly),
+        ),
+      );
+      added.add(ref);
+    }
+    // One at a time behind the lock, like single downloads. A restart
+    // before the end is picked up by [start] (rows without files).
+    for (final ref in added) {
+      unawaited(_locked(() => _prepare(ref)));
+    }
+    return added.length;
+  }
+
   /// Fetches the item, saves the snapshot and cover, creates the file rows
   /// and queues the files.
   Future<void> _prepare(ItemRef ref) async {

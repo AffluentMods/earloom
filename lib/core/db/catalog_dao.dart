@@ -151,6 +151,25 @@ class CatalogDao extends DatabaseAccessor<AccountDb> with _$CatalogDaoMixin {
     return statement.watch().map((rows) => [for (final r in rows) _read(r)]);
   }
 
+  /// The cached sizes of [itemIds] added up, in bytes. Items the cache does
+  /// not know add nothing.
+  Future<int> sizeOfItems(Iterable<String> itemIds) async {
+    final ids = itemIds.toSet().toList();
+    final sum = items.sizeBytes.sum();
+    var total = 0;
+    // SQLite caps the number of values in one query.
+    for (var i = 0; i < ids.length; i += 500) {
+      final chunk = ids.sublist(i, i + 500 < ids.length ? i + 500 : ids.length);
+      final row =
+          await (selectOnly(items)
+                ..addColumns([sum])
+                ..where(items.id.isIn(chunk)))
+              .getSingle();
+      total += row.read(sum) ?? 0;
+    }
+    return total;
+  }
+
   /// How many books [watchBooks] would list without a limit.
   Stream<int> watchBookCount(
     String libraryId,
